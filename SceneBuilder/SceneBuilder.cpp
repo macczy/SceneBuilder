@@ -13,8 +13,7 @@ int main(int argc, char* argv[])
         infile.open(filename);
         Scanner scanner(infile);
         while (scanner.getToken().getType() != Token::TokenType::END_OF_FILE) {
-            //if(scanner.getToken().getType() == Token::TokenType::HEX_CONST)
-                std::cout << scanner.getToken().getValue() << '\n';
+            std::cout << scanner.getToken().getValue() << '\n';
             try {
                 scanner.next();
             }
@@ -22,6 +21,7 @@ int main(int argc, char* argv[])
                 std::cout << error.what() << '\n';
             }
         }
+        std::cout << std::endl;
         infile.close();
     }
 }

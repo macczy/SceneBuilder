@@ -24,20 +24,20 @@ customAnimation = AnimationSequence(first, second) {
 			loops: Animation.SingleLoop 
 			
 			Wait {
-				time: "10s"
+				time: 10s
 			}
 			ParalelAnimation {
 				Animation {
 					object: first
 					type: Animation.Rotation
 					axis: Animation.XAxis
-					duration: "5s"
+					duration: 5s
 				}
 				Animation {
 				object: second
 					type: Animation.Movement
 					vector: [0.1, 0.2, 0.1]
-					duration: "5s"
+					duration: 5s
 				}
 			}
 			
@@ -59,7 +59,7 @@ Scene {
 		z: 0.5
 		width: 10
 		height: 10
-		color: Color(xCC, xCC, xCC)
+		color: Color(#CC, #CC, #CC)
 	}
 	
 	my_house = House {

@@ -25,7 +25,13 @@ public:
 		DOT,
 		COMMA,
 		COLON,
-		QUOTATION_MARK
+		EQUAL_SIGN
+	};
+
+	struct Position {
+		unsigned long lineNumber;
+		unsigned long columnNumber;
+		unsigned long totalPositionNumber;
 	};
 
 	static std::map<TokenType, std::string> TokenTypeToStringMap;
@@ -37,16 +43,12 @@ public:
 		return value; 
 	}
 
-	unsigned long getLine() {
-		return line;
-	}
-
-	unsigned long getPosition() {
+	Position getPosition() {
 		return position;
 	}
 
-	Token() : type(TokenType::UNKNOWN), line(0), position(0) {}
-	Token(TokenType type, std::string value, unsigned long line, unsigned long position) : type(type), value(value), line(line), position(position) {}
+	Token() : type(TokenType::UNKNOWN), position(Position{ 0, 0, 0 }) {}
+	Token(TokenType type, std::string value, Position position) : type(type), value(value), position(position) {}
 
 	friend std::ostream& operator<< (std::ostream& stream, const Token& token);
 	friend std::ostream& operator<< (std::ostream& stream, const TokenType& tokenType);
@@ -54,8 +56,7 @@ public:
 private:
 	std::string value;
 	TokenType type;
-	unsigned long line;
-	unsigned long position;
-
+	Position position;
 };
+
 

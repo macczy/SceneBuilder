@@ -20,12 +20,11 @@ std::map<Token::TokenType, std::string> Token::TokenTypeToStringMap {
 		{ TokenType::DOT, "DOT"},
 		{ TokenType::COMMA, "COMMA"},
 		{ TokenType::COLON, "COLON"},
-		{ TokenType::QUOTATION_MARK, "QUOTATION_MARK"}
-
+		{ TokenType::EQUAL_SIGN, "EQUAL_SIGN"}
 };
 
 std::ostream& operator<< (std::ostream& stream, const Token& token) {
-	stream << token.value << " at line " << token.line << ", at position: " << token.position;
+	stream << "Token " << token.type;
 	return stream;
 }
 
