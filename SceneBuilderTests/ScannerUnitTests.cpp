@@ -140,10 +140,7 @@ TEST(ScannerUnitTest, IncorrectHexTokenThrow) {
 }
 
 TEST(ScannerUnitTest, TooLongHexValueThrow) {
-	std::string buffer = "#A";
-	for (int i = 0; i < Scanner::MAX_HEX_VALUE_LENGTH-1; ++i) {
-		buffer += 'A';
-	}
+	std::string buffer = "#" + std::string(Scanner::MAX_HEX_VALUE_LENGTH, 'A');
 	EXPECT_EQ(buffer.size(), Scanner::MAX_HEX_VALUE_LENGTH + 1);
 	std::istrstream stream(buffer.c_str());
 	try {
@@ -162,10 +159,7 @@ TEST(ScannerUnitTest, TooLongHexValueThrow) {
 
 
 TEST(ScannerUnitTest, TooLongDecimalValueThrow) {
-	std::string buffer = "1";
-	for (int i = 0; i < Scanner::MAX_DECIMAL_VALUE_LENGTH; ++i) {
-		buffer += '1';
-	}
+	std::string buffer(Scanner::MAX_DECIMAL_VALUE_LENGTH + 1, '1');
 	EXPECT_EQ(buffer.size(), Scanner::MAX_DECIMAL_VALUE_LENGTH + 1);
 	std::istrstream stream(buffer.c_str());
 	try {
@@ -198,10 +192,7 @@ TEST(ScannerUnitTest, TooLongDecimalValueThrow) {
 }
 
 TEST(ScannerUnitTest, TooLongVariableNameThrow) {
-	std::string buffer = "a";
-	for (int i = 0; i < Scanner::MAX_NAME_LENGTH; ++i) {
-		buffer += 'a';
-	}
+	std::string buffer(Scanner::MAX_NAME_LENGTH+1, 'a');
 	EXPECT_EQ(buffer.size(), Scanner::MAX_NAME_LENGTH + 1);
 	std::istrstream stream(buffer.c_str());
 	try {
@@ -219,10 +210,7 @@ TEST(ScannerUnitTest, TooLongVariableNameThrow) {
 
 
 TEST(ScannerUnitTest, TooLongTypeNameThrow) {
-	std::string buffer = "A";
-	for (int i = 0; i < Scanner::MAX_NAME_LENGTH; ++i) {
-		buffer += 'a';
-	}
+	std::string buffer = "A" + std::string(Scanner::MAX_NAME_LENGTH, 'a');
 	EXPECT_EQ(buffer.size(), Scanner::MAX_NAME_LENGTH + 1);
 	std::istrstream stream(buffer.c_str());
 	try {
@@ -240,10 +228,7 @@ TEST(ScannerUnitTest, TooLongTypeNameThrow) {
 
 
 TEST(ScannerUnitTest, TooLongSpaceThrow) {
-	std::string buffer = " ";
-	for (int i = 0; i < Scanner::MAX_EMPTY_SPACE_LENGTH; ++i) {
-		buffer += ' ';
-	}
+	std::string buffer(Scanner::MAX_EMPTY_SPACE_LENGTH+1, ' ');
 	EXPECT_EQ(buffer.size(), Scanner::MAX_EMPTY_SPACE_LENGTH + 1);
 	std::istrstream stream(buffer.c_str());
 	try {
