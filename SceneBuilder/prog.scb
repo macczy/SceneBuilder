@@ -16,7 +16,7 @@ House = {
 		vertex: Point(0.1, 0.2, 0.3)
 		width: 10
 		height: 10
-		color: Color(xCC, xC34324C12, xCC)
+		color: Color(#CC, #C34324C12, #CC)
 	}
 }
 
@@ -36,7 +36,7 @@ customAnimation = AnimationSequence(first, second) {
 				Animation {
 				object: second
 					type: Animation.Movement
-					vector: [0.1, 0.2, 0.1]
+					vector: [0., 0.2, 0.1]
 					duration: 5s
 				}
 			}
@@ -73,5 +73,6 @@ Scene {
 Circle {
 	radius: 10
 	vertex: Point(0.1, 0.2, 0.3)
-	color: Color(xDD, xDD, xDD)
-}
+	color: Color(#DD, #DD, #DD)
+} fwef fgew
+#o

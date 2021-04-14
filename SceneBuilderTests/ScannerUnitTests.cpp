@@ -1,7 +1,7 @@
 #include "pch.h"
 #include <strstream>
 #include <istream>
-
+#include "../SceneBuilder/SyntaxError.h"
 #include "../SceneBuilder/Scanner.cpp"
 
 TEST(ScannerUnitTest, EmptySourceTest) {
@@ -123,6 +123,20 @@ TEST(ScannerUnitTest, CreateHexConstToken) {
 	}
 }
 
+TEST(ScannerUnitTest, IncorrectDecimalTokenThrow) {
+	std::istrstream stream("1.dw");
+	try {
+		Scanner scanner(stream);
+		FAIL() << "Expected runtime_error";
+	}
+	catch (SyntaxError const& err) {
+		std::string error_message = "Expected number but got 'd' " + getPositionInSourceString(Token::Position{ 0, 1, 0 });
+		EXPECT_EQ(err.what(), error_message);
+	}
+	catch (...) {
+		FAIL() << "Expected SyntaxError";
+	}
+}
 
 TEST(ScannerUnitTest, IncorrectHexTokenThrow) {
 	std::istrstream stream("#zzasd");
@@ -130,12 +144,12 @@ TEST(ScannerUnitTest, IncorrectHexTokenThrow) {
 		Scanner scanner(stream);
 		FAIL() << "Expected runtime_error";
 	}
-	catch (std::runtime_error const& err) {
+	catch (SyntaxError const& err) {
 		std::string error_message = "Expected hexadecimal const value, but got 'z' " + getPositionInSourceString(Token::Position{ 0, 1, 0 });
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {
-		FAIL() << "Expected std::runtime_error";
+		FAIL() << "Expected SyntaxError";
 	}
 }
 
@@ -147,13 +161,13 @@ TEST(ScannerUnitTest, TooLongHexValueThrow) {
 		Scanner scanner(stream);
 		FAIL() << "Expected runtime_error";
 	}
-	catch (std::runtime_error const& err) {
+	catch (SyntaxError const& err) {
 		std::string error_message = "Hexadecimal value exceeded maximum length " + getPositionInSourceString(Token::Position{ 0, 1, 0 });
 		EXPECT_EQ(err.what(), error_message);
 		EXPECT_EQ(buffer.size(), Scanner::MAX_HEX_VALUE_LENGTH + 1);
 	}
 	catch (...) {
-		FAIL() << "Expected std::runtime_error";
+		FAIL() << "Expected SyntaxError";
 	}
 }
 
@@ -166,12 +180,12 @@ TEST(ScannerUnitTest, TooLongDecimalValueThrow) {
 		Scanner scanner(stream);
 		FAIL() << "Expected runtime_error";
 	}
-	catch (std::runtime_error const& err) {
+	catch (SyntaxError const& err) {
 		std::string error_message = "Decimal value exceeded maximum length " + getPositionInSourceString(Token::Position{ 0, 1, 0 });
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {
-		FAIL() << "Expected std::runtime_error";
+		FAIL() << "Expected SyntaxError";
 	}
 
 	//same but with a dot
@@ -181,13 +195,13 @@ TEST(ScannerUnitTest, TooLongDecimalValueThrow) {
 		Scanner scanner(stream2);
 		FAIL() << "Expected runtime_error";
 	}
-	catch (std::runtime_error const& err) {
+	catch (SyntaxError const& err) {
 		std::string error_message = "Decimal value exceeded maximum length " + getPositionInSourceString(Token::Position{ 0, 1, 0 });
 		EXPECT_EQ(err.what(), error_message);
 		EXPECT_EQ(buffer.size(), Scanner::MAX_DECIMAL_VALUE_LENGTH + 1);
 	}
 	catch (...) {
-		FAIL() << "Expected std::runtime_error";
+		FAIL() << "Expected SyntaxError";
 	}
 }
 
@@ -199,12 +213,12 @@ TEST(ScannerUnitTest, TooLongVariableNameThrow) {
 		Scanner scanner(stream);
 		FAIL() << "Expected runtime_error";
 	}
-	catch (std::runtime_error const& err) {
+	catch (SyntaxError const& err) {
 		std::string error_message = "Variable name exceeded maximum length " + getPositionInSourceString(Token::Position{ 0, 1, 0 });
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {
-		FAIL() << "Expected std::runtime_error";
+		FAIL() << "Expected SyntaxError";
 	}
 }
 
@@ -217,12 +231,12 @@ TEST(ScannerUnitTest, TooLongTypeNameThrow) {
 		Scanner scanner(stream);
 		FAIL() << "Expected runtime_error";
 	}
-	catch (std::runtime_error const& err) {
+	catch (SyntaxError const& err) {
 		std::string error_message = "Type name exceeded maximum length " + getPositionInSourceString(Token::Position{ 0, 1, 0 });
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {
-		FAIL() << "Expected std::runtime_error";
+		FAIL() << "Expected SyntaxError";
 	}
 }
 
@@ -235,11 +249,11 @@ TEST(ScannerUnitTest, TooLongSpaceThrow) {
 		Scanner scanner(stream);
 		FAIL() << "Expected runtime_error";
 	}
-	catch (std::runtime_error const& err) {
+	catch (SyntaxError const& err) {
 		std::string error_message = "Expected token, got " + std::to_string(Scanner::MAX_EMPTY_SPACE_LENGTH+1) + " blank characters " + getPositionInSourceString(Token::Position{ 0, 1, 0 });
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {
-		FAIL() << "Expected std::runtime_error";
+		FAIL() << "Expected SyntaxError";
 	}
 }
