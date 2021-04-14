@@ -237,3 +237,24 @@ TEST(ScannerUnitTest, TooLongTypeNameThrow) {
 		FAIL() << "Expected std::runtime_error";
 	}
 }
+
+
+TEST(ScannerUnitTest, TooLongSpaceThrow) {
+	std::string buffer = " ";
+	for (int i = 0; i < Scanner::MAX_EMPTY_SPACE_LENGTH; ++i) {
+		buffer += ' ';
+	}
+	EXPECT_EQ(buffer.size(), Scanner::MAX_EMPTY_SPACE_LENGTH + 1);
+	std::istrstream stream(buffer.c_str());
+	try {
+		Scanner scanner(stream);
+		FAIL() << "Expected runtime_error";
+	}
+	catch (std::runtime_error const& err) {
+		std::string error_message = "Expected token, got " + std::to_string(Scanner::MAX_EMPTY_SPACE_LENGTH+1) + " blank characters " + getPositionInSourceString(Token::Position{ 0, 1, 0 });
+		EXPECT_EQ(err.what(), error_message);
+	}
+	catch (...) {
+		FAIL() << "Expected std::runtime_error";
+	}
+}

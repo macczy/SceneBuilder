@@ -69,7 +69,7 @@ void Scanner::next() {
 	unsigned long currentCharacterCountNumber = 0;
 
 	while (isspace(character)) {
-		if (currentCharacterCountNumber++ > MAX_EMPTY_SPACE_LENGTH) {
+		if (++currentCharacterCountNumber > MAX_EMPTY_SPACE_LENGTH) {
 			Token::Position position{tokenLine, tokenColumn, tokenPosition};
 			throw std::runtime_error("Expected token, got " + std::to_string(currentCharacterCountNumber) + " blank characters " + getPositionInSourceString(position));
 		}
