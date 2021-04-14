@@ -6,7 +6,7 @@ class Token
 {
 public:
 	enum class TokenType {
-		UNKNOWN,
+		UNDEFINED,
 		OPENING_BRACKET, 
 		CLOSING_BRACKET,
 		OPENING_BRACE, 
@@ -25,7 +25,8 @@ public:
 		DOT,
 		COMMA,
 		COLON,
-		EQUAL_SIGN
+		EQUAL_SIGN,
+		QUESTION_MARK
 	};
 
 	struct Position {
@@ -47,7 +48,7 @@ public:
 		return position;
 	}
 
-	Token() : type(TokenType::UNKNOWN), position(Position{ 0, 0, 0 }) {}
+	Token() : type(TokenType::UNDEFINED), position(Position{ 0, 0, 0 }) {}
 	Token(TokenType type, std::string value, Position position) : type(type), value(value), position(position) {}
 
 	friend std::ostream& operator<< (std::ostream& stream, const Token& token);

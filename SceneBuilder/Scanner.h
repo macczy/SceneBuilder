@@ -27,6 +27,9 @@ public:
 	Scanner(std::istream& input);
 	Token getToken();
 	void next();
-	const unsigned long MAX_NAME_LENGTH = 1024;
+	static const unsigned int MAX_NAME_LENGTH = 1024;
+	static const unsigned int MAX_EMPTY_SPACE_LENGTH = 1024;
+	static const unsigned int MAX_HEX_VALUE_LENGTH = 32;
+	static const unsigned int MAX_DECIMAL_VALUE_LENGTH = 32;
 };
 

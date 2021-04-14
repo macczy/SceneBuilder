@@ -1,7 +1,7 @@
 #include "Token.h"
 
 std::map<Token::TokenType, std::string> Token::TokenTypeToStringMap {
-		{ TokenType::UNKNOWN, "UNKNOWN"},
+		{ TokenType::UNDEFINED, "UNDEFINED"},
 		{ TokenType::OPENING_BRACKET, "OPENING_BRACKET"},
 		{ TokenType::CLOSING_BRACKET, "CLOSING_BRACKET"},
 		{ TokenType::OPENING_BRACE, "OPENING_BRACE"},
@@ -20,7 +20,8 @@ std::map<Token::TokenType, std::string> Token::TokenTypeToStringMap {
 		{ TokenType::DOT, "DOT"},
 		{ TokenType::COMMA, "COMMA"},
 		{ TokenType::COLON, "COLON"},
-		{ TokenType::EQUAL_SIGN, "EQUAL_SIGN"}
+		{ TokenType::EQUAL_SIGN, "EQUAL_SIGN"},
+		{ TokenType::QUESTION_MARK, "QUESTION_MARK"}
 };
 
 std::ostream& operator<< (std::ostream& stream, const Token& token) {
