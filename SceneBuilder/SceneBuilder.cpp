@@ -28,5 +28,6 @@ int main(int argc, char* argv[])
         }
         std::cout << std::endl;
         infile.close();
+        infile2.close();
     }
 }

@@ -33,6 +33,7 @@ bool Scanner::isHex(char character) {
 
 char Scanner::getNextChar() {
 	character = input.get();
+
 	++column;
 	if (character == '\n') {
 		++line;

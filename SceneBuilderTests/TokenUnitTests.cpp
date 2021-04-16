@@ -2,7 +2,7 @@
 #include "pch.h"
 #include "../SceneBuilder/Token.cpp"
 
-TEST(defaultConstructorTest, TokenUnitTests) {
+TEST(TokenUnitTests, defaultConstructorTest) {
 	Token token;
 	EXPECT_EQ(token.getType(), Token::TokenType::UNDEFINED);
 }
