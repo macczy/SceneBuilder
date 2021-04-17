@@ -268,8 +268,8 @@ void Scanner::next() {
 			getNextChar();
 		}
 	}
-	catch (...) {
-		currentToken = Token(Token::TokenType::UNDEFINED, "", Token::Position{});
+	catch (SyntaxError&) {
+		currentToken = Token(Token::TokenType::UNDEFINED, "", Token::Position{ line, column, position });
 		throw;
 	}
 }

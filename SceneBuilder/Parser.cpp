@@ -1,5 +1,6 @@
 #include "Parser.h"
 #include "SyntaxError.h"
+#include <optional>
 
 typedef Token::TokenType TokenType;
 
@@ -18,25 +19,24 @@ bool Parser::tryBuildAnimationDeclaration() {
     return true;
 }
 
-SceneRoot Parser::parse() {
+std::unique_ptr<SceneRoot> Parser::parse() {
     currentToken = scanner.getToken();
     while (currentToken.getType() != TokenType::END_OF_FILE) {
-        try {
-
-            if (tryBuildComplesObject());
-            else if (tryBuildAnimationDeclaration());
-            else {
-                std::string errorMessage = "Expected Complex Object declaration or Animation declaration but got '" + currentToken.getValue()
-                    + "' " + currentToken.getPosition().toString() + "\n" + scanner.getLineError(currentToken.getPosition());
-                std::cout << errorMessage << '\n';
-            }
-            scanner.next();
-            currentToken = scanner.getToken();
+        if (tryBuildComplesObject());
+        else if (tryBuildAnimationDeclaration());
+        else {
+            std::string errorMessage = "Expected Complex Object declaration or Animation declaration but got '" + currentToken.getValue()
+                + "' " + currentToken.getPosition().toString() + scanner.getLineError(currentToken.getPosition());
+            std::cout << errorMessage << '\n';
+            return nullptr;
         }
-        catch (const SyntaxError& error) {
+        try {
+            scanner.next();
+        } catch (const SyntaxError& error) {
             std::cout << error.what() << '\n';
         }
+        currentToken = scanner.getToken();
     }
     std::cout << std::endl;
-	return root;
+	return std::move(root);
 }

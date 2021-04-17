@@ -6,11 +6,11 @@
 class Parser
 {
 public:
-	Parser(Scanner& scanner) : scanner(scanner), root() {
+	Parser(Scanner& scanner) : scanner(scanner), root(new SceneRoot()) {
 
 	}
 
-	virtual SceneRoot parse();
+	virtual std::unique_ptr<SceneRoot> parse();
 
 	bool tryBuildComplesObject();
 	bool tryBuildAnimationDeclaration();
@@ -18,6 +18,6 @@ public:
 private:
 	Scanner& scanner;
 	Token currentToken;
-	SceneRoot root;
+	std::unique_ptr<SceneRoot> root;
 };
 

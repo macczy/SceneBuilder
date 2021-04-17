@@ -55,8 +55,7 @@ public:
 		return position;
 	}
 
-	Token() : type(TokenType::UNDEFINED), position(Position{ 0, 0, 0 }) {}
-	Token(TokenType type, std::string value, Position position = Position{ 0, 0, 0 }) : type(type), value(value), position(position) {}
+	Token(TokenType type = TokenType::UNDEFINED, std::string value = "", Position position = Position{ 0, 0, 0 }) : type(type), value(value), position(position) {}
 
 	friend std::ostream& operator<< (std::ostream& stream, const Token& token);
 	friend std::ostream& operator<< (std::ostream& stream, const TokenType& tokenType);
