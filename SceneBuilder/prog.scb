@@ -1,0 +1,78 @@
+House = {
+	roof = Polygon {
+		color: Color(xCC, xCC, xCC)
+		vertexes: [  
+			Point(0.1, 0.2, 0.3),
+			Point(0.2, 0.3, 0.4),
+			Point(0.4, 0.5, 0.6)
+		]
+	}
+	doorHandle = Line {
+		points: [Point(0.1, 0.2, 0.3), Point(0.5, 0.4, 0.5)]
+		color: Color(xCC, xCC, xCC)
+	}
+	
+	mainBuilding = Rectangle {
+		vertex: Point(0.1, 0.2, 0.3)
+		width: 10
+		height: 10
+		color: Color(#CC, #C34324C12, #CC)
+	}
+}
+
+customAnimation = AnimationSequence(first, second) {
+			loops: Animation.SingleLoop 
+			
+			Wait {
+				time: 10s
+			}
+			ParalelAnimation {
+				Animation {
+					object: first
+					type: Animation.Rotation
+					axis: Animation.XAxis
+					duration: 5s
+				}
+				Animation {
+				object: second
+					type: Animation.Movement
+					vector: [0., 0.2, 0.1]
+					duration: 5s
+				}
+			}
+			
+			Animation {
+				
+			}
+			Animation {
+				
+			}
+		}
+
+Scene {
+	width: 200
+	height: 200
+	
+	rec = Rectangle {
+		x: 0.1
+		y: 0.2
+		z: 0.5
+		width: 10
+		height: 10
+		color: Color(#CC, #CC, #CC)
+	}
+	
+	my_house = House {
+		
+	}
+	
+	animations: [ customAnimation(my_house.doorHandle, my_house.roof, [my_house.doorHandle, my_house.roof]), anotherAnimation(rec) ]
+	
+}
+
+Circle {
+	radius: 10
+	vertex: Point(0.1, 0.2, 0.3)
+	color: Color(#DD, #DD, #DD)
+} fwef fgew
+#o
