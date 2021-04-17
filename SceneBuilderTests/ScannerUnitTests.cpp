@@ -100,6 +100,29 @@ TEST(ScannerUnitTest, CreateQuestionMarkToken) {
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::QUESTION_MARK);
 }
 
+TEST(ScannerUnitTest, CreateLessThanToken) {
+	std::stringstream stream("<");
+	Scanner scanner(stream);
+	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::LESS_THAN);
+}
+
+TEST(ScannerUnitTest, CreateGreaterThanToken) {
+	std::stringstream stream(">");
+	Scanner scanner(stream);
+	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::GREATER_THAN);
+}
+
+TEST(ScannerUnitTest, CreateLessOrEqualToken) {
+	std::stringstream stream("<=");
+	Scanner scanner(stream);
+	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::LESS_OR_EQUAL);
+}
+
+TEST(ScannerUnitTest, CreateGreaterOrEqualToken) {
+	std::stringstream stream(">=");
+	Scanner scanner(stream);
+	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::GREATER_OR_EQUAL);
+}
 
 TEST(ScannerUnitTest, CreateHexConstToken) {
 	{
@@ -112,7 +135,7 @@ TEST(ScannerUnitTest, CreateHexConstToken) {
 	}
 
 	{
-		std::stringstream stream("fw #ABCDEF0123456789 zzasd");
+		std::stringstream stream("fw#ABCDEF0123456789 zzasd");
 		Scanner scanner(stream);
 		scanner.next();
 		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::HEX_CONST);
@@ -129,7 +152,7 @@ TEST(ScannerUnitTest, IncorrectDecimalTokenThrow) {
 		FAIL() << "Expected runtime_error";
 	}
 	catch (SyntaxError const& err) {
-		std::string error_message = "Expected number but got 'd' " + getPositionInSourceString(Token::Position{ 0, 2, 0 });
+		std::string error_message = "Expected number but got 'd' " + Token::Position{ 0, 2, 0 }.toString();
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {
@@ -144,7 +167,7 @@ TEST(ScannerUnitTest, IncorrectHexTokenThrow) {
 		FAIL() << "Expected runtime_error";
 	}
 	catch (SyntaxError const& err) {
-		std::string error_message = "Expected hexadecimal const value, but got 'z' " + getPositionInSourceString(Token::Position{ 0, 1, 0 });
+		std::string error_message = "Expected hexadecimal const value, but got 'z' " + Token::Position{ 0, 1, 0 }.toString();
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {
@@ -161,7 +184,7 @@ TEST(ScannerUnitTest, TooLongHexValueThrow) {
 		FAIL() << "Expected runtime_error";
 	}
 	catch (SyntaxError const& err) {
-		std::string error_message = "Hexadecimal value exceeded maximum length " + getPositionInSourceString(Token::Position{ 0, 1, 0 });
+		std::string error_message = "Hexadecimal value exceeded maximum length " + Token::Position{ 0, 1, 0 }.toString();
 		EXPECT_EQ(err.what(), error_message);
 		EXPECT_EQ(buffer.size(), Scanner::MAX_HEX_VALUE_LENGTH + 1);
 	}
@@ -180,7 +203,7 @@ TEST(ScannerUnitTest, TooLongDecimalValueThrow) {
 		FAIL() << "Expected runtime_error";
 	}
 	catch (SyntaxError const& err) {
-		std::string error_message = "Decimal value exceeded maximum length " + getPositionInSourceString(Token::Position{ 0, 1, 0 });
+		std::string error_message = "Decimal value exceeded maximum length " + Token::Position{ 0, 1, 0 }.toString();
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {
@@ -195,7 +218,7 @@ TEST(ScannerUnitTest, TooLongDecimalValueThrow) {
 		FAIL() << "Expected runtime_error";
 	}
 	catch (SyntaxError const& err) {
-		std::string error_message = "Decimal value exceeded maximum length " + getPositionInSourceString(Token::Position{ 0, 1, 0 });
+		std::string error_message = "Decimal value exceeded maximum length " + Token::Position{ 0, 1, 0 }.toString();
 		EXPECT_EQ(err.what(), error_message);
 		EXPECT_EQ(buffer.size(), Scanner::MAX_DECIMAL_VALUE_LENGTH + 1);
 	}
@@ -213,7 +236,7 @@ TEST(ScannerUnitTest, TooLongVariableNameThrow) {
 		FAIL() << "Expected runtime_error";
 	}
 	catch (SyntaxError const& err) {
-		std::string error_message = "Variable name exceeded maximum length " + getPositionInSourceString(Token::Position{ 0, 1, 0 });
+		std::string error_message = "Variable name exceeded maximum length " + Token::Position{ 0, 1, 0 }.toString();
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {
@@ -231,7 +254,7 @@ TEST(ScannerUnitTest, TooLongTypeNameThrow) {
 		FAIL() << "Expected runtime_error";
 	}
 	catch (SyntaxError const& err) {
-		std::string error_message = "Type name exceeded maximum length " + getPositionInSourceString(Token::Position{ 0, 1, 0 });
+		std::string error_message = "Type name exceeded maximum length " + Token::Position{ 0, 1, 0 }.toString();
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {
@@ -249,7 +272,7 @@ TEST(ScannerUnitTest, TooLongSpaceThrow) {
 		FAIL() << "Expected runtime_error";
 	}
 	catch (SyntaxError const& err) {
-		std::string error_message = "Expected token, got " + std::to_string(Scanner::MAX_EMPTY_SPACE_LENGTH + 1) + " blank characters " + getPositionInSourceString(Token::Position{ 0, 1, 0 });
+		std::string error_message = "Expected token, got " + std::to_string(Scanner::MAX_EMPTY_SPACE_LENGTH + 1) + " blank characters " + Token::Position{ 0, 1, 0 }.toString();
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {

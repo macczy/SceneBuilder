@@ -11,24 +11,24 @@ Token Scanner::getToken() {
 	return currentToken;
 }
 
-bool Scanner::isNumber(char character) {
+bool Scanner::isDigit(const char character) const {
 	return character >= '0' && character <= '9';
 }
 
-bool Scanner::isCapitalLetter(char character) {
+bool Scanner::isCapitalLetter(const char character) const {
 	return character >= 'A' && character <= 'Z';
 }
 
-bool Scanner::isSmallLetter(char character) {
+bool Scanner::isSmallLetter(const char character)const {
 	return character >= 'a' && character <= 'z';
 }
 
-bool Scanner::isVariableCharacter(char character) {
+bool Scanner::isVariableCharacter(const char character) const {
 	return character == '_' || isCapitalLetter(character) || isSmallLetter(character);
 }
 
-bool Scanner::isHex(char character) {
-	return character >= 'A' && character <= 'F' || isNumber(character);
+bool Scanner::isHex(const char character) const {
+	return character >= 'A' && character <= 'F' || isDigit(character);
 }
 
 char Scanner::getNextChar() {
@@ -43,29 +43,83 @@ char Scanner::getNextChar() {
 	return character;
 }
 
-std::string getPositionInSourceString(const Token::Position& position) {
-	return "at line " + std::to_string(position.lineNumber) + ", at column " + std::to_string(position.columnNumber);
+
+inline void Scanner::checkIfTokenMaxLengthReached(const unsigned int limit, const Token::Position& tokenStartPosition, const std::string& errorMessage, const size_t length) const {
+	if (length > limit) {
+		throw SyntaxError(errorMessage + tokenStartPosition.toString(), tokenStartPosition);
+	}
 }
 
-bool Scanner::tryBuildValueIdentifier() {
-	return true;
 
+bool Scanner::isVariableIdentifier(Token::Position tokenStartPosition) {
+	if (isSmallLetter(character)) {
+		std::string tokenValue(1, character);
+		while (isVariableCharacter(getNextChar())) {
+			tokenValue += character;
+			checkIfTokenMaxLengthReached(MAX_NAME_LENGTH, tokenStartPosition, "Variable name exceeded maximum length ", tokenValue.size());
+		}
+		currentToken = Token(Token::TokenType::VARIABLE_IDENTIFIER, tokenValue, tokenStartPosition);
+		return true;
+	}
+	return false;
 }
 
-bool Scanner::tryBuildTypeIdentifier() {
-	return true;
-
+bool Scanner::isTypeIdentifier(Token::Position tokenStartPosition) {
+	if (isCapitalLetter(character)) {
+		std::string tokenValue(1, character);
+		while (isVariableCharacter(getNextChar())) {
+			tokenValue += character;
+			checkIfTokenMaxLengthReached(MAX_NAME_LENGTH, tokenStartPosition, "Type name exceeded maximum length ", tokenValue.size());
+		}
+		currentToken = Token(Token::TokenType::DECIMAL_CONST, tokenValue, tokenStartPosition);
+		return true;
+	}
+	return false;
 }
-bool Scanner::tryBuildHexConst() {
-	return true;
+bool Scanner::isHexConst(Token::Position tokenStartPosition) {
+	if (character == '#') {
+		std::string tokenValue(1, character);
+		while (isHex(getNextChar())) {
+			tokenValue += character;
+			checkIfTokenMaxLengthReached(MAX_HEX_VALUE_LENGTH, tokenStartPosition, "Hexadecimal value exceeded maximum length ", tokenValue.size());
+		}
+		if (tokenValue.size() == 1) {
+			std::string errorMessage = "Expected hexadecimal const value, but got '" + std::string(1, character) + "' " + tokenStartPosition.toString();
+			throw SyntaxError(errorMessage, tokenStartPosition);
+		}
 
+		currentToken = Token(Token::TokenType::HEX_CONST, tokenValue, tokenStartPosition);
+		return true;
+	}
+	return false;
 }
-bool Scanner::tryBuildDecimalConst() {
-	return true;
+
+bool Scanner::isDecimalConst(Token::Position tokenStartPosition) {
+	if (isDigit(character)) {
+		std::string tokenValue(1, character);
+		while (isDigit(getNextChar())) {
+			tokenValue += character;
+			checkIfTokenMaxLengthReached(MAX_DECIMAL_VALUE_LENGTH, tokenStartPosition, "Decimal value exceeded maximum length ", tokenValue.size());
+		}
+		if (character == '.') {
+			tokenValue += character;
+			while (isDigit(getNextChar())) {
+				tokenValue += character;
+				checkIfTokenMaxLengthReached(MAX_DECIMAL_VALUE_LENGTH, tokenStartPosition, "Decimal value exceeded maximum length ", tokenValue.size());
+			}
+			if (tokenValue.back() == '.') { //number ends with a dot, which I see as incorrect
+				tokenStartPosition.columnNumber++;
+				std::string errorMessage = "Expected number but got '" + std::string(1, character) + "' " + tokenStartPosition.toString();
+				throw SyntaxError(errorMessage, tokenStartPosition);
+			}
+		}
+		currentToken = Token(Token::TokenType::DECIMAL_CONST, tokenValue, tokenStartPosition);
+		return true;
+	}
+	return false;
 }
 
 void Scanner::next() {
-
 	try {
 		unsigned long tokenLine = line;
 		unsigned long tokenColumn = column;
@@ -73,11 +127,8 @@ void Scanner::next() {
 		unsigned long currentCharacterCountNumber = 0;
 
 		while (isspace(character)) {
-			if (++currentCharacterCountNumber > MAX_EMPTY_SPACE_LENGTH) {
-				Token::Position tokenStartPosition{ tokenLine, tokenColumn, tokenPosition };
-				std::string errorMessage = "Expected token, got " + std::to_string(currentCharacterCountNumber) + " blank characters " + getPositionInSourceString(tokenStartPosition);
-				throw SyntaxError(errorMessage, tokenStartPosition);
-			}
+			checkIfTokenMaxLengthReached(MAX_EMPTY_SPACE_LENGTH, Token::Position{ tokenLine, tokenColumn, tokenPosition }, 
+				"Expected token, got " + std::to_string(currentCharacterCountNumber) + " blank characters ", ++currentCharacterCountNumber);
 			getNextChar();
 		}
 
@@ -95,129 +146,89 @@ void Scanner::next() {
 			return;
 		}
 
-		std::string tokenValue;
-		tokenValue += character;
-
-		Token::TokenType tokenType;
+		std::string tokenValue(1, character);
 
 
-		if (isSmallLetter(character)) {
-			tokenType = Token::TokenType::VARIABLE_IDENTIFIER;
-			while (isVariableCharacter(getNextChar())) {
-				if (++currentCharacterCountNumber > MAX_NAME_LENGTH) {
-					std::string errorMessage = "Variable name exceeded maximum length " + getPositionInSourceString(tokenStartPosition);
-					throw SyntaxError(errorMessage, tokenStartPosition);
-				}
+
+		if (isVariableIdentifier(tokenStartPosition)) return;
+
+		if (isTypeIdentifier(tokenStartPosition)) return;
+
+		if (isDecimalConst(tokenStartPosition)) return;
+
+		if (isHexConst(tokenStartPosition)) return;
+
+
+		if (character == '<' ) {
+			if (getNextChar() == '=') {
 				tokenValue += character;
+				currentToken = Token(Token::TokenType::LESS_OR_EQUAL, tokenValue, tokenStartPosition);
+				getNextChar();
 			}
+			else
+				currentToken = Token(Token::TokenType::LESS_THAN, tokenValue, tokenStartPosition);
 		}
-		else if (isCapitalLetter(character)) {
-			tokenType = Token::TokenType::TYPE_IDENTIFIER;
-			while (isVariableCharacter(getNextChar())) {
-				if (++currentCharacterCountNumber > MAX_NAME_LENGTH) {
-					std::string errorMessage = "Type name exceeded maximum length " + getPositionInSourceString(tokenStartPosition);
-					throw SyntaxError(errorMessage, tokenStartPosition);
-				}
+		else if (character == '>' ) {
+			if (getNextChar() == '=') {
 				tokenValue += character;
+				currentToken = Token(Token::TokenType::GREATER_OR_EQUAL, tokenValue, tokenStartPosition);
+				getNextChar();
 			}
-		}
-		else if (isNumber(character)) {
-			tokenType = Token::TokenType::DECIMAL_CONST;
-			while (isNumber(getNextChar())) {
-				if (++currentCharacterCountNumber > MAX_DECIMAL_VALUE_LENGTH) {
-					std::string errorMessage = "Decimal value exceeded maximum length " + getPositionInSourceString(tokenStartPosition);
-					throw SyntaxError(errorMessage, tokenStartPosition);
-				}
-				tokenValue += character;
-			}
-			if (character == '.') {
-				++currentCharacterCountNumber;
-				tokenValue += character;
-				while (isNumber(getNextChar())) {
-					if (++currentCharacterCountNumber > MAX_DECIMAL_VALUE_LENGTH) {
-						std::string errorMessage = "Decimal value exceeded maximum length " + getPositionInSourceString(tokenStartPosition);
-						throw SyntaxError(errorMessage, tokenStartPosition);
-					}
-					tokenValue += character;
-				}
-				if (tokenValue.back() == '.') {
-					tokenStartPosition.columnNumber++;
-					std::string errorMessage = "Expected number but got '" + std::string(1, character) + "' " + getPositionInSourceString(tokenStartPosition);
-					throw SyntaxError(errorMessage, tokenStartPosition);
-				}
-			}
-		}
-		else {
+			else
+				currentToken = Token(Token::TokenType::GREATER_THAN, tokenValue, tokenStartPosition);
+		} else {
 			switch (character) {
 			case '}':
-				tokenType = Token::TokenType::CLOSING_BRACE;
+				currentToken = Token(Token::TokenType::CLOSING_BRACE, tokenValue, tokenStartPosition);
 				break;
 			case '{':
-				tokenType = Token::TokenType::OPENING_BRACE;
+				currentToken = Token(Token::TokenType::OPENING_BRACE, tokenValue, tokenStartPosition);
 				break;
 			case '(':
-				tokenType = Token::TokenType::OPENING_BRACKET;
+				currentToken = Token(Token::TokenType::OPENING_BRACKET, tokenValue, tokenStartPosition);
 				break;
 			case ')':
-				tokenType = Token::TokenType::CLOSING_BRACKET;
+				currentToken = Token(Token::TokenType::CLOSING_BRACKET, tokenValue, tokenStartPosition);
 				break;
 			case ':':
-				tokenType = Token::TokenType::COLON;
+				currentToken = Token(Token::TokenType::COLON, tokenValue, tokenStartPosition);
 				break;
 			case '.':
-				tokenType = Token::TokenType::DOT;
+				currentToken = Token(Token::TokenType::DOT, tokenValue, tokenStartPosition);
 				break;
 			case ',':
-				tokenType = Token::TokenType::COMMA;
+				currentToken = Token(Token::TokenType::COMMA, tokenValue, tokenStartPosition);
 				break;
 			case '[':
-				tokenType = Token::TokenType::OPENING_SQUARE_BRACE;
+				currentToken = Token(Token::TokenType::OPENING_SQUARE_BRACE, tokenValue, tokenStartPosition);
 				break;
 			case ']':
-				tokenType = Token::TokenType::CLOSING_SQUARE_BRACE;
+				currentToken = Token(Token::TokenType::CLOSING_SQUARE_BRACE, tokenValue, tokenStartPosition);
 				break;
 			case '+':
-				tokenType = Token::TokenType::PLUS;
+				currentToken = Token(Token::TokenType::PLUS, tokenValue, tokenStartPosition);
 				break;
 			case '-':
-				tokenType = Token::TokenType::MINUS;
+				currentToken = Token(Token::TokenType::MINUS, tokenValue, tokenStartPosition);
 				break;
 			case '/':
-				tokenType = Token::TokenType::SLASH;
+				currentToken = Token(Token::TokenType::SLASH, tokenValue, tokenStartPosition);
 				break;
 			case '*':
-				tokenType = Token::TokenType::ASTERISK;
+				currentToken = Token(Token::TokenType::ASTERISK, tokenValue, tokenStartPosition);
 				break;
 			case '=':
-				tokenType = Token::TokenType::EQUAL_SIGN;
+				currentToken = Token(Token::TokenType::EQUAL_SIGN, tokenValue, tokenStartPosition);
 				break;
 			case '?':
-				tokenType = Token::TokenType::QUESTION_MARK;
-				break;
-			case '#':
-				while (isHex(getNextChar())) {
-					if (++currentCharacterCountNumber > MAX_HEX_VALUE_LENGTH) {
-						std::string errorMessage = "Hexadecimal value exceeded maximum length " + getPositionInSourceString(tokenStartPosition);
-						throw SyntaxError(errorMessage, tokenStartPosition);
-					}
-					tokenValue += character;
-				}
-				if (tokenValue.size() > 1)
-					tokenType = Token::TokenType::HEX_CONST;
-				else {
-					std::string errorMessage = "Expected hexadecimal const value, but got '" + std::string(1, character) + "' " + getPositionInSourceString(tokenStartPosition);
-					throw SyntaxError(errorMessage, tokenStartPosition);
-				}
+				currentToken = Token(Token::TokenType::QUESTION_MARK, tokenValue, tokenStartPosition);
 				break;
 			default:
-				tokenType = Token::TokenType::UNDEFINED;
+				currentToken = Token(Token::TokenType::UNDEFINED, tokenValue, tokenStartPosition);
 				break;
 			}
-			if (tokenType != Token::TokenType::HEX_CONST)
-				getNextChar();
+			getNextChar();
 		}
-
-		currentToken = Token(tokenType, tokenValue, tokenStartPosition);
 	}
 	catch (...) {
 		currentToken = Token(Token::TokenType::UNDEFINED, "", Token::Position{});

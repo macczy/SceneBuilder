@@ -1,4 +1,5 @@
 #include "Token.h"
+#include <string>
 
 std::map<Token::TokenType, std::string> Token::TokenTypeToStringMap {
 		{ TokenType::UNDEFINED, "UNDEFINED"},
@@ -21,8 +22,17 @@ std::map<Token::TokenType, std::string> Token::TokenTypeToStringMap {
 		{ TokenType::COMMA, "COMMA"},
 		{ TokenType::COLON, "COLON"},
 		{ TokenType::EQUAL_SIGN, "EQUAL_SIGN"},
-		{ TokenType::QUESTION_MARK, "QUESTION_MARK"}
+		{ TokenType::QUESTION_MARK, "QUESTION_MARK"},
+		{ TokenType::LESS_THAN, "LESS_THAN"},
+		{ TokenType::GREATER_THAN, "GREATER_THAN"},
+		{ TokenType::LESS_OR_EQUAL, "LESS_OR_EQUAL"},
+		{ TokenType::GREATER_OR_EQUAL, "GREATER_OR_EQUAL"}
 };
+
+
+std::string Token::Position::toString() const {
+	return "at line " + std::to_string(lineNumber) + ", at column " + std::to_string(columnNumber);
+}
 
 std::ostream& operator<< (std::ostream& stream, const Token& token) {
 	stream << "Token " << token.type;

@@ -221,11 +221,13 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="SceneRoot.cpp" />
     <ClCompile Include="Token.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Parser.h" />
     <ClInclude Include="Scanner.h" />
+    <ClInclude Include="SceneRoot.h" />
     <ClInclude Include="SyntaxError.h" />
     <ClInclude Include="Token.h" />
   </ItemGroup>

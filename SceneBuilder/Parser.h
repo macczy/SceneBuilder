@@ -1,14 +1,19 @@
 #pragma once
 #include "Scanner.h"
+#include "SceneRoot.h"
 
 
 class Parser
 {
-	Parser(Scanner& scanner) : scanner(scanner) {
+public:
+	Parser(Scanner& scanner) : scanner(scanner), root() {
 
 	}
 
+	virtual SceneRoot parse();
+
 private:
 	Scanner& scanner;
+	SceneRoot root;
 };
 
