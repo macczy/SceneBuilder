@@ -108,7 +108,7 @@ bool Scanner::isDecimalConst(Token::Position tokenStartPosition) {
 				checkIfTokenMaxLengthReached(MAX_DECIMAL_VALUE_LENGTH, tokenStartPosition, "Decimal value exceeded maximum length ", tokenValue.size());
 			}
 			if (tokenValue.back() == '.') { //number ends with a dot, which I see as incorrect
-				tokenStartPosition.columnNumber++;
+				tokenStartPosition.columnNumber += tokenValue.size()-1;
 				std::string errorMessage = "Expected number but got '" + std::string(1, character) + "' " + tokenStartPosition.toString();
 				throw SyntaxError(errorMessage, tokenStartPosition);
 			}
@@ -157,9 +157,29 @@ void Scanner::next() {
 		if (isDecimalConst(tokenStartPosition)) return;
 
 		if (isHexConst(tokenStartPosition)) return;
-
-
-		if (character == '<' ) {
+		if (character == '|') {
+			if (getNextChar() == '|') {
+				tokenValue += character;
+				currentToken = Token(Token::TokenType::OR, tokenValue, tokenStartPosition);
+				getNextChar();
+			}
+			else {
+				tokenStartPosition.columnNumber++;
+				std::string errorMessage = "Expected | but got '" + std::string(1, character) + "' " + tokenStartPosition.toString();
+				throw SyntaxError(errorMessage, tokenStartPosition);
+			}
+		} else if (character == '&') {
+			if (getNextChar() == '&') {
+				tokenValue += character;
+				currentToken = Token(Token::TokenType::AND, tokenValue, tokenStartPosition);
+				getNextChar();
+			}
+			else {
+				tokenStartPosition.columnNumber++;
+				std::string errorMessage = "Expected & but got '" + std::string(1, character) + "' " + tokenStartPosition.toString();
+				throw SyntaxError(errorMessage, tokenStartPosition);
+			}
+		} else if (character == '<' ) {
 			if (getNextChar() == '=') {
 				tokenValue += character;
 				currentToken = Token(Token::TokenType::LESS_OR_EQUAL, tokenValue, tokenStartPosition);

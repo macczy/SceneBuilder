@@ -30,7 +30,9 @@ public:
 		LESS_THAN, 
 		GREATER_THAN,
 		LESS_OR_EQUAL,
-		GREATER_OR_EQUAL
+		GREATER_OR_EQUAL,
+		OR,
+		AND
 	};
 
 	struct Position {
