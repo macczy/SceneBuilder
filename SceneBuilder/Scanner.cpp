@@ -46,7 +46,7 @@ char Scanner::getNextChar() {
 
 inline void Scanner::checkIfTokenMaxLengthReached(const unsigned int limit, const Token::Position& tokenStartPosition, const std::string& errorMessage, const size_t length) const {
 	if (length > limit) {
-		throw SyntaxError(errorMessage + tokenStartPosition.toString(), tokenStartPosition);
+		throw SyntaxError(errorMessage + tokenStartPosition.toString());
 	}
 }
 
@@ -84,14 +84,31 @@ bool Scanner::isHexConst(Token::Position tokenStartPosition) {
 			checkIfTokenMaxLengthReached(MAX_HEX_VALUE_LENGTH, tokenStartPosition, "Hexadecimal value exceeded maximum length ", tokenValue.size());
 		}
 		if (tokenValue.size() == 1) {
-			std::string errorMessage = "Expected hexadecimal const value, but got '" + std::string(1, character) + "' " + tokenStartPosition.toString();
-			throw SyntaxError(errorMessage, tokenStartPosition);
+			std::string errorMessage = "Expected hexadecimal const value, but got '" + std::string(1, character) + "' " 
+				+ tokenStartPosition.toString() + getLineError(tokenStartPosition);
+			throw SyntaxError(errorMessage);
 		}
 
 		currentToken = Token(Token::TokenType::HEX_CONST, tokenValue, tokenStartPosition);
 		return true;
 	}
 	return false;
+}
+
+std::string Scanner::getLineError(Token::Position position) {
+	std::string buffer;
+	auto positionInInput = input.tellg();
+	input.seekg(0);
+	for (unsigned int currLineNumber = 0; currLineNumber < position.lineNumber; ++currLineNumber) {
+		if (!input.ignore(std::numeric_limits<std::streamsize>::max(), input.widen('\n'))) {
+			//throw std::runtime_error("Number of lines in source is less than " + std::to_string(position.lineNumber)); //if there is no line with this line number, throw error
+		}
+	}
+	std::getline(input, buffer);
+	std::replace(buffer.begin(), buffer.end(), '\t', ' ');
+	buffer = "\n" + buffer + "\n" + std::string(position.columnNumber - 1, ' ') + "^";
+	input.seekg(positionInInput);
+	return buffer;
 }
 
 bool Scanner::isDecimalConst(Token::Position tokenStartPosition) {
@@ -108,9 +125,10 @@ bool Scanner::isDecimalConst(Token::Position tokenStartPosition) {
 				checkIfTokenMaxLengthReached(MAX_DECIMAL_VALUE_LENGTH, tokenStartPosition, "Decimal value exceeded maximum length ", tokenValue.size());
 			}
 			if (tokenValue.back() == '.') { //number ends with a dot, which I see as incorrect
-				tokenStartPosition.columnNumber += tokenValue.size()-1;
-				std::string errorMessage = "Expected number but got '" + std::string(1, character) + "' " + tokenStartPosition.toString();
-				throw SyntaxError(errorMessage, tokenStartPosition);
+				tokenStartPosition.columnNumber += (unsigned int)tokenValue.size()-1;
+				std::string errorMessage = "Expected number but got '" + std::string(1, character) + "' " 
+					+ tokenStartPosition.toString() + getLineError(tokenStartPosition);
+				throw SyntaxError(errorMessage);
 			}
 		}
 		currentToken = Token(Token::TokenType::DECIMAL_CONST, tokenValue, tokenStartPosition);
@@ -166,7 +184,7 @@ void Scanner::next() {
 			else {
 				tokenStartPosition.columnNumber++;
 				std::string errorMessage = "Expected | but got '" + std::string(1, character) + "' " + tokenStartPosition.toString();
-				throw SyntaxError(errorMessage, tokenStartPosition);
+				throw SyntaxError(errorMessage);
 			}
 		} else if (character == '&') {
 			if (getNextChar() == '&') {
@@ -177,7 +195,7 @@ void Scanner::next() {
 			else {
 				tokenStartPosition.columnNumber++;
 				std::string errorMessage = "Expected & but got '" + std::string(1, character) + "' " + tokenStartPosition.toString();
-				throw SyntaxError(errorMessage, tokenStartPosition);
+				throw SyntaxError(errorMessage);
 			}
 		} else if (character == '<' ) {
 			if (getNextChar() == '=') {

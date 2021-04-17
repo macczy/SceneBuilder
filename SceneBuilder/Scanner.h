@@ -29,6 +29,7 @@ public:
 	virtual ~Scanner() {}
 	Token virtual getToken();
 	void virtual next();
+	std::string getLineError(Token::Position position);
 	static const unsigned int MAX_NAME_LENGTH = 1024;
 	static const unsigned int MAX_EMPTY_SPACE_LENGTH = 1024;
 	static const unsigned int MAX_HEX_VALUE_LENGTH = 32;

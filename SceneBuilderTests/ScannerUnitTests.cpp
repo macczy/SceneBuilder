@@ -196,7 +196,7 @@ TEST(ScannerUnitTest, IncorrectDecimalTokenThrow) {
 		FAIL() << "Expected runtime_error";
 	}
 	catch (const SyntaxError& err) {
-		std::string error_message = "Expected number but got 'd' " + Token::Position{ 0, 2, 0 }.toString();
+		std::string error_message = "Expected number but got 'd' " + Token::Position{ 0, 2, 0 }.toString() + "\n1.dw\n ^";
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {
@@ -211,7 +211,7 @@ TEST(ScannerUnitTest, IncorrectHexTokenThrow) {
 		FAIL() << "Expected SyntaxError";
 	}
 	catch (const SyntaxError& err) {
-		std::string error_message = "Expected hexadecimal const value, but got 'z' " + Token::Position{ 0, 1, 0 }.toString();
+		std::string error_message = "Expected hexadecimal const value, but got 'z' " + Token::Position{ 0, 1, 0 }.toString() + "\n#zzasd\n^";
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {
