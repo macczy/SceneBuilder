@@ -1,5 +1,6 @@
 #include "pch.h"
 #include <deque>
+#include <exception>
 #include "../SceneBuilder/Parser.cpp"
 
 class ScannerMock : public Scanner {
@@ -26,5 +27,10 @@ private:
 TEST(ParserUnitTests, ConstructorTest) {
 	ScannerMock scanner({ Token(Token::TokenType::UNDEFINED, "") });
 	Parser parser(scanner);
-	SceneRoot root = parser.parse();
+	//try {
+	//	SceneRoot root = parser.parse();
+	//}
+	//catch (Exception err) {
+	//	std::cout << err.what();
+	//}
 }

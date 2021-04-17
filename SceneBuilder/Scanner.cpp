@@ -24,7 +24,7 @@ bool Scanner::isSmallLetter(const char character)const {
 }
 
 bool Scanner::isVariableCharacter(const char character) const {
-	return character == '_' || isCapitalLetter(character) || isSmallLetter(character);
+	return isSmallLetter(character) || isCapitalLetter(character) || isDigit(character) || character == '_';
 }
 
 bool Scanner::isHex(const char character) const {
@@ -71,7 +71,7 @@ bool Scanner::isTypeIdentifier(Token::Position tokenStartPosition) {
 			tokenValue += character;
 			checkIfTokenMaxLengthReached(MAX_NAME_LENGTH, tokenStartPosition, "Type name exceeded maximum length ", tokenValue.size());
 		}
-		currentToken = Token(Token::TokenType::DECIMAL_CONST, tokenValue, tokenStartPosition);
+		currentToken = Token(Token::TokenType::TYPE_IDENTIFIER, tokenValue, tokenStartPosition);
 		return true;
 	}
 	return false;

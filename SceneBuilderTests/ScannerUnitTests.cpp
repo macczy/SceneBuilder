@@ -189,6 +189,27 @@ TEST(ScannerUnitTest, CreateHexConstToken) {
 	}
 }
 
+
+
+TEST(ScannerUnitTest, CreateTypeIdentifierToken) {
+	std::stringstream stream("Aqwertyuiopasdfghjklzxcvbnm1234567890_.");
+	Scanner scanner(stream);
+	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::TYPE_IDENTIFIER);
+	EXPECT_EQ(scanner.getToken().getValue(), "Aqwertyuiopasdfghjklzxcvbnm1234567890_");
+}
+
+
+
+
+TEST(ScannerUnitTest, CreateVariableIdentifierToken) {
+	std::stringstream stream("aqwertyuiopasdfghjklzxcvbnm1234567890_.");
+	Scanner scanner(stream);
+	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::VARIABLE_IDENTIFIER);
+	EXPECT_EQ(scanner.getToken().getValue(), "aqwertyuiopasdfghjklzxcvbnm1234567890_");
+}
+
+
+
 TEST(ScannerUnitTest, IncorrectDecimalTokenThrow) {
 	std::stringstream stream("1.dw");
 	try {

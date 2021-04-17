@@ -211,8 +211,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationSequence.cpp" />
+    <ClCompile Include="ComplexObject.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="Scanner.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneBuilder.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug UnitTests|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug UnitTests|x64'">true</ExcludedFromBuild>
@@ -225,8 +228,11 @@
     <ClCompile Include="Token.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationSequence.h" />
+    <ClInclude Include="ComplexObject.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="Scanner.h" />
+    <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneRoot.h" />
     <ClInclude Include="SyntaxError.h" />
     <ClInclude Include="Token.h" />
