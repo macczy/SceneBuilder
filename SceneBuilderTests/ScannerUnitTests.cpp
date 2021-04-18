@@ -124,6 +124,12 @@ TEST(ScannerUnitTest, CreateGreaterOrEqualToken) {
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::GREATER_OR_EQUAL);
 }
 
+TEST(ScannerUnitTest, CreateNotEqualToken) {
+	std::stringstream stream("!=");
+	Scanner scanner(stream);
+	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::NOT_EQUAL);
+}
+
 
 TEST(ScannerUnitTest, CreateOrToken) {
 	{

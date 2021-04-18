@@ -206,7 +206,7 @@ void Scanner::next() {
 			else
 				currentToken = Token(Token::TokenType::LESS_THAN, tokenValue, tokenStartPosition);
 		}
-		else if (character == '>' ) {
+		else if (character == '>') {
 			if (getNextChar() == '=') {
 				tokenValue += character;
 				currentToken = Token(Token::TokenType::GREATER_OR_EQUAL, tokenValue, tokenStartPosition);
@@ -214,6 +214,14 @@ void Scanner::next() {
 			}
 			else
 				currentToken = Token(Token::TokenType::GREATER_THAN, tokenValue, tokenStartPosition);
+		} else if (character == '!') {
+			if (getNextChar() == '=') {
+				tokenValue += character;
+				currentToken = Token(Token::TokenType::NOT_EQUAL, tokenValue, tokenStartPosition);
+				getNextChar();
+			}
+			else
+				currentToken = Token(Token::TokenType::UNDEFINED, tokenValue, tokenStartPosition);
 		} else {
 			switch (character) {
 			case '}':
