@@ -196,6 +196,32 @@ TEST(ScannerUnitTest, CreateHexConstToken) {
 }
 
 
+TEST(ScannerUnitTest, CreateDecimalConstToken) {
+	{
+		std::stringstream stream("1 1. 1234567890.0987654321");
+		Scanner scanner(stream);
+		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::DECIMAL_CONST);
+		EXPECT_EQ(scanner.getToken().getValue(), "1");
+		scanner.next();
+		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::DECIMAL_CONST);
+		EXPECT_EQ(scanner.getToken().getValue(), "1.");
+		scanner.next();
+		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::DECIMAL_CONST);
+		EXPECT_EQ(scanner.getToken().getValue(), "1234567890.0987654321");
+	}
+
+	{
+		std::stringstream stream("fw#ABCDEF0123456789 zzasd");
+		Scanner scanner(stream);
+		scanner.next();
+		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::HEX_CONST);
+		EXPECT_EQ(scanner.getToken().getValue(), "#ABCDEF0123456789");
+		scanner.next();
+		EXPECT_NE(scanner.getToken().getType(), Token::TokenType::HEX_CONST);
+	}
+}
+
+
 
 TEST(ScannerUnitTest, CreateTypeIdentifierToken) {
 	std::stringstream stream("Aqwertyuiopasdfghjklzxcvbnm1234567890_.");
@@ -212,23 +238,6 @@ TEST(ScannerUnitTest, CreateVariableIdentifierToken) {
 	Scanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::VARIABLE_IDENTIFIER);
 	EXPECT_EQ(scanner.getToken().getValue(), "aqwertyuiopasdfghjklzxcvbnm1234567890_");
-}
-
-
-
-TEST(ScannerUnitTest, IncorrectDecimalTokenThrow) {
-	std::stringstream stream("1.dw");
-	try {
-		Scanner scanner(stream);
-		FAIL() << "Expected runtime_error";
-	}
-	catch (const SyntaxError& err) {
-		std::string error_message = "Expected number but got 'd' " + Token::Position{ 0, 2, 0 }.toString() + "\n1.dw\n ^";
-		EXPECT_EQ(err.what(), error_message);
-	}
-	catch (...) {
-		FAIL() << "Expected SyntaxError";
-	}
 }
 
 TEST(ScannerUnitTest, IncorrectHexTokenThrow) {

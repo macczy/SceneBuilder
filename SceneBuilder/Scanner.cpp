@@ -124,12 +124,6 @@ bool Scanner::isDecimalConst(Token::Position tokenStartPosition) {
 				tokenValue += character;
 				checkIfTokenMaxLengthReached(MAX_DECIMAL_VALUE_LENGTH, tokenStartPosition, "Decimal value exceeded maximum length ", tokenValue.size());
 			}
-			if (tokenValue.back() == '.') { //number ends with a dot, which I see as incorrect
-				tokenStartPosition.columnNumber += (unsigned int)tokenValue.size()-1;
-				std::string errorMessage = "Expected number but got '" + std::string(1, character) + "' " 
-					+ tokenStartPosition.toString() + getLineError(tokenStartPosition);
-				throw SyntaxError(errorMessage);
-			}
 		}
 		currentToken = Token(Token::TokenType::DECIMAL_CONST, tokenValue, tokenStartPosition);
 		return true;
