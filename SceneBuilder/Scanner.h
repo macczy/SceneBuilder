@@ -1,7 +1,8 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
+#include <map>
+#include <functional>
 #include "Token.h"
 
 class Scanner
@@ -10,6 +11,10 @@ private:
 	char character;
 	std::istream& input;
 	Token currentToken;
+
+	std::map<char, Token::TokenType> singleCharTokens;
+	std::map<char, std::function<void(std::string&, Token::Position&)>> lambdaGeneratedTokens;
+
 	unsigned long line;
 	unsigned long column;
 	unsigned long position;

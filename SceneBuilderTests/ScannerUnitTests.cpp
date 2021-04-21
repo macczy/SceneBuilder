@@ -28,6 +28,7 @@ TEST(ScannerUnitTest, CreateOpeningBraceToken) {
 	Scanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::OPENING_BRACE);
 }
+
 TEST(ScannerUnitTest, CreateClosingBraceToken) {
 	std::stringstream stream("}");
 	Scanner scanner(stream);
@@ -152,7 +153,6 @@ TEST(ScannerUnitTest, CreateOrToken) {
 	 }
 }
 
-
 TEST(ScannerUnitTest, CreateAndToken) {
 	{
 		std::stringstream stream("&&");
@@ -162,7 +162,6 @@ TEST(ScannerUnitTest, CreateAndToken) {
 	try {
 		std::stringstream stream("&sada");
 		Scanner scanner(stream);
-		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::UNDEFINED);
 		FAIL() << "Expected SyntaxError";
 	}
 	catch (const SyntaxError& err) {
@@ -195,7 +194,6 @@ TEST(ScannerUnitTest, CreateHexConstToken) {
 	}
 }
 
-
 TEST(ScannerUnitTest, CreateDecimalConstToken) {
 	{
 		std::stringstream stream("1 1. 1234567890.0987654321");
@@ -221,17 +219,12 @@ TEST(ScannerUnitTest, CreateDecimalConstToken) {
 	}
 }
 
-
-
 TEST(ScannerUnitTest, CreateTypeIdentifierToken) {
 	std::stringstream stream("Aqwertyuiopasdfghjklzxcvbnm1234567890_.");
 	Scanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::TYPE_IDENTIFIER);
 	EXPECT_EQ(scanner.getToken().getValue(), "Aqwertyuiopasdfghjklzxcvbnm1234567890_");
 }
-
-
-
 
 TEST(ScannerUnitTest, CreateVariableIdentifierToken) {
 	std::stringstream stream("aqwertyuiopasdfghjklzxcvbnm1234567890_.");
@@ -272,7 +265,6 @@ TEST(ScannerUnitTest, TooLongHexValueThrow) {
 		FAIL() << "Expected SyntaxError";
 	}
 }
-
 
 TEST(ScannerUnitTest, TooLongDecimalValueThrow) {
 	std::string buffer(Scanner::MAX_DECIMAL_VALUE_LENGTH + 1, '1');
@@ -324,7 +316,6 @@ TEST(ScannerUnitTest, TooLongVariableNameThrow) {
 	}
 }
 
-
 TEST(ScannerUnitTest, TooLongTypeNameThrow) {
 	std::string buffer = "A" + std::string(Scanner::MAX_NAME_LENGTH, 'a');
 	EXPECT_EQ(buffer.size(), Scanner::MAX_NAME_LENGTH + 1);
@@ -341,7 +332,6 @@ TEST(ScannerUnitTest, TooLongTypeNameThrow) {
 		FAIL() << "Expected SyntaxError";
 	}
 }
-
 
 TEST(ScannerUnitTest, TooLongSpaceThrow) {
 	std::string buffer(Scanner::MAX_EMPTY_SPACE_LENGTH + 1, ' ');
