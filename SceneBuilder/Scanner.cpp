@@ -21,10 +21,9 @@ Scanner::Scanner(std::istream& input) : input(input), line(0), column(0), positi
 		{'?', Token::TokenType::QUESTION_MARK}
 	};
 	lambdaGeneratedTokens = {
-		{'|', [=](std::string& tokenValue, Token::Position& tokenStartPosition) {
+		{'|', [=](Token::Position& tokenStartPosition) {
 			if (getNextChar() == '|') {
-				tokenValue += character;
-				currentToken = Token(Token::TokenType::OR, tokenValue, tokenStartPosition);
+				currentToken = Token(Token::TokenType::OR, "||", tokenStartPosition);
 				getNextChar();
 			}
 			else {
@@ -32,10 +31,9 @@ Scanner::Scanner(std::istream& input) : input(input), line(0), column(0), positi
 				std::string errorMessage = "Expected | but got '" + std::string(1, character) + "' " + tokenStartPosition.toString();
 				throw SyntaxError(errorMessage);
 				}}},
-		{'&', [=](std::string& tokenValue, Token::Position& tokenStartPosition) {
+		{'&', [=](Token::Position& tokenStartPosition) {
 			if (getNextChar() == '&') {
-				tokenValue += character;
-				currentToken = Token(Token::TokenType::AND, tokenValue, tokenStartPosition);
+				currentToken = Token(Token::TokenType::AND, "&&", tokenStartPosition);
 				getNextChar();
 			}
 			else {
@@ -43,36 +41,31 @@ Scanner::Scanner(std::istream& input) : input(input), line(0), column(0), positi
 				std::string errorMessage = "Expected & but got '" + std::string(1, character) + "' " + tokenStartPosition.toString();
 				throw SyntaxError(errorMessage);
 			}}},
-		{'<', [=](std::string& tokenValue, Token::Position& tokenStartPosition) {
+		{'<', [=](Token::Position& tokenStartPosition) {
 			if (getNextChar() == '=') {
-				tokenValue += character;
-				currentToken = Token(Token::TokenType::LESS_OR_EQUAL, tokenValue, tokenStartPosition);
+				currentToken = Token(Token::TokenType::LESS_OR_EQUAL, "<=", tokenStartPosition);
 				getNextChar();
 			}
 			else
-				currentToken = Token(Token::TokenType::LESS_THAN, tokenValue, tokenStartPosition);
+				currentToken = Token(Token::TokenType::LESS_THAN, "<", tokenStartPosition);
 			}},
-		{'>', [=](std::string& tokenValue, Token::Position& tokenStartPosition) {
+		{'>', [=](Token::Position& tokenStartPosition) {
 			if (getNextChar() == '=') {
-				tokenValue += character;
-				currentToken = Token(Token::TokenType::GREATER_OR_EQUAL, tokenValue, tokenStartPosition);
+				currentToken = Token(Token::TokenType::GREATER_OR_EQUAL, ">=", tokenStartPosition);
 				getNextChar();
 			}
 			else
-				currentToken = Token(Token::TokenType::GREATER_THAN, tokenValue, tokenStartPosition);
+				currentToken = Token(Token::TokenType::GREATER_THAN, ">", tokenStartPosition);
 			}},
-		{'!', [=](std::string& tokenValue, Token::Position& tokenStartPosition) {
+		{'!', [=](Token::Position& tokenStartPosition) {
 			if (getNextChar() == '=') {
-				tokenValue += character;
-				currentToken = Token(Token::TokenType::NOT_EQUAL, tokenValue, tokenStartPosition);
+				currentToken = Token(Token::TokenType::NOT_EQUAL, "!=", tokenStartPosition);
 				getNextChar();
 			}
 			else
-				currentToken = Token(Token::TokenType::UNDEFINED, tokenValue, tokenStartPosition);
+				currentToken = Token(Token::TokenType::UNDEFINED, "!", tokenStartPosition);
 			}}
 	};
-
-
 
 	character = getNextChar();
 	next();
@@ -146,6 +139,7 @@ bool Scanner::isTypeIdentifier(Token::Position tokenStartPosition) {
 	}
 	return false;
 }
+
 bool Scanner::isHexConst(Token::Position tokenStartPosition) {
 	if (character == '#') {
 		std::string tokenValue(1, character);
@@ -229,7 +223,6 @@ void Scanner::next() {
 			currentToken = Token(Token::TokenType::END_OF_FILE, "", tokenStartPosition);
 			return;
 		}
-		std::string tokenValue(1, character);
 		if (isVariableIdentifier(tokenStartPosition)) return;
 		if (isTypeIdentifier(tokenStartPosition)) return;
 		if (isDecimalConst(tokenStartPosition)) return;
@@ -237,10 +230,10 @@ void Scanner::next() {
 
 		auto& lambda = lambdaGeneratedTokens[character];
 		if(lambda != nullptr) {
-			lambda(tokenValue, tokenStartPosition);
+			lambda(tokenStartPosition);
 		} else {
 			Token::TokenType type = singleCharTokens[character];
-			currentToken = Token(type, tokenValue, tokenStartPosition);
+			currentToken = Token(type, std::string(1, character), tokenStartPosition);
 			getNextChar();
 		}
 	}

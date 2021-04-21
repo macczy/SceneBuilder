@@ -13,7 +13,7 @@ private:
 	Token currentToken;
 
 	std::map<char, Token::TokenType> singleCharTokens;
-	std::map<char, std::function<void(std::string&, Token::Position&)>> lambdaGeneratedTokens;
+	std::map<char, std::function<void(Token::Position&)>> lambdaGeneratedTokens;
 
 	unsigned long line;
 	unsigned long column;
