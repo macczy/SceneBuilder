@@ -1,9 +1,9 @@
 ﻿#include <iostream>
 #include <fstream>
 #include <sstream>
-#include "Scanner.h"
+#include "Scanner/Scanner.h"
 #include "SyntaxError.h"
-#include "Parser.h"
+#include "Parser/Parser.h"
 
 
 int main(int argc, char* argv[])

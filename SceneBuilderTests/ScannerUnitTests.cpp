@@ -1,7 +1,7 @@
 #include "pch.h"
 #include <sstream>
 #include "../SceneBuilder/SyntaxError.h"
-#include "../SceneBuilder/Scanner.cpp"
+#include "../SceneBuilder/Scanner/Scanner.cpp"
 
 TEST(ScannerUnitTest, EmptySourceTest) {
 	std::stringstream stream("");

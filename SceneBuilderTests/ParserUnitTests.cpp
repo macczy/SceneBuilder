@@ -1,7 +1,7 @@
 #include "pch.h"
 #include <deque>
 #include <exception>
-#include "../SceneBuilder/Parser.cpp"
+#include "../SceneBuilder/Parser/Parser.cpp"
 
 class ScannerMock : public Scanner {
 public:

@@ -1,6 +1,7 @@
 #include <string>  
+#include <algorithm>
 #include "Scanner.h"
-#include "SyntaxError.h"
+#include "../SyntaxError.h"
 
 Scanner::Scanner(std::istream& input) : input(input), line(0), column(0), position(0){
 	singleCharTokens = { 
@@ -66,8 +67,7 @@ Scanner::Scanner(std::istream& input) : input(input), line(0), column(0), positi
 				currentToken = Token(Token::TokenType::UNDEFINED, "!", tokenStartPosition);
 			}}
 	};
-
-	character = getNextChar();
+	getNextChar();
 	next();
 }
 
@@ -106,13 +106,11 @@ char Scanner::getNextChar() {
 	return character;
 }
 
-
 inline void Scanner::checkIfTokenMaxLengthReached(const unsigned int limit, const Token::Position& tokenStartPosition, const std::string& errorMessage, const size_t length) const {
 	if (length > limit) {
 		throw SyntaxError(errorMessage + tokenStartPosition.toString());
 	}
 }
-
 
 bool Scanner::isVariableIdentifier(Token::Position tokenStartPosition) {
 	if (isSmallLetter(character)) {

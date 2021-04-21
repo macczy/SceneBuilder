@@ -1,10 +1,7 @@
 ﻿#pragma once
 #include <exception>
-//#include <istream>
-//#include <limits>
 #include <string>
-#include <algorithm>
-#include "Token.h"
+#include "Scanner/Token.h"
 
 struct SyntaxError : public std::exception
 {

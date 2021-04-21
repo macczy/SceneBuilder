@@ -1,5 +1,5 @@
 #include "Parser.h"
-#include "SyntaxError.h"
+#include "../SyntaxError.h"
 #include <optional>
 
 typedef Token::TokenType TokenType;
