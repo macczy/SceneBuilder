@@ -211,8 +211,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Parser.cpp" />
-    <ClCompile Include="Scanner.cpp" />
+    <ClCompile Include="Animations\AnimationSequence.cpp" />
+    <ClCompile Include="Objects\ComplexObject.cpp" />
+    <ClCompile Include="Parser\Parser.cpp" />
+    <ClCompile Include="Parser\Scene.cpp" />
+    <ClCompile Include="Parser\SceneRoot.cpp" />
+    <ClCompile Include="Scanner\Scanner.cpp" />
+    <ClCompile Include="Scanner\Token.cpp" />
     <ClCompile Include="SceneBuilder.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug UnitTests|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug UnitTests|x64'">true</ExcludedFromBuild>
@@ -221,15 +226,18 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="SceneRoot.cpp" />
-    <ClCompile Include="Token.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Parser.h" />
-    <ClInclude Include="Scanner.h" />
-    <ClInclude Include="SceneRoot.h" />
+    <ClInclude Include="Animations\AnimationSequence.h" />
+    <ClInclude Include="Objects\Color.h" />
+    <ClInclude Include="Objects\ComplexObject.h" />
+    <ClInclude Include="Objects\Point.h" />
+    <ClInclude Include="Parser\Parser.h" />
+    <ClInclude Include="Parser\Scene.h" />
+    <ClInclude Include="Parser\SceneRoot.h" />
+    <ClInclude Include="Scanner\Scanner.h" />
+    <ClInclude Include="Scanner\Token.h" />
     <ClInclude Include="SyntaxError.h" />
-    <ClInclude Include="Token.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

@@ -1,11 +1,11 @@
 #include "pch.h"
 #include <sstream>
 #include "../SceneBuilder/SyntaxError.h"
-#include "../SceneBuilder/Scanner.cpp"
+#include "../SceneBuilder/Scanner/Scanner.cpp"
 
 TEST(ScannerUnitTest, EmptySourceTest) {
 	std::stringstream stream("");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::END_OF_FILE);
 	scanner.next();
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::END_OF_FILE);
@@ -13,121 +13,170 @@ TEST(ScannerUnitTest, EmptySourceTest) {
 
 TEST(ScannerUnitTest, CreateOpenBracketToken) {
 	std::stringstream stream("(");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::OPENING_BRACKET);
 }
 
 TEST(ScannerUnitTest, CreateClosingBracketToken) {
 	std::stringstream stream(")");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::CLOSING_BRACKET);
 }
 
 TEST(ScannerUnitTest, CreateOpeningBraceToken) {
 	std::stringstream stream("{");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::OPENING_BRACE);
 }
+
 TEST(ScannerUnitTest, CreateClosingBraceToken) {
 	std::stringstream stream("}");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::CLOSING_BRACE);
 }
 
 TEST(ScannerUnitTest, CreateColonToken) {
 	std::stringstream stream(":");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::COLON);
 }
 
 TEST(ScannerUnitTest, CreateDotToken) {
 	std::stringstream stream(".");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::DOT);
 }
 
 TEST(ScannerUnitTest, CreateCommaToken) {
 	std::stringstream stream(",");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::COMMA);
 }
 
 TEST(ScannerUnitTest, CreateOpeningSquareBraceToken) {
 	std::stringstream stream("[");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::OPENING_SQUARE_BRACE);
 }
 
 TEST(ScannerUnitTest, CreateClosingSquareBraceToken) {
 	std::stringstream stream("]");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::CLOSING_SQUARE_BRACE);
 }
 
 TEST(ScannerUnitTest, CreatePlusToken) {
 	std::stringstream stream("+");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::PLUS);
 }
 
 TEST(ScannerUnitTest, CreateMinusToken) {
 	std::stringstream stream("-");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::MINUS);
 }
 
 TEST(ScannerUnitTest, CreateSlashToken) {
 	std::stringstream stream("/");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::SLASH);
 }
 
 TEST(ScannerUnitTest, CreateAsteriskToken) {
 	std::stringstream stream("*");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::ASTERISK);
 }
 
 TEST(ScannerUnitTest, CreateEqualSignToken) {
 	std::stringstream stream("=");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::EQUAL_SIGN);
 }
 
 TEST(ScannerUnitTest, CreateQuestionMarkToken) {
 	std::stringstream stream("?");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::QUESTION_MARK);
 }
 
 TEST(ScannerUnitTest, CreateLessThanToken) {
 	std::stringstream stream("<");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::LESS_THAN);
 }
 
 TEST(ScannerUnitTest, CreateGreaterThanToken) {
 	std::stringstream stream(">");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::GREATER_THAN);
 }
 
 TEST(ScannerUnitTest, CreateLessOrEqualToken) {
 	std::stringstream stream("<=");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::LESS_OR_EQUAL);
 }
 
 TEST(ScannerUnitTest, CreateGreaterOrEqualToken) {
 	std::stringstream stream(">=");
-	Scanner scanner(stream);
+	SceneBuilderScanner scanner(stream);
 	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::GREATER_OR_EQUAL);
+}
+
+TEST(ScannerUnitTest, CreateNotEqualToken) {
+	std::stringstream stream("!=");
+	SceneBuilderScanner scanner(stream);
+	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::NOT_EQUAL);
+}
+
+
+TEST(ScannerUnitTest, CreateOrToken) {
+	{
+		std::stringstream stream("||");
+		SceneBuilderScanner scanner(stream);
+		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::OR);
+	}
+	 try {
+		std::stringstream stream("|sada");
+		SceneBuilderScanner scanner(stream);
+		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::UNDEFINED);
+		FAIL() << "Expected SyntaxError";
+	 }
+	 catch (const SyntaxError& err) {
+		 std::string error_message = "Expected | but got 's' " + Position{ 1, 2, 0 }.toString();
+		 EXPECT_EQ(err.what(), error_message);
+	 }
+	 catch (...) {
+		 FAIL() << "Expected SyntaxError";
+	 }
+}
+
+TEST(ScannerUnitTest, CreateAndToken) {
+	{
+		std::stringstream stream("&&");
+		SceneBuilderScanner scanner(stream);
+		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::AND);
+	}
+	try {
+		std::stringstream stream("&sada");
+		SceneBuilderScanner scanner(stream);
+		FAIL() << "Expected SyntaxError";
+	}
+	catch (const SyntaxError& err) {
+		std::string error_message = "Expected & but got 's' " + Position{ 1, 2, 0 }.toString();
+		EXPECT_EQ(err.what(), error_message);
+	}
+	catch (...) {
+		FAIL() << "Expected SyntaxError";
+	}
 }
 
 TEST(ScannerUnitTest, CreateHexConstToken) {
 	{
 		std::stringstream stream("#ABCDEF0123456789zzasd");
-		Scanner scanner(stream);
+		SceneBuilderScanner scanner(stream);
 		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::HEX_CONST);
 		EXPECT_EQ(scanner.getToken().getValue(), "#ABCDEF0123456789");
 		scanner.next();
@@ -136,7 +185,7 @@ TEST(ScannerUnitTest, CreateHexConstToken) {
 
 	{
 		std::stringstream stream("fw#ABCDEF0123456789 zzasd");
-		Scanner scanner(stream);
+		SceneBuilderScanner scanner(stream);
 		scanner.next();
 		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::HEX_CONST);
 		EXPECT_EQ(scanner.getToken().getValue(), "#ABCDEF0123456789");
@@ -145,29 +194,53 @@ TEST(ScannerUnitTest, CreateHexConstToken) {
 	}
 }
 
-TEST(ScannerUnitTest, IncorrectDecimalTokenThrow) {
-	std::stringstream stream("1.dw");
-	try {
-		Scanner scanner(stream);
-		FAIL() << "Expected runtime_error";
+TEST(ScannerUnitTest, CreateDecimalConstToken) {
+	{
+		std::stringstream stream("1 1. 1234567890.0987654321");
+		SceneBuilderScanner scanner(stream);
+		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::DECIMAL_CONST);
+		EXPECT_EQ(scanner.getToken().getValue(), "1");
+		scanner.next();
+		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::DECIMAL_CONST);
+		EXPECT_EQ(scanner.getToken().getValue(), "1.");
+		scanner.next();
+		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::DECIMAL_CONST);
+		EXPECT_EQ(scanner.getToken().getValue(), "1234567890.0987654321");
 	}
-	catch (SyntaxError const& err) {
-		std::string error_message = "Expected number but got 'd' " + Token::Position{ 0, 2, 0 }.toString();
-		EXPECT_EQ(err.what(), error_message);
+
+	{
+		std::stringstream stream("fw#ABCDEF0123456789 zzasd");
+		SceneBuilderScanner scanner(stream);
+		scanner.next();
+		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::HEX_CONST);
+		EXPECT_EQ(scanner.getToken().getValue(), "#ABCDEF0123456789");
+		scanner.next();
+		EXPECT_NE(scanner.getToken().getType(), Token::TokenType::HEX_CONST);
 	}
-	catch (...) {
-		FAIL() << "Expected SyntaxError";
-	}
+}
+
+TEST(ScannerUnitTest, CreateTypeIdentifierToken) {
+	std::stringstream stream("Aqwertyuiopasdfghjklzxcvbnm1234567890_.");
+	SceneBuilderScanner scanner(stream);
+	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::TYPE_IDENTIFIER);
+	EXPECT_EQ(scanner.getToken().getValue(), "Aqwertyuiopasdfghjklzxcvbnm1234567890_");
+}
+
+TEST(ScannerUnitTest, CreateVariableIdentifierToken) {
+	std::stringstream stream("aqwertyuiopasdfghjklzxcvbnm1234567890_.");
+	SceneBuilderScanner scanner(stream);
+	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::VARIABLE_IDENTIFIER);
+	EXPECT_EQ(scanner.getToken().getValue(), "aqwertyuiopasdfghjklzxcvbnm1234567890_");
 }
 
 TEST(ScannerUnitTest, IncorrectHexTokenThrow) {
 	std::stringstream stream("#zzasd");
 	try {
-		Scanner scanner(stream);
-		FAIL() << "Expected runtime_error";
+		SceneBuilderScanner scanner(stream);
+		FAIL() << "Expected SyntaxError";
 	}
-	catch (SyntaxError const& err) {
-		std::string error_message = "Expected hexadecimal const value, but got 'z' " + Token::Position{ 0, 1, 0 }.toString();
+	catch (const SyntaxError& err) {
+		std::string error_message = "Expected hexadecimal const value, but got 'z' " + Position{ 1, 2, 0 }.toString() + "\n#zzasd\n ^";
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {
@@ -176,34 +249,33 @@ TEST(ScannerUnitTest, IncorrectHexTokenThrow) {
 }
 
 TEST(ScannerUnitTest, TooLongHexValueThrow) {
-	std::string buffer = "#" + std::string(Scanner::MAX_HEX_VALUE_LENGTH, 'A');
-	EXPECT_EQ(buffer.size(), Scanner::MAX_HEX_VALUE_LENGTH + 1);
+	std::string buffer = "#" + std::string(SceneBuilderScanner::MAX_HEX_VALUE_LENGTH, 'A');
+	EXPECT_EQ(buffer.size(), SceneBuilderScanner::MAX_HEX_VALUE_LENGTH + 1);
 	std::stringstream stream(buffer.c_str());
 	try {
-		Scanner scanner(stream);
+		SceneBuilderScanner scanner(stream);
 		FAIL() << "Expected runtime_error";
 	}
-	catch (SyntaxError const& err) {
-		std::string error_message = "Hexadecimal value exceeded maximum length " + Token::Position{ 0, 1, 0 }.toString();
+	catch (const SyntaxError& err) {
+		std::string error_message = "Hexadecimal value exceeded maximum length " + Position{ 1, 1, 0 }.toString();
 		EXPECT_EQ(err.what(), error_message);
-		EXPECT_EQ(buffer.size(), Scanner::MAX_HEX_VALUE_LENGTH + 1);
+		EXPECT_EQ(buffer.size(), SceneBuilderScanner::MAX_HEX_VALUE_LENGTH + 1);
 	}
 	catch (...) {
 		FAIL() << "Expected SyntaxError";
 	}
 }
 
-
 TEST(ScannerUnitTest, TooLongDecimalValueThrow) {
-	std::string buffer(Scanner::MAX_DECIMAL_VALUE_LENGTH + 1, '1');
-	EXPECT_EQ(buffer.size(), Scanner::MAX_DECIMAL_VALUE_LENGTH + 1);
+	std::string buffer(SceneBuilderScanner::MAX_DECIMAL_VALUE_LENGTH + 1, '1');
+	EXPECT_EQ(buffer.size(), SceneBuilderScanner::MAX_DECIMAL_VALUE_LENGTH + 1);
 	std::stringstream stream(buffer.c_str());
 	try {
-		Scanner scanner(stream);
+		SceneBuilderScanner scanner(stream);
 		FAIL() << "Expected runtime_error";
 	}
-	catch (SyntaxError const& err) {
-		std::string error_message = "Decimal value exceeded maximum length " + Token::Position{ 0, 1, 0 }.toString();
+	catch (const SyntaxError& err) {
+		std::string error_message = "Decimal value exceeded maximum length " + Position{ 1, 1, 0 }.toString();
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {
@@ -211,16 +283,16 @@ TEST(ScannerUnitTest, TooLongDecimalValueThrow) {
 	}
 
 	//same but with a dot
-	buffer[Scanner::MAX_DECIMAL_VALUE_LENGTH / 2] = '.';
+	buffer[SceneBuilderScanner::MAX_DECIMAL_VALUE_LENGTH / 2] = '.';
 	std::stringstream stream2(buffer.c_str());
 	try {
-		Scanner scanner(stream2);
+		SceneBuilderScanner scanner(stream2);
 		FAIL() << "Expected runtime_error";
 	}
-	catch (SyntaxError const& err) {
-		std::string error_message = "Decimal value exceeded maximum length " + Token::Position{ 0, 1, 0 }.toString();
+	catch (const SyntaxError& err) {
+		std::string error_message = "Decimal value exceeded maximum length " + Position{ 1, 1, 0 }.toString();
 		EXPECT_EQ(err.what(), error_message);
-		EXPECT_EQ(buffer.size(), Scanner::MAX_DECIMAL_VALUE_LENGTH + 1);
+		EXPECT_EQ(buffer.size(), SceneBuilderScanner::MAX_DECIMAL_VALUE_LENGTH + 1);
 	}
 	catch (...) {
 		FAIL() << "Expected SyntaxError";
@@ -228,33 +300,32 @@ TEST(ScannerUnitTest, TooLongDecimalValueThrow) {
 }
 
 TEST(ScannerUnitTest, TooLongVariableNameThrow) {
-	std::string buffer(Scanner::MAX_NAME_LENGTH+1, 'a');
-	EXPECT_EQ(buffer.size(), Scanner::MAX_NAME_LENGTH + 1);
+	std::string buffer(SceneBuilderScanner::MAX_NAME_LENGTH+1, 'a');
+	EXPECT_EQ(buffer.size(), SceneBuilderScanner::MAX_NAME_LENGTH + 1);
 	std::stringstream stream(buffer.c_str());
 	try {
-		Scanner scanner(stream);
+		SceneBuilderScanner scanner(stream);
 		FAIL() << "Expected runtime_error";
 	}
-	catch (SyntaxError const& err) {
-		std::string error_message = "Variable name exceeded maximum length " + Token::Position{ 0, 1, 0 }.toString();
+	catch (const SyntaxError& err) {
+		std::string error_message = "Variable name exceeded maximum length " + Position{ 1, 1, 0 }.toString();
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {
 		FAIL() << "Expected SyntaxError";
 	}
 }
-
 
 TEST(ScannerUnitTest, TooLongTypeNameThrow) {
-	std::string buffer = "A" + std::string(Scanner::MAX_NAME_LENGTH, 'a');
-	EXPECT_EQ(buffer.size(), Scanner::MAX_NAME_LENGTH + 1);
+	std::string buffer = "A" + std::string(SceneBuilderScanner::MAX_NAME_LENGTH, 'a');
+	EXPECT_EQ(buffer.size(), SceneBuilderScanner::MAX_NAME_LENGTH + 1);
 	std::stringstream stream(buffer.c_str());
 	try {
-		Scanner scanner(stream);
+		SceneBuilderScanner scanner(stream);
 		FAIL() << "Expected runtime_error";
 	}
-	catch (SyntaxError const& err) {
-		std::string error_message = "Type name exceeded maximum length " + Token::Position{ 0, 1, 0 }.toString();
+	catch (const SyntaxError& err) {
+		std::string error_message = "Type name exceeded maximum length " + Position{ 1, 1, 0 }.toString();
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {
@@ -262,17 +333,16 @@ TEST(ScannerUnitTest, TooLongTypeNameThrow) {
 	}
 }
 
-
 TEST(ScannerUnitTest, TooLongSpaceThrow) {
-	std::string buffer(Scanner::MAX_EMPTY_SPACE_LENGTH + 1, ' ');
-	EXPECT_EQ(buffer.size(), Scanner::MAX_EMPTY_SPACE_LENGTH + 1);
+	std::string buffer(SceneBuilderScanner::MAX_EMPTY_SPACE_LENGTH + 1, ' ');
+	EXPECT_EQ(buffer.size(), SceneBuilderScanner::MAX_EMPTY_SPACE_LENGTH + 1);
 	std::stringstream stream(buffer.c_str());
 	try {
-		Scanner scanner(stream);
+		SceneBuilderScanner scanner(stream);
 		FAIL() << "Expected runtime_error";
 	}
-	catch (SyntaxError const& err) {
-		std::string error_message = "Expected token, got " + std::to_string(Scanner::MAX_EMPTY_SPACE_LENGTH + 1) + " blank characters " + Token::Position{ 0, 1, 0 }.toString();
+	catch (const SyntaxError& err) {
+		std::string error_message = "Expected token, got " + std::to_string(SceneBuilderScanner::MAX_EMPTY_SPACE_LENGTH + 1) + " blank characters " + Position{ 1, 1, 0 }.toString();
 		EXPECT_EQ(err.what(), error_message);
 	}
 	catch (...) {

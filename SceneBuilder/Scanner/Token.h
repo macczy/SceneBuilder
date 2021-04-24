@@ -2,11 +2,19 @@
 #include <ostream>
 #include <map>
  
+
+struct Position {
+	unsigned long lineNumber;
+	unsigned long columnNumber;
+	std::streamoff totalPositionNumber;
+	std::string toString() const;
+};
+
 class Token
 {
 public:
 	enum class TokenType {
-		UNDEFINED,
+		UNDEFINED, //default value
 		OPENING_BRACKET, 
 		CLOSING_BRACKET,
 		OPENING_BRACE, 
@@ -30,22 +38,18 @@ public:
 		LESS_THAN, 
 		GREATER_THAN,
 		LESS_OR_EQUAL,
-		GREATER_OR_EQUAL
-	};
-
-	struct Position {
-		unsigned long lineNumber;
-		unsigned long columnNumber;
-		unsigned long totalPositionNumber;
-		std::string toString() const;
+		GREATER_OR_EQUAL,
+		NOT_EQUAL,
+		OR,
+		AND
 	};
 
 	static std::map<TokenType, std::string> TokenTypeToStringMap;
 
-	TokenType getType() {
+	const TokenType getType() const {
 		return type;
 	}
-	std::string getValue() {
+	const std::string getValue() const {
 		return value; 
 	}
 
@@ -53,8 +57,7 @@ public:
 		return position;
 	}
 
-	Token() : type(TokenType::UNDEFINED), position(Position{ 0, 0, 0 }) {}
-	Token(TokenType type, std::string value, Position position = Position{ 0, 0, 0 }) : type(type), value(value), position(position) {}
+	Token(TokenType type = TokenType::UNDEFINED, std::string value = "", Position position = Position{ 0, 0, 0 }) : type(type), value(value), position(position) {}
 
 	friend std::ostream& operator<< (std::ostream& stream, const Token& token);
 	friend std::ostream& operator<< (std::ostream& stream, const TokenType& tokenType);

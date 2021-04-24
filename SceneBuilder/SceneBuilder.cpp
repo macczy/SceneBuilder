@@ -1,33 +1,34 @@
 ﻿#include <iostream>
 #include <fstream>
 #include <sstream>
-#include "Scanner.h"
+#include "Scanner/Scanner.h"
 #include "SyntaxError.h"
+#include "Parser/Parser.h"
+
 
 int main(int argc, char* argv[])
 {
-    if (argc < 2)
-        return -1;
+    try {
+        if (argc < 2)
+            return -1;
 
-    if (strcmp(argv[1], "-fin") == 0 && argc >= 3) {
-        std::ifstream infile;
-        std::ifstream infile2;
-        std::string filename = argv[2];
-        infile.open(filename);
-        infile2.open(filename);
-
-        Scanner scanner(infile);
-        while (scanner.getToken().getType() != Token::TokenType::END_OF_FILE) {
-            std::cout << scanner.getToken().getValue() << '\n';
-            try {
-                scanner.next();
+        if (strcmp(argv[1], "-fin") == 0 && argc >= 3) {
+            std::ifstream infile;
+            std::string filename = argv[2];
+            infile.open(filename);
+            if (!infile.is_open()) {
+                throw std::runtime_error("File " + std::string(argv[2]) + "could not be opened");
             }
-            catch (const SyntaxError& error) {
-                std::cout << error.what() << ":\n" << error.visit(infile2);
-            }
+            SceneBuilderScanner scanner(infile);
+            Parser parser(scanner);
+            parser.parse();
+            infile.close();
         }
-        std::cout << std::endl;
-        infile.close();
-        infile2.close();
+    }
+    catch (const SyntaxError& er) {
+        std::cout << er.what() << std::endl;
+    }
+    catch (...) {
+        std::cout << "Undefined error" << std::endl;
     }
 }

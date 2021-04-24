@@ -26,11 +26,14 @@ std::map<Token::TokenType, std::string> Token::TokenTypeToStringMap {
 		{ TokenType::LESS_THAN, "LESS_THAN"},
 		{ TokenType::GREATER_THAN, "GREATER_THAN"},
 		{ TokenType::LESS_OR_EQUAL, "LESS_OR_EQUAL"},
-		{ TokenType::GREATER_OR_EQUAL, "GREATER_OR_EQUAL"}
+		{ TokenType::GREATER_OR_EQUAL, "GREATER_OR_EQUAL"},
+		{ TokenType::OR, "OR"},
+		{ TokenType::AND, "AND"},
+		{ TokenType::NOT_EQUAL, "NOT_EQUAL"}
 };
 
 
-std::string Token::Position::toString() const {
+std::string Position::toString() const {
 	return "at line " + std::to_string(lineNumber) + ", at column " + std::to_string(columnNumber);
 }
 
