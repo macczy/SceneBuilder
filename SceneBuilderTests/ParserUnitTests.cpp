@@ -105,6 +105,22 @@ TEST(ParserUnitTests, CreatePointObject) {
 		ScannerMock scanner({
 			Token(Token::TokenType::TYPE_IDENTIFIER, "Point"),
 			Token(Token::TokenType::OPENING_BRACKET, "("),
+			Token(Token::TokenType::DECIMAL_CONST, "0.12"),
+			Token(Token::TokenType::CLOSING_BRACKET, ")")
+			});
+		Parser parser(scanner);
+
+		if (auto point = parser.tryBuildPoint(); point.has_value()) {
+			EXPECT_EQ(point->getValues(), triplePointValues("0.12", "0", "0"));
+		}
+		else {
+			FAIL() << "Expected Point";
+		}
+	}
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::TYPE_IDENTIFIER, "Point"),
+			Token(Token::TokenType::OPENING_BRACKET, "("),
 			Token(Token::TokenType::MINUS, "-"),
 			Token(Token::TokenType::DECIMAL_CONST, "0.12"),
 			Token(Token::TokenType::COMMA, ","),
@@ -141,5 +157,29 @@ TEST(ParserUnitTests, CreatePointObject) {
 				FAIL() << "Point building should fail";
 			}
 		}, SyntaxError);
+	}
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::TYPE_IDENTIFIER, "Color"),
+			});
+		Parser parser(scanner);
+
+		if (auto point = parser.tryBuildPoint(); point.has_value()) {
+			FAIL() << "Should return nullopt";
+		}
+		else {
+		}
+	}
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "Point"),
+			});
+		Parser parser(scanner);
+
+		if (auto point = parser.tryBuildPoint(); point.has_value()) {
+			FAIL() << "Should return nullopt";
+		}
+		else {
+		}
 	}
 }
