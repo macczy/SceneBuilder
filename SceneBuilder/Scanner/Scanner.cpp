@@ -3,7 +3,7 @@
 #include "Scanner.h"
 #include "../SyntaxError.h"
 
-Scanner::Scanner(std::istream& input) : input(input), line(0), column(0), position(0){
+SceneBuilderScanner::SceneBuilderScanner(std::istream& input) : input(input), line(1), column(0) {
 	singleCharTokens = { 
 		{'}', Token::TokenType::CLOSING_BRACE},
 		{'{', Token::TokenType::OPENING_BRACE},
@@ -22,7 +22,7 @@ Scanner::Scanner(std::istream& input) : input(input), line(0), column(0), positi
 		{'?', Token::TokenType::QUESTION_MARK}
 	};
 	lambdaGeneratedTokens = {
-		{'|', [=](Token::Position& tokenStartPosition) {
+		{'|', [=](Position tokenStartPosition) {
 			if (getNextChar() == '|') {
 				currentToken = Token(Token::TokenType::OR, "||", tokenStartPosition);
 				getNextChar();
@@ -32,7 +32,7 @@ Scanner::Scanner(std::istream& input) : input(input), line(0), column(0), positi
 				std::string errorMessage = "Expected | but got '" + std::string(1, character) + "' " + tokenStartPosition.toString();
 				throw SyntaxError(errorMessage);
 				}}},
-		{'&', [=](Token::Position& tokenStartPosition) {
+		{'&', [=](Position tokenStartPosition) {
 			if (getNextChar() == '&') {
 				currentToken = Token(Token::TokenType::AND, "&&", tokenStartPosition);
 				getNextChar();
@@ -42,7 +42,7 @@ Scanner::Scanner(std::istream& input) : input(input), line(0), column(0), positi
 				std::string errorMessage = "Expected & but got '" + std::string(1, character) + "' " + tokenStartPosition.toString();
 				throw SyntaxError(errorMessage);
 			}}},
-		{'<', [=](Token::Position& tokenStartPosition) {
+		{'<', [=](Position tokenStartPosition) {
 			if (getNextChar() == '=') {
 				currentToken = Token(Token::TokenType::LESS_OR_EQUAL, "<=", tokenStartPosition);
 				getNextChar();
@@ -50,7 +50,7 @@ Scanner::Scanner(std::istream& input) : input(input), line(0), column(0), positi
 			else
 				currentToken = Token(Token::TokenType::LESS_THAN, "<", tokenStartPosition);
 			}},
-		{'>', [=](Token::Position& tokenStartPosition) {
+		{'>', [=](Position tokenStartPosition) {
 			if (getNextChar() == '=') {
 				currentToken = Token(Token::TokenType::GREATER_OR_EQUAL, ">=", tokenStartPosition);
 				getNextChar();
@@ -58,7 +58,7 @@ Scanner::Scanner(std::istream& input) : input(input), line(0), column(0), positi
 			else
 				currentToken = Token(Token::TokenType::GREATER_THAN, ">", tokenStartPosition);
 			}},
-		{'!', [=](Token::Position& tokenStartPosition) {
+		{'!', [=](Position tokenStartPosition) {
 			if (getNextChar() == '=') {
 				currentToken = Token(Token::TokenType::NOT_EQUAL, "!=", tokenStartPosition);
 				getNextChar();
@@ -71,48 +71,47 @@ Scanner::Scanner(std::istream& input) : input(input), line(0), column(0), positi
 	next();
 }
 
-Token Scanner::getToken() {
+Token SceneBuilderScanner::getToken() {
 	return currentToken;
 }
 
-bool Scanner::isDigit(const char character) const {
+bool SceneBuilderScanner::isDigit(const char character) const {
 	return character >= '0' && character <= '9';
 }
 
-bool Scanner::isCapitalLetter(const char character) const {
+bool SceneBuilderScanner::isCapitalLetter(const char character) const {
 	return character >= 'A' && character <= 'Z';
 }
 
-bool Scanner::isSmallLetter(const char character)const {
+bool SceneBuilderScanner::isSmallLetter(const char character)const {
 	return character >= 'a' && character <= 'z';
 }
 
-bool Scanner::isVariableCharacter(const char character) const {
+bool SceneBuilderScanner::isVariableCharacter(const char character) const {
 	return isSmallLetter(character) || isCapitalLetter(character) || isDigit(character) || character == '_';
 }
 
-bool Scanner::isHex(const char character) const {
+bool SceneBuilderScanner::isHex(const char character) const {
 	return character >= 'A' && character <= 'F' || isDigit(character);
 }
 
-char Scanner::getNextChar() {
+char SceneBuilderScanner::getNextChar() {
 	character = input.get();
 	++column;
 	if (character == '\n') {
 		++line;
-		column = 1;
+		column = 0;
 	}
-	++position;
 	return character;
 }
 
-inline void Scanner::checkIfTokenMaxLengthReached(const unsigned int limit, const Token::Position& tokenStartPosition, const std::string& errorMessage, const size_t length) const {
+inline void SceneBuilderScanner::checkIfTokenMaxLengthReached(const unsigned int limit, const Position& tokenStartPosition, const std::string& errorMessage, const size_t length) const {
 	if (length > limit) {
 		throw SyntaxError(errorMessage + tokenStartPosition.toString());
 	}
 }
 
-bool Scanner::isVariableIdentifier(Token::Position tokenStartPosition) {
+bool SceneBuilderScanner::isVariableIdentifier(Position tokenStartPosition) {
 	if (isSmallLetter(character)) {
 		std::string tokenValue(1, character);
 		while (isVariableCharacter(getNextChar())) {
@@ -125,7 +124,7 @@ bool Scanner::isVariableIdentifier(Token::Position tokenStartPosition) {
 	return false;
 }
 
-bool Scanner::isTypeIdentifier(Token::Position tokenStartPosition) {
+bool SceneBuilderScanner::isTypeIdentifier(Position tokenStartPosition) {
 	if (isCapitalLetter(character)) {
 		std::string tokenValue(1, character);
 		while (isVariableCharacter(getNextChar())) {
@@ -138,7 +137,7 @@ bool Scanner::isTypeIdentifier(Token::Position tokenStartPosition) {
 	return false;
 }
 
-bool Scanner::isHexConst(Token::Position tokenStartPosition) {
+bool SceneBuilderScanner::isHexConst(Position tokenStartPosition) {
 	if (character == '#') {
 		std::string tokenValue(1, character);
 		while (isHex(getNextChar())) {
@@ -146,6 +145,7 @@ bool Scanner::isHexConst(Token::Position tokenStartPosition) {
 			checkIfTokenMaxLengthReached(MAX_HEX_VALUE_LENGTH, tokenStartPosition, "Hexadecimal value exceeded maximum length ", tokenValue.size());
 		}
 		if (tokenValue.size() == 1) {
+			tokenStartPosition.columnNumber++;
 			std::string errorMessage = "Expected hexadecimal const value, but got '" + std::string(1, character) + "' " 
 				+ tokenStartPosition.toString() + getLineError(tokenStartPosition);
 			throw SyntaxError(errorMessage);
@@ -157,18 +157,18 @@ bool Scanner::isHexConst(Token::Position tokenStartPosition) {
 	return false;
 }
 
-std::string Scanner::getLineError(Token::Position position) {
+std::string SceneBuilderScanner::getLineError(Position position) {
 	std::string buffer;
 	auto positionInInput = input.tellg();
-	input.seekg(position.totalPositionNumber-position.columnNumber);
+	input.seekg(position.totalPositionNumber-position.columnNumber + (position.lineNumber==1 ? 1 : 0), std::ios::beg);
 	std::getline(input, buffer);
 	std::replace(buffer.begin(), buffer.end(), '\t', ' ');
 	buffer = "\n" + buffer + "\n" + std::string(position.columnNumber - 1, ' ') + "^";
-	input.seekg(positionInInput);
+	input.seekg(positionInInput, std::ios::beg);
 	return buffer;
 }
 
-bool Scanner::isDecimalConst(Token::Position tokenStartPosition) {
+bool SceneBuilderScanner::isDecimalConst(Position tokenStartPosition) {
 	if (isDigit(character)) {
 		std::string tokenValue(1, character);
 		if (character == 0) { 
@@ -203,12 +203,12 @@ bool Scanner::isDecimalConst(Token::Position tokenStartPosition) {
 	return false;
 }
 
-void Scanner::next() {
+void SceneBuilderScanner::next() {
 	try {
 		unsigned long tokenLine = line;
 		unsigned long tokenColumn = column;
-		unsigned long tokenPosition = position;
-		Token::Position tokenStartPosition{ line, column, position };
+		std::streamoff tokenPosition = input.tellg();
+		Position tokenStartPosition{ tokenLine, tokenColumn, tokenPosition };
 		
 		unsigned long currentCharacterCountNumber = 0;
 		while (isspace(character)) {
@@ -216,7 +216,7 @@ void Scanner::next() {
 				"Expected token, got " + std::to_string(currentCharacterCountNumber) + " blank characters ", ++currentCharacterCountNumber);
 			getNextChar();
 		}
-		tokenStartPosition = Token::Position{ line, column, position };
+		tokenStartPosition = Position{ line, column, input.tellg() };
 		if (input.eof()) {
 			currentToken = Token(Token::TokenType::END_OF_FILE, "", tokenStartPosition);
 			return;
@@ -230,13 +230,13 @@ void Scanner::next() {
 		if(lambda != nullptr) {
 			lambda(tokenStartPosition);
 		} else {
-			Token::TokenType type = singleCharTokens[character];
+			Token::TokenType type = singleCharTokens[character]; //return UNDEFINED if character not found
 			currentToken = Token(type, std::string(1, character), tokenStartPosition);
 			getNextChar();
 		}
 	}
 	catch (SyntaxError&) {
-		currentToken = Token(Token::TokenType::UNDEFINED, "", Token::Position{ line, column, position });
+		currentToken = Token(Token::TokenType::UNDEFINED, "", Position{ line, column, input.tellg() });
 		throw;
 	}
 }

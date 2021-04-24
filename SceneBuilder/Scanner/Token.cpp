@@ -33,7 +33,7 @@ std::map<Token::TokenType, std::string> Token::TokenTypeToStringMap {
 };
 
 
-std::string Token::Position::toString() const {
+std::string Position::toString() const {
 	return "at line " + std::to_string(lineNumber) + ", at column " + std::to_string(columnNumber);
 }
 

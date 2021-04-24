@@ -1,6 +1,6 @@
 #pragma once
-#include "AnimationSequence.h"
-#include "ComplexObject.h"
+#include "../Animations/AnimationSequence.h"
+#include "../Objects/ComplexObject.h"
 #include "Scene.h"
 #include <map>
 #include <string>

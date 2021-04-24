@@ -2,11 +2,19 @@
 #include <ostream>
 #include <map>
  
+
+struct Position {
+	unsigned long lineNumber;
+	unsigned long columnNumber;
+	std::streamoff totalPositionNumber;
+	std::string toString() const;
+};
+
 class Token
 {
 public:
 	enum class TokenType {
-		UNDEFINED,
+		UNDEFINED, //default value
 		OPENING_BRACKET, 
 		CLOSING_BRACKET,
 		OPENING_BRACE, 
@@ -36,19 +44,12 @@ public:
 		AND
 	};
 
-	struct Position {
-		unsigned long lineNumber;
-		unsigned long columnNumber;
-		unsigned long totalPositionNumber;
-		std::string toString() const;
-	};
-
 	static std::map<TokenType, std::string> TokenTypeToStringMap;
 
-	TokenType getType() {
+	const TokenType getType() const {
 		return type;
 	}
-	std::string getValue() {
+	const std::string getValue() const {
 		return value; 
 	}
 
