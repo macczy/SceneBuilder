@@ -29,6 +29,7 @@ public:
 	std::optional<Color> tryBuildColor();
 	std::optional<Point> tryBuildPoint();
 	std::optional<DecimalValue> tryBuildDecimalValue();
+	std::optional<Identifier> tryBuildIdentifier();
 
 
 private:

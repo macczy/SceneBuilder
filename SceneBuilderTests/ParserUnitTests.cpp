@@ -186,6 +186,50 @@ TEST(ParserUnitTests, CreatePoint) {
 	}
 }
 
+TEST(ParserUnitTests, CreateIdentyfierOrProperty) {
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof")
+			});
+		Parser parser(scanner);
+
+		if (auto color = parser.tryBuildColor(); color.has_value()) {
+			EXPECT_EQ(color->getValues(), tripleHexValues("#AB234", "#123", "#0123"));
+		}
+		else {
+			FAIL() << "Expected Color";
+		}
+	}
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
+			Token(Token::TokenType::DOT, "."),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
+			Token(Token::TokenType::DOT, "."),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
+			});
+		Parser parser(scanner);
+		EXPECT_THROW({
+			if (auto color = parser.tryBuildColor(); color) {
+				FAIL() << "Color building should fail";
+			}
+			}, SyntaxError);
+	}
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
+			Token(Token::TokenType::DOT, ".")
+			});
+		Parser parser(scanner);
+		EXPECT_THROW({
+			if (auto color = parser.tryBuildColor(); color) {
+				FAIL() << "Color building should fail";
+			}
+			}, SyntaxError);
+	}
+}
+
+
 TEST(ParserUnitTests, CreateValue) {
 	//decimal values through Value
 	{
