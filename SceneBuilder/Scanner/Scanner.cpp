@@ -150,8 +150,7 @@ bool SceneBuilderScanner::isHexConst(Position tokenStartPosition) {
 				+ tokenStartPosition.toString() + getLineError(tokenStartPosition);
 			throw SyntaxError(errorMessage);
 		}
-
-		currentToken = Token(Token::TokenType::HEX_CONST, tokenValue, tokenStartPosition);
+		currentToken = Token(Token::TokenType::HEX_CONST, tokenValue.replace(0, 1, "0x"), tokenStartPosition);
 		return true;
 	}
 	return false;
@@ -160,10 +159,12 @@ bool SceneBuilderScanner::isHexConst(Position tokenStartPosition) {
 std::string SceneBuilderScanner::getLineError(Position position) {
 	std::string buffer;
 	auto positionInInput = input.tellg();
-	input.seekg(position.totalPositionNumber-position.columnNumber + (position.lineNumber==1 ? 1 : 0), std::ios::beg);
+	std::streamoff seekedPosition = position.totalPositionNumber - position.columnNumber;
+	input.seekg(seekedPosition > 0 ? seekedPosition : 0, std::ios::beg);
 	std::getline(input, buffer);
 	std::replace(buffer.begin(), buffer.end(), '\t', ' ');
-	buffer = "\n" + buffer + "\n" + std::string(position.columnNumber - 1, ' ') + "^";
+	auto spaceLength = position.columnNumber - 1;
+	buffer = "\n" + buffer + "\n" + std::string(spaceLength > 0 ? spaceLength : 0, ' ') + "^";
 	input.seekg(positionInInput, std::ios::beg);
 	return buffer;
 }
@@ -205,8 +206,8 @@ bool SceneBuilderScanner::isDecimalConst(Position tokenStartPosition) {
 
 void SceneBuilderScanner::next() {
 	try {
-		unsigned long tokenLine = line;
-		unsigned long tokenColumn = column;
+		int tokenLine = line;
+		int tokenColumn = column;
 		std::streamoff tokenPosition = input.tellg();
 		Position tokenStartPosition{ tokenLine, tokenColumn, tokenPosition };
 		
@@ -230,7 +231,7 @@ void SceneBuilderScanner::next() {
 		if(lambda != nullptr) {
 			lambda(tokenStartPosition);
 		} else {
-			Token::TokenType type = singleCharTokens[character]; //return UNDEFINED if character not found
+			Token::TokenType type = singleCharTokens[character]; //returns UNDEFINED if character not found
 			currentToken = Token(type, std::string(1, character), tokenStartPosition);
 			getNextChar();
 		}

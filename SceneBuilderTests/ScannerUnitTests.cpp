@@ -178,7 +178,7 @@ TEST(ScannerUnitTest, CreateHexConstToken) {
 		std::stringstream stream("#ABCDEF0123456789zzasd");
 		SceneBuilderScanner scanner(stream);
 		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::HEX_CONST);
-		EXPECT_EQ(scanner.getToken().getValue(), "#ABCDEF0123456789");
+		EXPECT_EQ(scanner.getToken().getValue(), "0xABCDEF0123456789");
 		scanner.next();
 		EXPECT_NE(scanner.getToken().getType(), Token::TokenType::HEX_CONST);
 	}
@@ -188,7 +188,7 @@ TEST(ScannerUnitTest, CreateHexConstToken) {
 		SceneBuilderScanner scanner(stream);
 		scanner.next();
 		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::HEX_CONST);
-		EXPECT_EQ(scanner.getToken().getValue(), "#ABCDEF0123456789");
+		EXPECT_EQ(scanner.getToken().getValue(), "0xABCDEF0123456789");
 		scanner.next();
 		EXPECT_NE(scanner.getToken().getType(), Token::TokenType::HEX_CONST);
 	}
@@ -206,16 +206,6 @@ TEST(ScannerUnitTest, CreateDecimalConstToken) {
 		scanner.next();
 		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::DECIMAL_CONST);
 		EXPECT_EQ(scanner.getToken().getValue(), "1234567890.0987654321");
-	}
-
-	{
-		std::stringstream stream("fw#ABCDEF0123456789 zzasd");
-		SceneBuilderScanner scanner(stream);
-		scanner.next();
-		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::HEX_CONST);
-		EXPECT_EQ(scanner.getToken().getValue(), "#ABCDEF0123456789");
-		scanner.next();
-		EXPECT_NE(scanner.getToken().getType(), Token::TokenType::HEX_CONST);
 	}
 }
 

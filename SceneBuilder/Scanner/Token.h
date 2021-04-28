@@ -4,8 +4,8 @@
  
 
 struct Position {
-	unsigned long lineNumber;
-	unsigned long columnNumber;
+	int lineNumber;
+	int columnNumber;
 	std::streamoff totalPositionNumber;
 	std::string toString() const;
 };

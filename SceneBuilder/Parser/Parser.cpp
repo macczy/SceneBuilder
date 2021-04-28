@@ -1,6 +1,7 @@
 #include "Parser.h"
 #include "../SyntaxError.h"
 #include <optional>
+#include <functional>
 
 using TokenType = Token::TokenType;
 
@@ -70,66 +71,96 @@ bool Parser::tryBuildAnimationDeclaration() {
     return true;
 }
 
-std::string Parser::errorExpectingXgotYat(const std::string& expected, const std::string& got, const Position& pos) {
-    return "Expected " + expected + ", but got " + got + " " + pos.toString() + "\n" + scanner.getLineError(pos);
-}
-
-
 std::optional<Color> Parser::tryBuildColor() {
-    if (currentToken.getType() != TokenType::TYPE_IDENTIFIER || currentToken.getValue() != "Color") return std::nullopt;
+    if (currentToken.getType() != TokenType::TYPE_IDENTIFIER || currentToken.getValue() != "Color") 
+        return std::nullopt;
     Position startingColorPosition = currentToken.getPosition();
-    if (getNextToken().getType() != TokenType::OPENING_BRACKET) throw SyntaxError(errorExpectingXgotYat("'('", currentToken.getValue(), currentToken.getPosition()));
-    if (getNextToken().getType() != TokenType::HEX_CONST) throw SyntaxError(errorExpectingXgotYat("hexadecimal value", currentToken.getValue(), currentToken.getPosition()));
+    if (getNextToken().getType() != TokenType::OPENING_BRACKET) 
+        throwSyntaxError("'('", currentToken.getValue(), currentToken);
+    if (getNextToken().getType() != TokenType::HEX_CONST) 
+        throwSyntaxError("hexadecimal value", currentToken.getValue(), currentToken);
     auto firstHexValue = currentToken.getValue();
-    if (getNextToken().getType() != TokenType::COMMA) throw SyntaxError(errorExpectingXgotYat("','", currentToken.getValue(), currentToken.getPosition()));
-    if (getNextToken().getType() != TokenType::HEX_CONST) throw SyntaxError(errorExpectingXgotYat("hexadecimal value", currentToken.getValue(), currentToken.getPosition()));
+    if (getNextToken().getType() != TokenType::COMMA) 
+        throwSyntaxError("','", currentToken.getValue(), currentToken);
+    if (getNextToken().getType() != TokenType::HEX_CONST) 
+        throwSyntaxError("hexadecimal value", currentToken.getValue(), currentToken);
     auto secondHexValue = currentToken.getValue();
-    if (getNextToken().getType() != TokenType::COMMA) throw SyntaxError(errorExpectingXgotYat("','", currentToken.getValue(), currentToken.getPosition()));
-    if (getNextToken().getType() != TokenType::HEX_CONST) throw SyntaxError(errorExpectingXgotYat("hexadecimal value", currentToken.getValue(), currentToken.getPosition()));
+    if (getNextToken().getType() != TokenType::COMMA) 
+        throwSyntaxError("','", currentToken.getValue(), currentToken);
+    if (getNextToken().getType() != TokenType::HEX_CONST) 
+        throwSyntaxError("hexadecimal value", currentToken.getValue(), currentToken);
     auto thirdHexValue = currentToken.getValue();
-    if (getNextToken().getType() != TokenType::CLOSING_BRACKET) throw SyntaxError(errorExpectingXgotYat("')'", currentToken.getValue(), currentToken.getPosition()));
+    if (getNextToken().getType() != TokenType::CLOSING_BRACKET) 
+        throwSyntaxError("')'", currentToken.getValue(), currentToken);
     return Color(startingColorPosition, firstHexValue, secondHexValue, thirdHexValue);
 }
 
-std::optional<std::string> Parser::getDecimalValue() {
+std::optional<DecimalValue> Parser::tryBuildDecimalValue() {
+    Position pos = currentToken.getPosition();
     if (currentToken.getType() == TokenType::MINUS) {
-        if (getNextToken().getType() != Token::TokenType::DECIMAL_CONST) throw SyntaxError(errorExpectingXgotYat("decimal value", currentToken.getValue(), currentToken.getPosition()));
-        return "-" + currentToken.getValue();
+        if (getNextToken().getType() != Token::TokenType::DECIMAL_CONST) 
+            throwSyntaxError("decimal value", currentToken.getValue(), currentToken);
+        return DecimalValue(pos, "-" + currentToken.getValue());
     }
     else if (currentToken.getType() == TokenType::DECIMAL_CONST)
-        return currentToken.getValue(); 
+        return DecimalValue(pos, currentToken.getValue());
     return std::nullopt;
 }
 
+void Parser::throwSyntaxError(const std::string& got, const std::string& expected, Token& token) {
+    throw SyntaxError(got, expected, token.getPosition(), [=](const Position& pos) {
+        return scanner.getLineError(pos);
+    });
+}
+
 std::optional<Point> Parser::tryBuildPoint() {
-    if (currentToken.getType() != TokenType::TYPE_IDENTIFIER || currentToken.getValue() != "Point") return std::nullopt;
+    if (currentToken.getType() != TokenType::TYPE_IDENTIFIER || currentToken.getValue() != "Point") 
+        return std::nullopt;
     Position startingPointPosition = currentToken.getPosition();
-    if (getNextToken().getType() != TokenType::OPENING_BRACKET) throw SyntaxError(errorExpectingXgotYat("'('", currentToken.getValue(), currentToken.getPosition()));
-    if (getNextToken().getType() == TokenType::CLOSING_BRACKET) return Point(startingPointPosition);
+    if (getNextToken().getType() != TokenType::OPENING_BRACKET)
+        throwSyntaxError("'('", currentToken.getValue(), currentToken);
+    if (getNextToken().getType() == TokenType::CLOSING_BRACKET)
+        return Point(startingPointPosition);
 
-    auto firstDecimalValue = getDecimalValue();
-    if (!firstDecimalValue.has_value()) throw SyntaxError(errorExpectingXgotYat("')' or decimal value", currentToken.getValue(), currentToken.getPosition()));
-
-    if (getNextToken().getType() != TokenType::COMMA) {
-        if (currentToken.getType() == TokenType::CLOSING_BRACKET) return Point(startingPointPosition, firstDecimalValue.value());
-        throw SyntaxError(errorExpectingXgotYat("',' or ')'", currentToken.getValue(), currentToken.getPosition()));
-    }
-    getNextToken();
-    auto secondDecimalValue = getDecimalValue();
-    if (!secondDecimalValue) throw SyntaxError(errorExpectingXgotYat("decimal value", currentToken.getValue(), currentToken.getPosition()));
+    auto firstDecimalValue = tryBuildDecimalValue();
+    if (!firstDecimalValue.has_value()) 
+        throwSyntaxError("')' or decimal value", currentToken.getValue(), currentToken);
 
     if (getNextToken().getType() != TokenType::COMMA) {
-        if (currentToken.getType() == TokenType::CLOSING_BRACKET) return Point(startingPointPosition, firstDecimalValue.value());
-        throw SyntaxError(errorExpectingXgotYat("',' or ')'", currentToken.getValue(), currentToken.getPosition()));
+        if (currentToken.getType() == TokenType::CLOSING_BRACKET) 
+            return Point(startingPointPosition, firstDecimalValue.value());
+        throwSyntaxError("',' or ')'", currentToken.getValue(), currentToken);
     }
     getNextToken();
-    auto thirdDecimalValue = getDecimalValue();
-    if (!thirdDecimalValue) throw SyntaxError(errorExpectingXgotYat("decimal value", currentToken.getValue(), currentToken.getPosition()));
+    auto secondDecimalValue = tryBuildDecimalValue();
+    if (!secondDecimalValue)
+        throwSyntaxError("decimal value", currentToken.getValue(), currentToken);
+
+    if (getNextToken().getType() != TokenType::COMMA) {
+        if (currentToken.getType() == TokenType::CLOSING_BRACKET) 
+            return Point(startingPointPosition, firstDecimalValue.value());
+        throwSyntaxError("',' or ')'", currentToken.getValue(), currentToken);
+    }
+    getNextToken();
+    auto thirdDecimalValue = tryBuildDecimalValue();
+    if (!thirdDecimalValue) throwSyntaxError("decimal value", currentToken.getValue(), currentToken);
         
-    if (getNextToken().getType() != TokenType::CLOSING_BRACKET) throw SyntaxError(errorExpectingXgotYat("')'", currentToken.getValue(), currentToken.getPosition()));
+    if (getNextToken().getType() != TokenType::CLOSING_BRACKET) throwSyntaxError("')'", currentToken.getValue(), currentToken);
 
     return Point(startingPointPosition, firstDecimalValue.value(), secondDecimalValue.value(), thirdDecimalValue.value());
 }
+
+
+std::optional<value> Parser::tryBuildValue() {
+    if (auto value = tryBuildDecimalValue(); value.has_value())
+        return value;
+    if (auto point = tryBuildPoint(); point.has_value())
+        return point;
+    if (auto color = tryBuildColor(); color.has_value())
+        return color;
+    return std::nullopt;
+}
+
 
 std::unique_ptr<SceneRoot> Parser::parse() {
     try {
@@ -155,9 +186,6 @@ std::unique_ptr<SceneRoot> Parser::parse() {
     }
     catch (SyntaxError er) {
         std::cout << er.what();
-        std::string errorMessage = "\nGot '" + currentToken.getValue()
-            + "' " + currentToken.getPosition().toString() + scanner.getLineError(currentToken.getPosition());
-        std::cout << errorMessage << std::endl;
     }
     catch (...) {
         std::cout << "Unknown exception" << std::endl;

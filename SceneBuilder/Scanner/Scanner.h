@@ -24,8 +24,8 @@ private:
 	std::map<char, Token::TokenType> singleCharTokens;
 	std::map<char, std::function<void(Position&)>> lambdaGeneratedTokens;
 
-	unsigned long line;
-	unsigned long column;
+	int line;
+	int column;
 
 	bool isDigit(const char character) const;
 	bool isCapitalLetter(const char character) const;

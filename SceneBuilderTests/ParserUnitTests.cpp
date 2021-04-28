@@ -5,7 +5,7 @@
 
 class ScannerMock : public Scanner {
 public:
-	ScannerMock(std::deque<Token> tokens, std::stringstream& str = std::stringstream("")) : tokens(tokens) {
+	ScannerMock(std::deque<Token> tokens) : tokens(tokens) {
 		next();
 	}
 	Token virtual getToken() {
@@ -39,7 +39,7 @@ TEST(ParserUnitTests, ConstructorTest) {
 	}
 }
 
-TEST(ParserUnitTests, CreateColorObject) {
+TEST(ParserUnitTests, CreateColor) {
 	{
 		ScannerMock scanner({
 			Token(Token::TokenType::TYPE_IDENTIFIER, "Color"),
@@ -79,10 +79,8 @@ TEST(ParserUnitTests, CreateColorObject) {
 	}
 }
 
-
-TEST(ParserUnitTests, CreatePointObject) {
-	{
-		ScannerMock scanner({
+inline std::deque<Token> getValidPointTokenSequence() {
+	return {
 			Token(Token::TokenType::TYPE_IDENTIFIER, "Point"),
 			Token(Token::TokenType::OPENING_BRACKET, "("),
 			Token(Token::TokenType::DECIMAL_CONST, "0.12"),
@@ -91,11 +89,20 @@ TEST(ParserUnitTests, CreatePointObject) {
 			Token(Token::TokenType::COMMA, ","),
 			Token(Token::TokenType::DECIMAL_CONST, "123.5"),
 			Token(Token::TokenType::CLOSING_BRACKET, ")")
-			});
+	};
+}
+
+
+TEST(ParserUnitTests, CreatePoint) {
+	{
+		ScannerMock scanner(getValidPointTokenSequence());
 		Parser parser(scanner);
 
 		if (auto point = parser.tryBuildPoint(); point.has_value()) {
-			EXPECT_EQ(point->getValues(), triplePointValues("0.12", "12.4", "123.5"));
+			auto& [x, y, z] = point->getValues();
+			EXPECT_EQ(x.getValue(), "0.12");
+			EXPECT_EQ(y.getValue(), "12.4");
+			EXPECT_EQ(z.getValue(), "123.5");
 		}
 		else {
 			FAIL() << "Expected Point";
@@ -111,30 +118,27 @@ TEST(ParserUnitTests, CreatePointObject) {
 		Parser parser(scanner);
 
 		if (auto point = parser.tryBuildPoint(); point.has_value()) {
-			EXPECT_EQ(point->getValues(), triplePointValues("0.12", "0", "0"));
+			auto& [x, y, z] = point->getValues();
+			EXPECT_EQ(x.getValue(), "0.12");
+			EXPECT_EQ(y.getValue(), "0");
+			EXPECT_EQ(z.getValue(), "0");
 		}
 		else {
 			FAIL() << "Expected Point";
 		}
 	}
 	{
-		ScannerMock scanner({
-			Token(Token::TokenType::TYPE_IDENTIFIER, "Point"),
-			Token(Token::TokenType::OPENING_BRACKET, "("),
-			Token(Token::TokenType::MINUS, "-"),
-			Token(Token::TokenType::DECIMAL_CONST, "0.12"),
-			Token(Token::TokenType::COMMA, ","),
-			Token(Token::TokenType::MINUS, "-"),
-			Token(Token::TokenType::DECIMAL_CONST, "12.4"),
-			Token(Token::TokenType::COMMA, ","),
-			Token(Token::TokenType::MINUS, "-"),
-			Token(Token::TokenType::DECIMAL_CONST, "123.5"),
-			Token(Token::TokenType::CLOSING_BRACKET, ")")
-			});
+		auto tokens = getValidPointTokenSequence();
+		tokens.insert(tokens.begin() + 2, Token(Token::TokenType::MINUS, "-"));
+		tokens.insert(tokens.begin() + 5, Token(Token::TokenType::MINUS, "-"));
+		tokens.insert(tokens.begin() + 8, Token(Token::TokenType::MINUS, "-"));
+		ScannerMock scanner(tokens);
 		Parser parser(scanner);
-
 		if (auto point = parser.tryBuildPoint(); point.has_value()) {
-			EXPECT_EQ(point->getValues(), triplePointValues("-0.12", "-12.4", "-123.5"));
+			auto& [x, y, z] = point->getValues();
+			EXPECT_EQ(x.getValue(), "-0.12");
+			EXPECT_EQ(y.getValue(), "-12.4");
+			EXPECT_EQ(z.getValue(), "-123.5");
 		}
 		else {
 			FAIL() << "Expected Point";
@@ -154,7 +158,7 @@ TEST(ParserUnitTests, CreatePointObject) {
 		Parser parser(scanner);
 		EXPECT_THROW({
 			if (auto point = parser.tryBuildPoint(); point) {
-				FAIL() << "Point building should fail";
+				FAIL() << "Point building should fail when using hex values";
 			}
 		}, SyntaxError);
 	}
@@ -179,7 +183,82 @@ TEST(ParserUnitTests, CreatePointObject) {
 		if (auto point = parser.tryBuildPoint(); point.has_value()) {
 			FAIL() << "Should return nullopt";
 		}
+	}
+}
+
+TEST(ParserUnitTests, CreateValue) {
+	//decimal values through Value
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::MINUS, "-"),
+			Token(Token::TokenType::DECIMAL_CONST, "0.12"),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "test"),
+			});
+		Parser parser(scanner);
+
+		if (auto value = parser.tryBuildValue(); value.has_value()) {
+			EXPECT_EQ(value->index(), Value::DECIMAL_VALUE_INDEX);
+			DecimalValue dec = std::get<DecimalValue>(value.value());
+			EXPECT_EQ(dec.getValue(), "-0.12");
+		}
 		else {
+			FAIL() << "Expected Decimal value";
+		}
+	}
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::DECIMAL_CONST, "0.12"),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "test"),
+			});
+		Parser parser(scanner);
+
+		if (auto value = parser.tryBuildValue(); value.has_value()) {
+			EXPECT_EQ(value->index(), Value::DECIMAL_VALUE_INDEX);
+			DecimalValue dec = std::get<DecimalValue>(value.value());
+			EXPECT_EQ(dec.getValue(), "0.12");
+		}
+		else {
+			FAIL() << "Expected Decimal value";
+		}
+	}
+	//point through Value
+	{
+		ScannerMock scanner(getValidPointTokenSequence());
+		Parser parser(scanner);
+
+		if (auto value = parser.tryBuildValue(); value.has_value()) {
+			EXPECT_EQ(value->index(), Value::POINT_INDEX);
+			Point point = std::get<Point>(value.value());
+			auto& [x, y, z] = point.getValues();
+			EXPECT_EQ(x.getValue(), "0.12");
+			EXPECT_EQ(y.getValue(), "12.4");
+			EXPECT_EQ(z.getValue(), "123.5");
+		}
+		else {
+			FAIL() << "Expected Point";
+		}
+	}
+	//color through value
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::TYPE_IDENTIFIER, "Color"),
+			Token(Token::TokenType::OPENING_BRACKET, "("),
+			Token(Token::TokenType::HEX_CONST, "#AB234"),
+			Token(Token::TokenType::COMMA, ","),
+			Token(Token::TokenType::HEX_CONST, "#123"),
+			Token(Token::TokenType::COMMA, ","),
+			Token(Token::TokenType::HEX_CONST, "#0123"),
+			Token(Token::TokenType::CLOSING_BRACKET, ")")
+			});
+		Parser parser(scanner);
+
+		if (auto value = parser.tryBuildValue(); value.has_value()) {
+			EXPECT_EQ(value->index(), Value::COLOR_INDEX);
+			Color color = std::get<Color>(value.value());
+			EXPECT_EQ(color.getValues(), tripleHexValues("#AB234", "#123", "#0123"));
+		}
+		else {
+			FAIL() << "Expected Color";
 		}
 	}
 }

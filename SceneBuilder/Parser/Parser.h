@@ -1,9 +1,11 @@
 #pragma once
 #include <optional>
+#include <variant>
 #include "SceneRoot.h"
-#include "../objects/Color.h"
-#include "../objects/Point.h"
+#include "../Objects/Value.h"
 #include "../Scanner/Scanner.h"
+#include "../Scanner/Token.h"
+
 
 class Parser
 {
@@ -18,13 +20,17 @@ public:
 	bool tryBuildVariableObject();
 	bool tryBuildComplexOrSimpleObject();
 	bool tryBuildKnownType();
+	//each tryBuild function assumes that current token should be chacked, and leaves 1 token that it didn't include
+	//testing now
+	//std::optional<Color> tryBuildLogicalCondition();
+	std::optional<value> tryBuildValue();
+
+	//tested
 	std::optional<Color> tryBuildColor();
 	std::optional<Point> tryBuildPoint();
-	std::optional<std::string> getDecimalValue();
+	std::optional<DecimalValue> tryBuildDecimalValue();
 
 
-	//helper functions:
-	std::string errorExpectingXgotYat(const std::string& expected, const std::string& got, const Position& pos);
 private:
 	Scanner& scanner;
 	Token currentToken;
@@ -32,5 +38,8 @@ private:
 	std::vector<std::string> knownTypes;
 	const Token& getNextToken();
 	bool isKnownType(const std::string& value);
+
+	//helper functions:
+	inline void throwSyntaxError(const std::string& got, const std::string& expected, Token& token );
 };
 

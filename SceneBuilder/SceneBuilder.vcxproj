@@ -231,7 +231,10 @@
     <ClInclude Include="Animations\AnimationSequence.h" />
     <ClInclude Include="Objects\Color.h" />
     <ClInclude Include="Objects\ComplexObject.h" />
+    <ClInclude Include="Objects\DecimalValue.h" />
+    <ClInclude Include="Objects\HexValue.h" />
     <ClInclude Include="Objects\Point.h" />
+    <ClInclude Include="Objects\Value.h" />
     <ClInclude Include="Parser\Parser.h" />
     <ClInclude Include="Parser\Scene.h" />
     <ClInclude Include="Parser\SceneRoot.h" />
