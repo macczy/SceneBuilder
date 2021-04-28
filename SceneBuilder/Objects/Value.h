@@ -4,6 +4,7 @@
 #include "DecimalValue.h"
 #include "HexValue.h"
 #include "Point.h"
+#include "Identifier.h"
 
 
 using value = std::variant<DecimalValue, HexValue, Color, Point>;

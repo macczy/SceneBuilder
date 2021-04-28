@@ -151,6 +151,11 @@ std::optional<Point> Parser::tryBuildPoint() {
 }
 
 
+std::optional<Identifier> tryBuildIdentifier() {
+    return std::nullopt;
+}
+
+
 std::optional<value> Parser::tryBuildValue() {
     if (auto value = tryBuildDecimalValue(); value.has_value())
         return value;

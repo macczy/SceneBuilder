@@ -210,7 +210,7 @@ TEST(ParserUnitTests, CreateIdentyfierOrProperty) {
 			});
 		Parser parser(scanner);
 		EXPECT_THROW({
-			if (auto color = parser.tryBuildColor(); color) {
+			if (auto color = parser.tryBuildValue(); color) {
 				FAIL() << "Color building should fail";
 			}
 			}, SyntaxError);
@@ -222,7 +222,7 @@ TEST(ParserUnitTests, CreateIdentyfierOrProperty) {
 			});
 		Parser parser(scanner);
 		EXPECT_THROW({
-			if (auto color = parser.tryBuildColor(); color) {
+			if (auto color = parser.tryBuildValue(); color) {
 				FAIL() << "Color building should fail";
 			}
 			}, SyntaxError);

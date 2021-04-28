@@ -233,6 +233,7 @@
     <ClInclude Include="Objects\ComplexObject.h" />
     <ClInclude Include="Objects\DecimalValue.h" />
     <ClInclude Include="Objects\HexValue.h" />
+    <ClInclude Include="Objects\Identifier.h" />
     <ClInclude Include="Objects\Point.h" />
     <ClInclude Include="Objects\Value.h" />
     <ClInclude Include="Parser\Parser.h" />
