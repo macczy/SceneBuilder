@@ -107,10 +107,35 @@ std::optional<DecimalValue> Parser::tryBuildDecimalValue() {
     return std::nullopt;
 }
 
-void Parser::throwSyntaxError(const std::string& got, const std::string& expected, Token& token) {
-    throw SyntaxError(got, expected, token.getPosition(), [=](const Position& pos) {
+void Parser::throwSyntaxError(const std::string& expected, const std::string& got, Token& token) {
+    throw SyntaxError(expected, got, token.getPosition(), [=](const Position& pos) {
         return scanner.getLineError(pos);
     });
+}
+
+
+std::optional<Identifier> Parser::tryBuildIdentifier() {
+    if (currentToken.getType() != TokenType::VARIABLE_IDENTIFIER)
+        return std::nullopt;
+
+    std::vector<std::pair<Position, std::string>> identifiers;
+    identifiers.push_back(std::make_pair(currentToken.getPosition(), currentToken.getValue()));
+
+    while (getNextToken().getType() == TokenType::DOT) {
+        if (getNextToken().getType() != TokenType::VARIABLE_IDENTIFIER)
+            throwSyntaxError("variable identifier after '.'", currentToken.getValue(), currentToken);
+        identifiers.push_back(std::make_pair(currentToken.getPosition(), currentToken.getValue()));
+    }
+    if(identifiers.size() == 1)
+        return Identifier(identifiers[0].first, identifiers[0].second);
+
+    auto identifier_ptr = std::make_unique<Identifier>(identifiers.back().first, identifiers.back().second);
+    identifiers.pop_back();
+    while (identifiers.size() > 1) {
+        identifier_ptr = std::make_unique<Identifier>(identifiers.back().first, identifiers.back().second, std::move(identifier_ptr));
+        identifiers.pop_back();
+    }
+    return Identifier(identifiers[0].first, identifiers[0].second, std::move(identifier_ptr));
 }
 
 std::optional<Point> Parser::tryBuildPoint() {
@@ -150,22 +175,32 @@ std::optional<Point> Parser::tryBuildPoint() {
     return Point(startingPointPosition, firstDecimalValue.value(), secondDecimalValue.value(), thirdDecimalValue.value());
 }
 
-
-std::optional<Identifier> tryBuildIdentifier() {
-    return std::nullopt;
-}
-
-
-std::optional<value> Parser::tryBuildValue() {
+std::optional<Value> Parser::tryBuildValue() {
     if (auto value = tryBuildDecimalValue(); value.has_value())
         return value;
     if (auto point = tryBuildPoint(); point.has_value())
         return point;
     if (auto color = tryBuildColor(); color.has_value())
         return color;
+    if (auto identifier = tryBuildIdentifier(); identifier.has_value())
+        return identifier;
     return std::nullopt;
 }
 
+std::optional<Addition> Parser::tryBuildAddition( Value& firstValue) {
+    if (!(currentToken.getType() == TokenType::PLUS || currentToken.getType() == TokenType::MINUS) )
+        return std::nullopt;
+    Addition::Operator oper = currentToken.getType() == TokenType::PLUS ? Addition::Operator::PLUS : Addition::Operator::MINUS;
+    auto operStr = currentToken.getValue();
+    getNextToken();
+    if (auto secondValue = tryBuildValue(); secondValue.has_value()) {
+        //const Position& position, std::unique_ptr<Value> value1, std::unique_ptr<Value>  value2, const Operator& oper
+        return Addition(getValuePosition(firstValue), 
+            std::make_unique<Value>(std::move(firstValue)), std::make_unique<Value>(std::move(secondValue.value())), oper);
+    }
+    throwSyntaxError("value after " + operStr, currentToken.getValue(), currentToken);
+    return std::nullopt;
+}
 
 std::unique_ptr<SceneRoot> Parser::parse() {
     try {

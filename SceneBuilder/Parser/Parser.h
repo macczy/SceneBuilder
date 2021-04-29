@@ -3,6 +3,7 @@
 #include <variant>
 #include "SceneRoot.h"
 #include "../Objects/Value.h"
+#include "../Objects/Addition.h"
 #include "../Scanner/Scanner.h"
 #include "../Scanner/Token.h"
 
@@ -23,14 +24,14 @@ public:
 	//each tryBuild function assumes that current token should be chacked, and leaves 1 token that it didn't include
 	//testing now
 	//std::optional<Color> tryBuildLogicalCondition();
-	std::optional<value> tryBuildValue();
+	std::optional<Value> tryBuildValue();
 
 	//tested
 	std::optional<Color> tryBuildColor();
 	std::optional<Point> tryBuildPoint();
 	std::optional<DecimalValue> tryBuildDecimalValue();
 	std::optional<Identifier> tryBuildIdentifier();
-
+	std::optional<Addition> tryBuildAddition(Value& firstValue);
 
 private:
 	Scanner& scanner;

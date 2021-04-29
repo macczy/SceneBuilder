@@ -10,9 +10,17 @@ public:
 	Identifier(const Position& position, const std::string& value) :
 		position(position), value(value) {};
 
-	const Position& getPosition() { return position; }
-	bool hasNext() {
+	const Position& getPosition() const { 
+		return position; 
+	}
+	bool hasNext() const {
 		return (bool)next;
+	}
+	const std::string& getValue() const {
+		return value;
+	}
+	const Identifier* getNext() const {
+		return next.get();
 	}
 private:
 	std::string value;

@@ -2,6 +2,7 @@
 #include <deque>
 #include <exception>
 #include "../SceneBuilder/Parser/Parser.cpp"
+#include "../SceneBuilder/Objects/Value.cpp"
 
 class ScannerMock : public Scanner {
 public:
@@ -186,44 +187,71 @@ TEST(ParserUnitTests, CreatePoint) {
 	}
 }
 
-TEST(ParserUnitTests, CreateIdentyfierOrProperty) {
-	{
-		ScannerMock scanner({
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof")
-			});
-		Parser parser(scanner);
+TEST(ParserUnitTests, CreateIdentifier) {
+	ScannerMock scanner({
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "house"),
+		Token(TokenType::END_OF_FILE)
+		});
+	Parser parser(scanner);
 
-		if (auto color = parser.tryBuildColor(); color.has_value()) {
-			EXPECT_EQ(color->getValues(), tripleHexValues("#AB234", "#123", "#0123"));
-		}
-		else {
-			FAIL() << "Expected Color";
-		}
+	if (auto identifier = parser.tryBuildIdentifier(); identifier.has_value()) {
+		EXPECT_EQ(identifier->getValue(), "house");
+		EXPECT_EQ(identifier->hasNext(), false);
 	}
+	else {
+		FAIL() << "Expected identifier";
+	}
+}
+TEST(ParserUnitTests, CreateIdentifierPropertyList) {
+	ScannerMock scanner({
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "house"),
+		Token(Token::TokenType::DOT, "."),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
+		Token(Token::TokenType::DOT, "."),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "chimeny"),
+		Token(TokenType::END_OF_FILE)
+		});
+	Parser parser(scanner);
+	if (auto identifier = parser.tryBuildIdentifier(); identifier.has_value()) {
+		EXPECT_EQ(identifier->getValue(), "house");
+		EXPECT_EQ(identifier->hasNext(), true);
+		auto roof = identifier->getNext();
+		EXPECT_EQ(roof->getValue(), "roof");
+		EXPECT_EQ(roof->hasNext(), true);
+		auto house = roof->getNext();
+		EXPECT_EQ(house->getValue(), "chimeny");
+		EXPECT_EQ(house->hasNext(), false);
+	}
+	else {
+		FAIL() << "Expected identifier";
+	}
+}
+TEST(ParserUnitTests, FailCreateIdentifier) {
 	{
 		ScannerMock scanner({
 			Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
 			Token(Token::TokenType::DOT, "."),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
-			Token(Token::TokenType::DOT, "."),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
+			Token(TokenType::END_OF_FILE)
 			});
 		Parser parser(scanner);
 		EXPECT_THROW({
-			if (auto color = parser.tryBuildValue(); color) {
-				FAIL() << "Color building should fail";
+			if (auto identifier = parser.tryBuildIdentifier(); identifier.has_value()) {
+				FAIL() << "Identifier building should fail";
 			}
 			}, SyntaxError);
 	}
 	{
 		ScannerMock scanner({
 			Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
-			Token(Token::TokenType::DOT, ".")
+			Token(Token::TokenType::DOT, "."),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "house"),
+			Token(Token::TokenType::DOT, "."),
+			Token(TokenType::END_OF_FILE)
 			});
 		Parser parser(scanner);
 		EXPECT_THROW({
-			if (auto color = parser.tryBuildValue(); color) {
-				FAIL() << "Color building should fail";
+			if (auto identifier = parser.tryBuildIdentifier(); identifier.has_value()) {
+				FAIL() << "Identifier building should fail";
 			}
 			}, SyntaxError);
 	}
@@ -241,7 +269,7 @@ TEST(ParserUnitTests, CreateValue) {
 		Parser parser(scanner);
 
 		if (auto value = parser.tryBuildValue(); value.has_value()) {
-			EXPECT_EQ(value->index(), Value::DECIMAL_VALUE_INDEX);
+			EXPECT_EQ(value->index(), VALUE::DECIMAL_VALUE_INDEX);
 			DecimalValue dec = std::get<DecimalValue>(value.value());
 			EXPECT_EQ(dec.getValue(), "-0.12");
 		}
@@ -257,7 +285,7 @@ TEST(ParserUnitTests, CreateValue) {
 		Parser parser(scanner);
 
 		if (auto value = parser.tryBuildValue(); value.has_value()) {
-			EXPECT_EQ(value->index(), Value::DECIMAL_VALUE_INDEX);
+			EXPECT_EQ(value->index(), VALUE::DECIMAL_VALUE_INDEX);
 			DecimalValue dec = std::get<DecimalValue>(value.value());
 			EXPECT_EQ(dec.getValue(), "0.12");
 		}
@@ -271,7 +299,7 @@ TEST(ParserUnitTests, CreateValue) {
 		Parser parser(scanner);
 
 		if (auto value = parser.tryBuildValue(); value.has_value()) {
-			EXPECT_EQ(value->index(), Value::POINT_INDEX);
+			EXPECT_EQ(value->index(), VALUE::POINT_INDEX);
 			Point point = std::get<Point>(value.value());
 			auto& [x, y, z] = point.getValues();
 			EXPECT_EQ(x.getValue(), "0.12");
@@ -297,7 +325,7 @@ TEST(ParserUnitTests, CreateValue) {
 		Parser parser(scanner);
 
 		if (auto value = parser.tryBuildValue(); value.has_value()) {
-			EXPECT_EQ(value->index(), Value::COLOR_INDEX);
+			EXPECT_EQ(value->index(), VALUE::COLOR_INDEX);
 			Color color = std::get<Color>(value.value());
 			EXPECT_EQ(color.getValues(), tripleHexValues("#AB234", "#123", "#0123"));
 		}
@@ -306,3 +334,48 @@ TEST(ParserUnitTests, CreateValue) {
 		}
 	}
 }
+
+
+TEST(ParserUnitTests, CreateAdditionPlus) {
+	ScannerMock scanner({
+		Token(Token::TokenType::PLUS, "+"),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "house"),
+		Token(Token::TokenType::DOT, "."),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+		Token(TokenType::END_OF_FILE)
+		});
+	Parser parser(scanner);
+
+	Value val = DecimalValue(Position(), "12.4");
+	if (auto addition = parser.tryBuildAddition(val); addition.has_value()) {
+		EXPECT_EQ(addition->getOperator(), Addition::Operator::PLUS);
+
+		EXPECT_EQ(addition->getSecondValue()->index(), VALUE::IDENTIFIER_INDEX);
+
+		EXPECT_EQ(std::get<Identifier>(*addition->getSecondValue()).getValue(), "house");
+
+		EXPECT_EQ(addition->getFirstValue()->index(), VALUE::DECIMAL_VALUE_INDEX);
+
+		EXPECT_EQ(std::get<DecimalValue>(*addition->getFirstValue()).getValue(), "12.4");
+	}
+	else {
+		FAIL() << "Expected addition operation";
+	}
+}
+
+TEST(ParserUnitTests, CreateAdditionMinus) {
+	ScannerMock scanner({
+		Token(Token::TokenType::MINUS, "-"),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+		Token(TokenType::END_OF_FILE)
+		});
+	Parser parser(scanner);
+	Value val = DecimalValue(Position(), "12.4");
+	if (auto addition = parser.tryBuildAddition(val); addition.has_value()) {
+		EXPECT_EQ(addition->getOperator(), Addition::Operator::MINUS);
+	}
+	else {
+		FAIL() << "Expected identifier";
+	}
+}
+

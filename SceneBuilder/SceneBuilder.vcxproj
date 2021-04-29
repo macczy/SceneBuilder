@@ -213,6 +213,7 @@
   <ItemGroup>
     <ClCompile Include="Animations\AnimationSequence.cpp" />
     <ClCompile Include="Objects\ComplexObject.cpp" />
+    <ClCompile Include="Objects\Value.cpp" />
     <ClCompile Include="Parser\Parser.cpp" />
     <ClCompile Include="Parser\Scene.cpp" />
     <ClCompile Include="Parser\SceneRoot.cpp" />
@@ -229,6 +230,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animations\AnimationSequence.h" />
+    <ClInclude Include="Objects\Addition.h" />
     <ClInclude Include="Objects\Color.h" />
     <ClInclude Include="Objects\ComplexObject.h" />
     <ClInclude Include="Objects\DecimalValue.h" />
