@@ -194,12 +194,40 @@ std::optional<Addition> Parser::tryBuildAddition( Value& firstValue) {
     auto operStr = currentToken.getValue();
     getNextToken();
     if (auto secondValue = tryBuildValue(); secondValue.has_value()) {
-        //const Position& position, std::unique_ptr<Value> value1, std::unique_ptr<Value>  value2, const Operator& oper
-        return Addition(getValuePosition(firstValue), 
+         return Addition(getValuePosition(firstValue), 
             std::make_unique<Value>(std::move(firstValue)), std::make_unique<Value>(std::move(secondValue.value())), oper);
     }
     throwSyntaxError("value after " + operStr, currentToken.getValue(), currentToken);
     return std::nullopt;
+}
+
+std::optional<Multiplication> Parser::tryBuildMultiplication(Value& firstValue) {
+    return std::nullopt;
+}
+
+//DisjunctionExpression ConjuctionExpression
+std::optional<LogicalExpression> Parser::tryBuildLogicalExpression(LogicSubExpression& firstValue) {
+    return std::nullopt;
+}
+
+
+std::optional<DisjunctionExpression> Parser::tryBuildDisjunctionExpression(LogicSubExpression& firstValue) {
+    return std::nullopt;
+}
+std::optional<ConjuctionExpression> Parser::tryBuildConjuctionExpression(LogicSubExpression& firstValue) {
+    return std::nullopt;
+}
+
+std::optional<Comparison> Parser::tryBuildComparison(Value& firstValue) {
+    auto comparisonToken = currentToken;
+    if(!ComparisonFactory::isComparisonOperator(currentToken.getType()))
+        return std::nullopt;
+    auto nextToken = getNextToken();
+    if (auto secondValue = tryBuildValue(); secondValue.has_value()) {
+        return ComparisonFactory::getComparison(getValuePosition(firstValue), std::make_unique<Value>(std::move(firstValue)), 
+            std::make_unique<Value>(std::move(secondValue.value())), comparisonToken.getType());
+    }
+    throwSyntaxError("value after " + comparisonToken.getValue(), nextToken.getValue(), nextToken);
 }
 
 std::unique_ptr<SceneRoot> Parser::parse() {

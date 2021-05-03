@@ -4,8 +4,10 @@
 #include "SceneRoot.h"
 #include "../Objects/Value.h"
 #include "../Objects/Addition.h"
+#include "../Objects/Multiplication.h"
 #include "../Scanner/Scanner.h"
 #include "../Scanner/Token.h"
+#include "../Objects/LogicalExpression.h"
 
 
 class Parser
@@ -32,6 +34,11 @@ public:
 	std::optional<DecimalValue> tryBuildDecimalValue();
 	std::optional<Identifier> tryBuildIdentifier();
 	std::optional<Addition> tryBuildAddition(Value& firstValue);
+	std::optional<Multiplication> tryBuildMultiplication(Value& firstValue);
+	std::optional<LogicalExpression> tryBuildLogicalExpression(LogicSubExpression& firstValue);
+	std::optional<DisjunctionExpression> tryBuildDisjunctionExpression(LogicSubExpression& firstValue);
+	std::optional<ConjuctionExpression> tryBuildConjuctionExpression(LogicSubExpression& firstValue);
+	std::optional<Comparison> tryBuildComparison(Value& firstValue);
 
 private:
 	Scanner& scanner;

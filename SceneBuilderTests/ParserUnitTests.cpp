@@ -3,6 +3,7 @@
 #include <exception>
 #include "../SceneBuilder/Parser/Parser.cpp"
 #include "../SceneBuilder/Objects/Value.cpp"
+#include "../SceneBuilder/Objects/Comparison.cpp"
 
 class ScannerMock : public Scanner {
 public:
@@ -269,7 +270,7 @@ TEST(ParserUnitTests, CreateValue) {
 		Parser parser(scanner);
 
 		if (auto value = parser.tryBuildValue(); value.has_value()) {
-			EXPECT_EQ(value->index(), VALUE::DECIMAL_VALUE_INDEX);
+			EXPECT_TRUE(std::holds_alternative<DecimalValue>(value.value()));
 			DecimalValue dec = std::get<DecimalValue>(value.value());
 			EXPECT_EQ(dec.getValue(), "-0.12");
 		}
@@ -285,7 +286,7 @@ TEST(ParserUnitTests, CreateValue) {
 		Parser parser(scanner);
 
 		if (auto value = parser.tryBuildValue(); value.has_value()) {
-			EXPECT_EQ(value->index(), VALUE::DECIMAL_VALUE_INDEX);
+			EXPECT_TRUE(std::holds_alternative<DecimalValue>(value.value()));
 			DecimalValue dec = std::get<DecimalValue>(value.value());
 			EXPECT_EQ(dec.getValue(), "0.12");
 		}
@@ -299,7 +300,7 @@ TEST(ParserUnitTests, CreateValue) {
 		Parser parser(scanner);
 
 		if (auto value = parser.tryBuildValue(); value.has_value()) {
-			EXPECT_EQ(value->index(), VALUE::POINT_INDEX);
+			EXPECT_TRUE(std::holds_alternative<Point>(value.value()));
 			Point point = std::get<Point>(value.value());
 			auto& [x, y, z] = point.getValues();
 			EXPECT_EQ(x.getValue(), "0.12");
@@ -325,7 +326,7 @@ TEST(ParserUnitTests, CreateValue) {
 		Parser parser(scanner);
 
 		if (auto value = parser.tryBuildValue(); value.has_value()) {
-			EXPECT_EQ(value->index(), VALUE::COLOR_INDEX);
+			EXPECT_TRUE(std::holds_alternative<Color>(value.value()));
 			Color color = std::get<Color>(value.value());
 			EXPECT_EQ(color.getValues(), tripleHexValues("#AB234", "#123", "#0123"));
 		}
@@ -350,11 +351,11 @@ TEST(ParserUnitTests, CreateAdditionPlus) {
 	if (auto addition = parser.tryBuildAddition(val); addition.has_value()) {
 		EXPECT_EQ(addition->getOperator(), Addition::Operator::PLUS);
 
-		EXPECT_EQ(addition->getSecondValue()->index(), VALUE::IDENTIFIER_INDEX);
+		EXPECT_TRUE(std::holds_alternative<Identifier>(*addition->getSecondValue()));
 
 		EXPECT_EQ(std::get<Identifier>(*addition->getSecondValue()).getValue(), "house");
 
-		EXPECT_EQ(addition->getFirstValue()->index(), VALUE::DECIMAL_VALUE_INDEX);
+		EXPECT_TRUE(std::holds_alternative<DecimalValue>(*addition->getFirstValue()));
 
 		EXPECT_EQ(std::get<DecimalValue>(*addition->getFirstValue()).getValue(), "12.4");
 	}
@@ -376,6 +377,122 @@ TEST(ParserUnitTests, CreateAdditionMinus) {
 	}
 	else {
 		FAIL() << "Expected identifier";
+	}
+}
+
+
+TEST(ParserUnitTests, CreateLogicalExpression) {
+	//ScannerMock scanner({
+	//	Token(Token::TokenType::MINUS, "-"),
+	//	Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+	//	Token(TokenType::END_OF_FILE)
+	//	});
+	//Parser parser(scanner);
+	//Value val = DecimalValue(Position(), "12.4");
+	//if (auto addition = parser.tryBuildAddition(val); addition.has_value()) {
+	//	EXPECT_EQ(addition->getOperator(), Addition::Operator::MINUS);
+	//}
+	//else {
+	FAIL() << "Expected LogicalExpression";
+	//}
+}
+
+
+TEST(ParserUnitTests, CreateComparison) {
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::EQUAL_SIGN, "="),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+			Token(TokenType::END_OF_FILE)
+			});
+		Parser parser(scanner);
+		Value val = DecimalValue(Position(), "12.4");
+		if (auto comparison = parser.tryBuildComparison(val); comparison.has_value()) {
+			//EXPECT_EQ(comparison->getOperator(), Comparison::Operator::EQUAL);
+		}
+		else
+			FAIL() << "Expected equality comparison";
+	}
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::NOT_EQUAL, "!="),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+			Token(TokenType::END_OF_FILE)
+			});
+		Parser parser(scanner);
+		Value val = DecimalValue(Position(), "12.4");
+		if (auto comparison = parser.tryBuildComparison(val); comparison.has_value()) {
+			//EXPECT_EQ(comparison->getOperator(), Comparison::Operator::NOT_EQUAL);
+		}
+		else
+			FAIL() << "Expected equality comparison";
+	}
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::EQUAL_SIGN, "="),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+			Token(TokenType::END_OF_FILE)
+			});
+		Parser parser(scanner);
+		Value val = DecimalValue(Position(), "12.4");
+		if (auto comparison = parser.tryBuildComparison(val); comparison.has_value()) {
+			//EXPECT_EQ(comparison->getOperator(), Comparison::Operator::EQUAL);
+		}
+		else
+			FAIL() << "Expected equality comparison";
+	}
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::EQUAL_SIGN, "="),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+			Token(TokenType::END_OF_FILE)
+			});
+		Parser parser(scanner);
+		Value val = DecimalValue(Position(), "12.4");
+		if (auto comparison = parser.tryBuildComparison(val); comparison.has_value()) {
+			//EXPECT_EQ(comparison->getOperator(), Comparison::Operator::EQUAL);
+		}
+		else
+			FAIL() << "Expected equality comparison";
+	}
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::EQUAL_SIGN, "="),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+			Token(TokenType::END_OF_FILE)
+			});
+		Parser parser(scanner);
+		Value val = DecimalValue(Position(), "12.4");
+		if (auto comparison = parser.tryBuildComparison(val); comparison.has_value()) {
+			//EXPECT_EQ(comparison->getOperator(), Comparison::Operator::EQUAL);
+		}
+		else
+			FAIL() << "Expected equality comparison";
+	}
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::EQUAL_SIGN, "="),
+			Token(Token::TokenType::EQUAL_SIGN, "+"),
+			Token(TokenType::END_OF_FILE)
+			});
+		Parser parser(scanner);
+		EXPECT_THROW({
+		Value val = DecimalValue(Position(), "12.4");
+			if (auto comparison = parser.tryBuildComparison(val); comparison.has_value()) {
+				FAIL() << "Comparison building should throw";
+			}
+			}, SyntaxError);
+	}
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "fcdsad"),
+			Token(TokenType::END_OF_FILE)
+			});
+		Parser parser(scanner);
+		Value val = DecimalValue(Position(), "12.4");
+		if (auto comparison = parser.tryBuildComparison(val); comparison.has_value()) {
+			FAIL() << "Comparison building should return nullopt";
+		}
 	}
 }
 
