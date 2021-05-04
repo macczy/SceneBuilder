@@ -212,6 +212,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Animations\AnimationSequence.cpp" />
+    <ClCompile Include="Objects\Addition.cpp" />
     <ClCompile Include="Objects\Comparison.cpp" />
     <ClCompile Include="Objects\ComplexObject.cpp" />
     <ClCompile Include="Objects\Value.cpp" />

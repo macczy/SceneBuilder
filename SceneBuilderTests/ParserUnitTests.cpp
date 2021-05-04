@@ -4,6 +4,7 @@
 #include "../SceneBuilder/Parser/Parser.cpp"
 #include "../SceneBuilder/Objects/Value.cpp"
 #include "../SceneBuilder/Objects/Comparison.cpp"
+#include "../SceneBuilder/Objects/Addition.cpp"
 
 class ScannerMock : public Scanner {
 public:
@@ -348,16 +349,17 @@ TEST(ParserUnitTests, CreateAdditionPlus) {
 	Parser parser(scanner);
 
 	Value val = DecimalValue(Position(), "12.4");
-	if (auto addition = parser.tryBuildAddition(val); addition.has_value()) {
-		EXPECT_EQ(addition->getOperator(), Addition::Operator::PLUS);
+	if (auto addition = parser.tryBuildAddition(val); addition) {
+		EXPECT_TRUE(dynamic_cast<Sum*>(addition.get()) != nullptr);
 
-		EXPECT_TRUE(std::holds_alternative<Identifier>(*addition->getSecondValue()));
+		EXPECT_TRUE(std::holds_alternative<Value>(*addition->getSecondTerm()));
+		EXPECT_TRUE(std::holds_alternative<Identifier>(std::get<Value>(*addition->getSecondTerm())));
 
-		EXPECT_EQ(std::get<Identifier>(*addition->getSecondValue()).getValue(), "house");
+		EXPECT_EQ(std::get<Identifier>(std::get<Value>(*addition->getSecondTerm())).getValue(), "house");
 
-		EXPECT_TRUE(std::holds_alternative<DecimalValue>(*addition->getFirstValue()));
+		EXPECT_TRUE(std::holds_alternative<DecimalValue>(std::get<Value>(*addition->getFirstTerm())));
 
-		EXPECT_EQ(std::get<DecimalValue>(*addition->getFirstValue()).getValue(), "12.4");
+		EXPECT_EQ(std::get<DecimalValue>(std::get<Value>(*addition->getFirstTerm())).getValue(), "12.4");
 	}
 	else {
 		FAIL() << "Expected addition operation";
@@ -372,8 +374,8 @@ TEST(ParserUnitTests, CreateAdditionMinus) {
 		});
 	Parser parser(scanner);
 	Value val = DecimalValue(Position(), "12.4");
-	if (auto addition = parser.tryBuildAddition(val); addition.has_value()) {
-		EXPECT_EQ(addition->getOperator(), Addition::Operator::MINUS);
+	if (auto addition = parser.tryBuildAddition(val); addition) {
+		EXPECT_TRUE(dynamic_cast<Substraction*>(addition.get()) != nullptr);
 	}
 	else {
 		FAIL() << "Expected identifier";
@@ -383,13 +385,13 @@ TEST(ParserUnitTests, CreateAdditionMinus) {
 
 TEST(ParserUnitTests, CreateLogicalExpression) {
 	//ScannerMock scanner({
-	//	Token(Token::TokenType::MINUS, "-"),
+	//	Token(Token::TokenType::OR, "||"),
 	//	Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
 	//	Token(TokenType::END_OF_FILE)
 	//	});
 	//Parser parser(scanner);
 	//Value val = DecimalValue(Position(), "12.4");
-	//if (auto addition = parser.tryBuildAddition(val); addition.has_value()) {
+	//if (auto addition = parser.tryBuildLogicalExpression(val); addition.has_value()) {
 	//	EXPECT_EQ(addition->getOperator(), Addition::Operator::MINUS);
 	//}
 	//else {
@@ -407,8 +409,8 @@ TEST(ParserUnitTests, CreateComparison) {
 			});
 		Parser parser(scanner);
 		Value val = DecimalValue(Position(), "12.4");
-		if (auto comparison = parser.tryBuildComparison(val); comparison.has_value()) {
-			//EXPECT_EQ(comparison->getOperator(), Comparison::Operator::EQUAL);
+		if (auto comparison = parser.tryBuildComparison(val); comparison) {
+			EXPECT_TRUE(dynamic_cast<Equal*>(comparison.get()));
 		}
 		else
 			FAIL() << "Expected equality comparison";
@@ -421,50 +423,64 @@ TEST(ParserUnitTests, CreateComparison) {
 			});
 		Parser parser(scanner);
 		Value val = DecimalValue(Position(), "12.4");
-		if (auto comparison = parser.tryBuildComparison(val); comparison.has_value()) {
-			//EXPECT_EQ(comparison->getOperator(), Comparison::Operator::NOT_EQUAL);
+		if (auto comparison = parser.tryBuildComparison(val); comparison) {
+			EXPECT_TRUE(dynamic_cast<NotEqual*>(comparison.get()));
+		}
+		else
+			FAIL() << "Expected not equality comparison";
+	}
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::LESS_OR_EQUAL, "<="),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+			Token(TokenType::END_OF_FILE)
+			});
+		Parser parser(scanner);
+		Value val = DecimalValue(Position(), "12.4");
+		if (auto comparison = parser.tryBuildComparison(val); comparison) {
+			EXPECT_TRUE(dynamic_cast<LessOrEqual*>(comparison.get()));
+		}
+		else
+			FAIL() << "Expected less or equal comparison";
+	}
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::GREATER_OR_EQUAL, ">="),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+			Token(TokenType::END_OF_FILE)
+			});
+		Parser parser(scanner);
+		Value val = DecimalValue(Position(), "12.4");
+		if (auto comparison = parser.tryBuildComparison(val); comparison) {
+			EXPECT_TRUE(dynamic_cast<GreaterOrEqual*>(comparison.get()));
+		}
+		else
+			FAIL() << "Expected greater or equal comparison";
+	}
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::LESS_THAN, "<"),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+			Token(TokenType::END_OF_FILE)
+			});
+		Parser parser(scanner);
+		Value val = DecimalValue(Position(), "12.4");
+		if (auto comparison = parser.tryBuildComparison(val); comparison) {
+			EXPECT_TRUE(dynamic_cast<LessThan*>(comparison.get()));
 		}
 		else
 			FAIL() << "Expected equality comparison";
 	}
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::EQUAL_SIGN, "="),
+			Token(Token::TokenType::GREATER_THAN, ">"),
 			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
 			Token(TokenType::END_OF_FILE)
 			});
 		Parser parser(scanner);
 		Value val = DecimalValue(Position(), "12.4");
-		if (auto comparison = parser.tryBuildComparison(val); comparison.has_value()) {
-			//EXPECT_EQ(comparison->getOperator(), Comparison::Operator::EQUAL);
-		}
-		else
-			FAIL() << "Expected equality comparison";
-	}
-	{
-		ScannerMock scanner({
-			Token(Token::TokenType::EQUAL_SIGN, "="),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
-			Token(TokenType::END_OF_FILE)
-			});
-		Parser parser(scanner);
-		Value val = DecimalValue(Position(), "12.4");
-		if (auto comparison = parser.tryBuildComparison(val); comparison.has_value()) {
-			//EXPECT_EQ(comparison->getOperator(), Comparison::Operator::EQUAL);
-		}
-		else
-			FAIL() << "Expected equality comparison";
-	}
-	{
-		ScannerMock scanner({
-			Token(Token::TokenType::EQUAL_SIGN, "="),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
-			Token(TokenType::END_OF_FILE)
-			});
-		Parser parser(scanner);
-		Value val = DecimalValue(Position(), "12.4");
-		if (auto comparison = parser.tryBuildComparison(val); comparison.has_value()) {
-			//EXPECT_EQ(comparison->getOperator(), Comparison::Operator::EQUAL);
+		if (auto comparison = parser.tryBuildComparison(val); comparison) {
+			EXPECT_TRUE(dynamic_cast<GreaterThan*>(comparison.get()));
 		}
 		else
 			FAIL() << "Expected equality comparison";
@@ -478,8 +494,8 @@ TEST(ParserUnitTests, CreateComparison) {
 		Parser parser(scanner);
 		EXPECT_THROW({
 		Value val = DecimalValue(Position(), "12.4");
-			if (auto comparison = parser.tryBuildComparison(val); comparison.has_value()) {
-				FAIL() << "Comparison building should throw";
+			if (auto comparison = parser.tryBuildComparison(val); comparison) {
+				FAIL() << "Comparison building should fail";
 			}
 			}, SyntaxError);
 	}
@@ -490,7 +506,7 @@ TEST(ParserUnitTests, CreateComparison) {
 			});
 		Parser parser(scanner);
 		Value val = DecimalValue(Position(), "12.4");
-		if (auto comparison = parser.tryBuildComparison(val); comparison.has_value()) {
+		if (auto comparison = parser.tryBuildComparison(val); comparison) {
 			FAIL() << "Comparison building should return nullopt";
 		}
 	}
