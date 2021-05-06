@@ -205,16 +205,8 @@ std::unique_ptr<Multiplication> Parser::tryBuildMultiplication(Value& firstValue
 }
 
 //DisjunctionExpression ConjuctionExpression
-std::unique_ptr<LogicalExpression> Parser::tryBuildLogicalExpression(LogicSubExpression& firstValue) {
+std::unique_ptr<LogicalExpression> Parser::tryBuildLogicalExpression(std::unique_ptr<LogicalSubExpression>& firstValue) {
     return nullptr;
-}
-
-
-std::optional<DisjunctionExpression> Parser::tryBuildDisjunctionExpression(LogicSubExpression& firstValue) {
-    return std::nullopt;
-}
-std::optional<ConjuctionExpression> Parser::tryBuildConjuctionExpression(LogicSubExpression& firstValue) {
-    return std::nullopt;
 }
 
 std::unique_ptr<Comparison> Parser::tryBuildComparison(Value& firstValue) {

@@ -33,12 +33,12 @@ public:
 	std::optional<Point> tryBuildPoint();
 	std::optional<DecimalValue> tryBuildDecimalValue();
 	std::optional<Identifier> tryBuildIdentifier();
-	std::optional<DisjunctionExpression> tryBuildDisjunctionExpression(LogicSubExpression& firstValue);
-	std::optional<ConjuctionExpression> tryBuildConjuctionExpression(LogicSubExpression& firstValue);
+
 	std::unique_ptr<Comparison> tryBuildComparison(Value& firstValue);
+
 	std::unique_ptr<Addition> tryBuildAddition(Value& firstValue);
 	std::unique_ptr<Multiplication> tryBuildMultiplication(Value& firstValue);
-	std::unique_ptr<LogicalExpression> tryBuildLogicalExpression(LogicSubExpression& firstValue);
+	std::unique_ptr<LogicalExpression> tryBuildLogicalExpression(std::unique_ptr<LogicalSubExpression>& firstValue);
 
 private:
 	Scanner& scanner;

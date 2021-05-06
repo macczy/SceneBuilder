@@ -378,25 +378,96 @@ TEST(ParserUnitTests, CreateAdditionMinus) {
 		EXPECT_TRUE(dynamic_cast<Substraction*>(addition.get()) != nullptr);
 	}
 	else {
-		FAIL() << "Expected identifier";
+		FAIL() << "Expected addition";
 	}
 }
 
 
 TEST(ParserUnitTests, CreateLogicalExpression) {
-	//ScannerMock scanner({
-	//	Token(Token::TokenType::OR, "||"),
-	//	Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
-	//	Token(TokenType::END_OF_FILE)
-	//	});
-	//Parser parser(scanner);
-	//Value val = DecimalValue(Position(), "12.4");
-	//if (auto addition = parser.tryBuildLogicalExpression(val); addition.has_value()) {
-	//	EXPECT_EQ(addition->getOperator(), Addition::Operator::MINUS);
-	//}
-	//else {
-	FAIL() << "Expected LogicalExpression";
-	//}
+	ScannerMock scanner({
+		Token(Token::TokenType::GREATER_OR_EQUAL, ">="),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+		Token(Token::TokenType::OR, "||"),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "height"),
+		Token(Token::TokenType::LESS_THAN, "<"),
+		Token(Token::TokenType::MINUS, "-"),
+		Token(Token::TokenType::DECIMAL_CONST, "10.7"),
+		Token(Token::TokenType::AND, "&&"),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
+		Token(Token::TokenType::EQUAL_SIGN, "="),
+		Token(Token::TokenType::DECIMAL_CONST, "0.3"),
+		Token(TokenType::END_OF_FILE)
+		});
+	Parser parser(scanner);
+	Value val = DecimalValue(Position(), "12.4");
+	/* expected structure:
+		Logical OR :
+			-Comparison greater or equal:
+				-DecimalValue 12.4
+				-identifier width
+			-Logical AND:
+				-Comparison less than:
+					-identifier height
+					-decimal const -10.7
+				-Comparison Equal:
+					-identifier roof
+					-decimal const 0.3
+	*/
+	if (auto comparison = parser.tryBuildComparison(val); comparison) {
+		EXPECT_TRUE(dynamic_cast<Equal*>(comparison.get()));
+		//LogicalSubExpression subexp = std::move(comparison);
+
+		std::unique_ptr<LogicalSubExpression> sub = std::make_unique<LogicalSubExpression>(std::move(comparison));
+	
+		if (auto logicalExpr = parser.tryBuildLogicalExpression(sub); logicalExpr) { 
+			EXPECT_TRUE(dynamic_cast<DisjunctionExpression*>(logicalExpr.get()));
+			{//check left side - Comparison greater or equal
+				auto& firstSubExpression = *logicalExpr->getFirstValue();
+
+				EXPECT_TRUE(std::holds_alternative<ComparisonPtr>(firstSubExpression));
+				auto& comp = std::get<ComparisonPtr>(firstSubExpression);
+
+				EXPECT_EQ(std::get<DecimalValue>(*(comp->getFirstValue())).getValue(), "12.4");
+				EXPECT_EQ(std::get<Identifier>(*(comp->getSecondValue())).getValue(), "width");
+				EXPECT_TRUE(dynamic_cast<GreaterOrEqual*>(comp.get()));
+			}
+			{
+				//check right side - Logical AND:
+				LogicalSubExpression& secondSubExpression = *logicalExpr->getSecondValue();
+
+				EXPECT_TRUE(std::holds_alternative<LogicalExpressionPtr>(secondSubExpression));
+				auto& expr = std::get<LogicalExpressionPtr>(secondSubExpression);
+				ConjuctionExpression* conj = dynamic_cast<ConjuctionExpression*>(expr.get());
+				EXPECT_TRUE(conj);
+				{//now check the left side of it - Comparison less than
+					auto& firstSubExpression = *conj->getFirstValue();
+
+					EXPECT_TRUE(std::holds_alternative<ComparisonPtr>(firstSubExpression));
+					auto& comp = std::get<ComparisonPtr>(firstSubExpression);
+
+					EXPECT_EQ(std::get<Identifier>(*(comp->getFirstValue())).getValue(), "roof");
+					EXPECT_EQ(std::get<DecimalValue>(*(comp->getSecondValue())).getValue(), "-10.7");
+					EXPECT_TRUE(dynamic_cast<LessThan*>(comp.get()));
+				}
+
+				{//now check the right side - Comparison Equal
+					auto& secondSubExpression = *conj->getSecondValue();
+
+					EXPECT_TRUE(std::holds_alternative<ComparisonPtr>(secondSubExpression));
+					auto& comp = std::get<ComparisonPtr>(secondSubExpression);
+
+					EXPECT_EQ(std::get<Identifier>(*(comp->getFirstValue())).getValue(), "height");
+					EXPECT_EQ(std::get<DecimalValue>(*(comp->getSecondValue())).getValue(), "0.3");
+					EXPECT_TRUE(dynamic_cast<LessThan*>(comp.get()));
+				}
+			}
+		}
+		else {
+			FAIL() << "Expected DisjunctionExpression";
+		}
+	}
+	else
+		FAIL() << "Expected equality comparison";
 }
 
 
