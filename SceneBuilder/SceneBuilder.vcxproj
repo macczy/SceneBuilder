@@ -212,7 +212,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Animations\AnimationSequence.cpp" />
+    <ClCompile Include="Objects\Addition.cpp" />
+    <ClCompile Include="Objects\Comparison.cpp" />
     <ClCompile Include="Objects\ComplexObject.cpp" />
+    <ClCompile Include="Objects\LogicalExpression.cpp" />
+    <ClCompile Include="Objects\Value.cpp" />
     <ClCompile Include="Parser\Parser.cpp" />
     <ClCompile Include="Parser\Scene.cpp" />
     <ClCompile Include="Parser\SceneRoot.cpp" />
@@ -229,9 +233,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animations\AnimationSequence.h" />
+    <ClInclude Include="Objects\Addition.h" />
     <ClInclude Include="Objects\Color.h" />
+    <ClInclude Include="Objects\Comparison.h" />
     <ClInclude Include="Objects\ComplexObject.h" />
+    <ClInclude Include="Objects\DecimalValue.h" />
+    <ClInclude Include="Objects\HexValue.h" />
+    <ClInclude Include="Objects\Identifier.h" />
+    <ClInclude Include="Objects\LogicalExpression.h" />
+    <ClInclude Include="Objects\Multiplication.h" />
     <ClInclude Include="Objects\Point.h" />
+    <ClInclude Include="Objects\Value.h" />
     <ClInclude Include="Parser\Parser.h" />
     <ClInclude Include="Parser\Scene.h" />
     <ClInclude Include="Parser\SceneRoot.h" />
