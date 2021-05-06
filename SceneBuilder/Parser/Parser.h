@@ -41,6 +41,7 @@ public:
 	std::unique_ptr<Multiplication> tryBuildMultiplication(Value& firstValue);
 	std::unique_ptr<LogicalExpression> tryBuildLogicalExpression(std::unique_ptr<LogicalSubExpression>& firstValue);
 
+
 private:
 	Scanner& scanner;
 	Token currentToken;
