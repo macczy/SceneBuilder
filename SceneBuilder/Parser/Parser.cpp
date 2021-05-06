@@ -100,10 +100,15 @@ std::optional<DecimalValue> Parser::tryBuildDecimalValue() {
     if (currentToken.getType() == TokenType::MINUS) {
         if (getNextToken().getType() != Token::TokenType::DECIMAL_CONST) 
             throwSyntaxError("decimal value", currentToken.getValue(), currentToken);
-        return DecimalValue(pos, "-" + currentToken.getValue());
+        auto value = currentToken.getValue();
+        getNextToken();
+        return DecimalValue(pos, "-"+value);
     }
-    else if (currentToken.getType() == TokenType::DECIMAL_CONST)
-        return DecimalValue(pos, currentToken.getValue());
+    else if (currentToken.getType() == TokenType::DECIMAL_CONST) {
+        auto value = currentToken.getValue();
+        getNextToken();
+        return DecimalValue(pos, value);
+    }
     return std::nullopt;
 }
 
@@ -151,7 +156,7 @@ std::optional<Point> Parser::tryBuildPoint() {
     if (!firstDecimalValue.has_value()) 
         throwSyntaxError("')' or decimal value", currentToken.getValue(), currentToken);
 
-    if (getNextToken().getType() != TokenType::COMMA) {
+    if (currentToken.getType() != TokenType::COMMA) {
         if (currentToken.getType() == TokenType::CLOSING_BRACKET) 
             return Point(startingPointPosition, firstDecimalValue.value());
         throwSyntaxError("',' or ')'", currentToken.getValue(), currentToken);
@@ -161,7 +166,7 @@ std::optional<Point> Parser::tryBuildPoint() {
     if (!secondDecimalValue)
         throwSyntaxError("decimal value", currentToken.getValue(), currentToken);
 
-    if (getNextToken().getType() != TokenType::COMMA) {
+    if (currentToken.getType() != TokenType::COMMA) {
         if (currentToken.getType() == TokenType::CLOSING_BRACKET) 
             return Point(startingPointPosition, firstDecimalValue.value());
         throwSyntaxError("',' or ')'", currentToken.getValue(), currentToken);
@@ -170,20 +175,26 @@ std::optional<Point> Parser::tryBuildPoint() {
     auto thirdDecimalValue = tryBuildDecimalValue();
     if (!thirdDecimalValue) throwSyntaxError("decimal value", currentToken.getValue(), currentToken);
         
-    if (getNextToken().getType() != TokenType::CLOSING_BRACKET) throwSyntaxError("')'", currentToken.getValue(), currentToken);
+    if (currentToken.getType() != TokenType::CLOSING_BRACKET) throwSyntaxError("')'", currentToken.getValue(), currentToken);
 
     return Point(startingPointPosition, firstDecimalValue.value(), secondDecimalValue.value(), thirdDecimalValue.value());
 }
 
 std::optional<Value> Parser::tryBuildValue() {
-    if (auto value = tryBuildDecimalValue(); value.has_value())
+    if (auto value = tryBuildDecimalValue(); value.has_value()) {
         return value;
-    if (auto point = tryBuildPoint(); point.has_value())
+    }
+    if (auto point = tryBuildPoint(); point.has_value()) {
+        getNextToken();
         return point;
-    if (auto color = tryBuildColor(); color.has_value())
+    }
+    if (auto color = tryBuildColor(); color.has_value()) {
+        getNextToken();
         return color;
-    if (auto identifier = tryBuildIdentifier(); identifier.has_value())
+    }
+    if (auto identifier = tryBuildIdentifier(); identifier.has_value()) {
         return identifier;
+    }
     return std::nullopt;
 }
 
@@ -204,8 +215,35 @@ std::unique_ptr<Multiplication> Parser::tryBuildMultiplication(Value& firstValue
     return nullptr;
 }
 
-//DisjunctionExpression ConjuctionExpression
 std::unique_ptr<LogicalExpression> Parser::tryBuildLogicalExpression(std::unique_ptr<LogicalSubExpression>& firstValue) {
+    if (!firstValue) return nullptr;
+    if (!LogicalExpressionFactory::isLogicalOperator(currentToken.getType())) return nullptr;
+    auto operatorToken = currentToken;
+    getNextToken();
+    if (auto secondValue = tryBuildValue(); secondValue.has_value()) {
+        if (auto comparison = tryBuildComparison(secondValue.value()); comparison) {
+            if (operatorToken.getType() == Token::TokenType::OR) {//DisjunctionExpression
+                LogicalSubExpressionPtr expression(std::make_unique<LogicalSubExpression>(std::move(comparison)));
+                if (auto nextExpr = tryBuildLogicalExpression(expression); nextExpr) {
+                    return std::make_unique<DisjunctionExpression>(getLogicalSubExpressionPosition(*firstValue.get()),
+                        std::move(firstValue), std::make_unique<LogicalSubExpression>(std::move(nextExpr)));
+                }
+                else {
+                    return std::make_unique<DisjunctionExpression>(getLogicalSubExpressionPosition(*firstValue.get()),
+                        std::move(firstValue), std::make_unique<LogicalSubExpression>(std::move(comparison)));
+                }
+            }
+            else { //Token::TokenType::AND ConjuctionExpression
+                LogicalSubExpressionPtr expression(std::make_unique<LogicalSubExpression>(std::make_unique<ConjuctionExpression>( getLogicalSubExpressionPosition(*firstValue.get()), 
+                    std::move(firstValue), std::make_unique<LogicalSubExpression>(std::move(comparison)))));
+                if (auto nextExpr = tryBuildLogicalExpression(expression); nextExpr)
+                    return std::move(nextExpr);
+                else
+                    return std::move(std::get<LogicalExpressionPtr>(*(expression.get())));
+            }
+        }
+    }
+    throwSyntaxError("value", currentToken.getValue(), operatorToken);
     return nullptr;
 }
 

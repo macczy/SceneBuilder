@@ -17,6 +17,7 @@ public:
 
 	virtual std::unique_ptr<SceneRoot> parse();
 
+	//there will be replaced later
 	bool tryBuildComplexObject();
 	bool tryBuildAnimationDeclaration();
 	bool tryBuildComplexObjectDeclaration();
@@ -25,9 +26,9 @@ public:
 	bool tryBuildKnownType();
 	//each tryBuild function assumes that current token should be chacked, and leaves 1 token that it didn't include
 	//testing now
-	//std::optional<Color> tryBuildLogicalCondition();
-	std::optional<Value> tryBuildValue();
 
+	//this
+	std::optional<Value> tryBuildValue();
 	//tested
 	std::optional<Color> tryBuildColor();
 	std::optional<Point> tryBuildPoint();

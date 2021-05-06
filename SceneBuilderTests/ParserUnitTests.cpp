@@ -5,6 +5,7 @@
 #include "../SceneBuilder/Objects/Value.cpp"
 #include "../SceneBuilder/Objects/Comparison.cpp"
 #include "../SceneBuilder/Objects/Addition.cpp"
+#include "../SceneBuilder/Objects/LogicalExpression.cpp"
 
 class ScannerMock : public Scanner {
 public:
@@ -16,9 +17,8 @@ public:
 	}
 	void virtual next() {
 		if (tokens.empty()) {
-			throw std::runtime_error("no next token");
+			return;
 		}
-
 		_currentToken = tokens.front();
 		tokens.pop_front();
 	}
@@ -370,6 +370,7 @@ TEST(ParserUnitTests, CreateAdditionMinus) {
 	ScannerMock scanner({
 		Token(Token::TokenType::MINUS, "-"),
 		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+		Token(TokenType::END_OF_FILE),
 		Token(TokenType::END_OF_FILE)
 		});
 	Parser parser(scanner);
@@ -401,11 +402,11 @@ TEST(ParserUnitTests, CreateLogicalExpression) {
 	Parser parser(scanner);
 	Value val = DecimalValue(Position(), "12.4");
 	/* expected structure:
-		Logical OR :
+		Logical OR : DisjunctionExpression
 			-Comparison greater or equal:
 				-DecimalValue 12.4
 				-identifier width
-			-Logical AND:
+			-Logical AND: ConjuctionExpression
 				-Comparison less than:
 					-identifier height
 					-decimal const -10.7
@@ -414,7 +415,7 @@ TEST(ParserUnitTests, CreateLogicalExpression) {
 					-decimal const 0.3
 	*/
 	if (auto comparison = parser.tryBuildComparison(val); comparison) {
-		EXPECT_TRUE(dynamic_cast<Equal*>(comparison.get()));
+		EXPECT_TRUE(dynamic_cast<GreaterOrEqual*>(comparison.get()));
 		//LogicalSubExpression subexp = std::move(comparison);
 
 		std::unique_ptr<LogicalSubExpression> sub = std::make_unique<LogicalSubExpression>(std::move(comparison));
@@ -445,7 +446,7 @@ TEST(ParserUnitTests, CreateLogicalExpression) {
 					EXPECT_TRUE(std::holds_alternative<ComparisonPtr>(firstSubExpression));
 					auto& comp = std::get<ComparisonPtr>(firstSubExpression);
 
-					EXPECT_EQ(std::get<Identifier>(*(comp->getFirstValue())).getValue(), "roof");
+					EXPECT_EQ(std::get<Identifier>(*(comp->getFirstValue())).getValue(), "height");
 					EXPECT_EQ(std::get<DecimalValue>(*(comp->getSecondValue())).getValue(), "-10.7");
 					EXPECT_TRUE(dynamic_cast<LessThan*>(comp.get()));
 				}
@@ -456,9 +457,9 @@ TEST(ParserUnitTests, CreateLogicalExpression) {
 					EXPECT_TRUE(std::holds_alternative<ComparisonPtr>(secondSubExpression));
 					auto& comp = std::get<ComparisonPtr>(secondSubExpression);
 
-					EXPECT_EQ(std::get<Identifier>(*(comp->getFirstValue())).getValue(), "height");
+					EXPECT_EQ(std::get<Identifier>(*(comp->getFirstValue())).getValue(), "roof");
 					EXPECT_EQ(std::get<DecimalValue>(*(comp->getSecondValue())).getValue(), "0.3");
-					EXPECT_TRUE(dynamic_cast<LessThan*>(comp.get()));
+					EXPECT_TRUE(dynamic_cast<Equal*>(comp.get()));
 				}
 			}
 		}
