@@ -1,23 +1,40 @@
 #pragma once
 #include "../Scanner/Token.h"
-#include "Value.h"
-#include "Addition.h"
+#include "Expression.h"
 
 class Multiplication {
 public:
-	enum class Operator {
-		MULTIPLY,
-		DIVIDE
-	};
-	Multiplication(const Position& position, std::unique_ptr<Value> value1, std::unique_ptr<Value>  value2, const Operator& oper) :
-		value1(std::move(value1)), value2(std::move(value2)), position(position), oper(oper) {};
-	Value* getFirstValue() { return value1.get(); }
-	Value* getSecondValue() { return value2.get(); }
+	Multiplication(const Position& position, Expression expr1_, Expression expr2_) :
+		expr1(std::move(expr1_)), expr2(std::move(expr2_)), position(position) {};
+	Expression& getFirstExpression() { return expr1; }
+	Expression& getSecondExpression() { return expr2; }
 	const Position& getPosition() { return position; }
-	const Operator& getOperator() { return oper; }
+	virtual ~Multiplication() {};
 private:
-	std::unique_ptr<Value> value1;
-	std::unique_ptr<Value> value2;
+	Expression expr1;
+	Expression expr2;
 	Position position;
-	Operator oper;
+};
+
+class Multiplication_ : public Multiplication
+{
+public:
+	Multiplication_(const Position& position, Expression expr1, Expression  expr2) :
+		Multiplication(position, std::move(expr1), std::move(expr2)) {};
+
+	virtual ~Multiplication_() {};
+};
+
+class Division : public Multiplication
+{
+public:
+	Division(const Position& position, Expression expr1, Expression expr2) :
+		Multiplication(position, std::move(expr1), std::move(expr2)) {};
+	virtual ~Division() {};
+};
+
+namespace MultiplicationFactory
+{
+	bool isMultiplicationOperator(const Token::TokenType& oper);
+	std::unique_ptr<Multiplication> getMultiplication(const Position& position, Expression& expr1, Expression& expr2, const Token::TokenType& oper);
 };

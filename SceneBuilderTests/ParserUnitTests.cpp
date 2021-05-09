@@ -2,9 +2,10 @@
 #include <deque>
 #include <exception>
 #include "../SceneBuilder/Parser/Parser.cpp"
-#include "../SceneBuilder/Objects/Value.cpp"
+#include "../SceneBuilder/Objects/Expression.cpp"
 #include "../SceneBuilder/Objects/Comparison.cpp"
 #include "../SceneBuilder/Objects/Addition.cpp"
+#include "../SceneBuilder/Objects/Multiplication.cpp"
 #include "../SceneBuilder/Objects/LogicalExpression.cpp"
 
 class ScannerMock : public Scanner {
@@ -17,6 +18,7 @@ public:
 	}
 	void virtual next() {
 		if (tokens.empty()) {
+			_currentToken = Token(TokenType::END_OF_FILE);
 			return;
 		}
 		_currentToken = tokens.front();
@@ -191,8 +193,7 @@ TEST(ParserUnitTests, CreatePoint) {
 
 TEST(ParserUnitTests, CreateIdentifier) {
 	ScannerMock scanner({
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "house"),
-		Token(TokenType::END_OF_FILE)
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "house")
 		});
 	Parser parser(scanner);
 
@@ -205,35 +206,54 @@ TEST(ParserUnitTests, CreateIdentifier) {
 	}
 }
 TEST(ParserUnitTests, CreateIdentifierPropertyList) {
-	ScannerMock scanner({
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "house"),
-		Token(Token::TokenType::DOT, "."),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
-		Token(Token::TokenType::DOT, "."),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "chimeny"),
-		Token(TokenType::END_OF_FILE)
-		});
-	Parser parser(scanner);
-	if (auto identifier = parser.tryBuildIdentifier(); identifier.has_value()) {
-		EXPECT_EQ(identifier->getValue(), "house");
-		EXPECT_EQ(identifier->hasNext(), true);
-		auto roof = identifier->getNext();
-		EXPECT_EQ(roof->getValue(), "roof");
-		EXPECT_EQ(roof->hasNext(), true);
-		auto house = roof->getNext();
-		EXPECT_EQ(house->getValue(), "chimeny");
-		EXPECT_EQ(house->hasNext(), false);
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "house"),
+			Token(Token::TokenType::DOT, "."),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
+			Token(Token::TokenType::DOT, "."),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "chimeny")
+			});
+		Parser parser(scanner);
+		if (auto identifier = parser.tryBuildIdentifier(); identifier.has_value()) {
+			EXPECT_EQ(identifier->getValue(), "house");
+			EXPECT_EQ(identifier->hasNext(), true);
+			auto roof = identifier->getNext();
+			EXPECT_EQ(roof->getValue(), "roof");
+			EXPECT_EQ(roof->hasNext(), true);
+			auto house = roof->getNext();
+			EXPECT_EQ(house->getValue(), "chimeny");
+			EXPECT_EQ(house->hasNext(), false);
+		}
+		else {
+			FAIL() << "Expected identifier";
+		}
 	}
-	else {
-		FAIL() << "Expected identifier";
+	{
+		ScannerMock scanner({
+	Token(Token::TokenType::VARIABLE_IDENTIFIER, "house"),
+	Token(Token::TokenType::DOT, "."),
+	Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof")
+			});
+		Parser parser(scanner);
+		if (auto identifier = parser.tryBuildIdentifier(); identifier.has_value()) {
+			EXPECT_EQ(identifier->getValue(), "house");
+			EXPECT_EQ(identifier->hasNext(), true);
+			auto roof = identifier->getNext();
+			EXPECT_EQ(roof->getValue(), "roof");
+			EXPECT_EQ(roof->hasNext(), false);
+		}
+		else {
+			FAIL() << "Expected identifier";
+		}
 	}
 }
+
 TEST(ParserUnitTests, FailCreateIdentifier) {
 	{
 		ScannerMock scanner({
 			Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
-			Token(Token::TokenType::DOT, "."),
-			Token(TokenType::END_OF_FILE)
+			Token(Token::TokenType::DOT, ".")
 			});
 		Parser parser(scanner);
 		EXPECT_THROW({
@@ -247,8 +267,7 @@ TEST(ParserUnitTests, FailCreateIdentifier) {
 			Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
 			Token(Token::TokenType::DOT, "."),
 			Token(Token::TokenType::VARIABLE_IDENTIFIER, "house"),
-			Token(Token::TokenType::DOT, "."),
-			Token(TokenType::END_OF_FILE)
+			Token(Token::TokenType::DOT, ".")
 			});
 		Parser parser(scanner);
 		EXPECT_THROW({
@@ -343,43 +362,76 @@ TEST(ParserUnitTests, CreateAdditionPlus) {
 		Token(Token::TokenType::PLUS, "+"),
 		Token(Token::TokenType::VARIABLE_IDENTIFIER, "house"),
 		Token(Token::TokenType::DOT, "."),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
-		Token(TokenType::END_OF_FILE)
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
 		});
 	Parser parser(scanner);
 
-	Value val = DecimalValue(Position(), "12.4");
-	if (auto addition = parser.tryBuildAddition(val); addition) {
+	Expression expr = DecimalValue(Position(), "12.4");
+	if (auto addition = parser.tryBuildAddition(expr); addition) {
 		EXPECT_TRUE(dynamic_cast<Sum*>(addition.get()) != nullptr);
 
-		EXPECT_TRUE(std::holds_alternative<Value>(*addition->getSecondTerm()));
-		EXPECT_TRUE(std::holds_alternative<Identifier>(std::get<Value>(*addition->getSecondTerm())));
+		EXPECT_TRUE(std::holds_alternative<Identifier>(addition->getSecondExpression()));
 
-		EXPECT_EQ(std::get<Identifier>(std::get<Value>(*addition->getSecondTerm())).getValue(), "house");
+		EXPECT_EQ(std::get<Identifier>(addition->getSecondExpression()).getValue(), "house");
 
-		EXPECT_TRUE(std::holds_alternative<DecimalValue>(std::get<Value>(*addition->getFirstTerm())));
+		EXPECT_TRUE(std::holds_alternative<DecimalValue>(addition->getFirstExpression()));
 
-		EXPECT_EQ(std::get<DecimalValue>(std::get<Value>(*addition->getFirstTerm())).getValue(), "12.4");
+		EXPECT_EQ(std::get<DecimalValue>(addition->getFirstExpression()).getValue(), "12.4");
 	}
 	else {
 		FAIL() << "Expected addition operation";
 	}
 }
 
-TEST(ParserUnitTests, CreateAdditionMinus) {
+TEST(ParserUnitTests, CreateSubstraction) {
 	ScannerMock scanner({
 		Token(Token::TokenType::MINUS, "-"),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
-		Token(TokenType::END_OF_FILE),
-		Token(TokenType::END_OF_FILE)
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
 		});
 	Parser parser(scanner);
-	Value val = DecimalValue(Position(), "12.4");
-	if (auto addition = parser.tryBuildAddition(val); addition) {
+	Expression expr = DecimalValue(Position(), "12.4");
+	if (auto addition = parser.tryBuildAddition(expr); addition) {
 		EXPECT_TRUE(dynamic_cast<Substraction*>(addition.get()) != nullptr);
 	}
 	else {
-		FAIL() << "Expected addition";
+		FAIL() << "Expected substraction";
+	}
+}
+
+TEST(ParserUnitTests, CreateMultiplication) {
+	ScannerMock scanner({
+		Token(Token::TokenType::ASTERISK, "*"),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "house")
+		});
+	Parser parser(scanner);
+
+	Expression expr = DecimalValue(Position(), "12.4");
+	if (auto multiplication = parser.tryBuildMultiplication(expr); multiplication) {
+		EXPECT_TRUE(dynamic_cast<Multiplication_*>(multiplication.get()) != nullptr);
+
+		EXPECT_TRUE(std::holds_alternative<Identifier>(multiplication->getSecondExpression()));
+
+		EXPECT_EQ(std::get<Identifier>(multiplication->getSecondExpression()).getValue(), "house");
+		EXPECT_TRUE(std::holds_alternative<DecimalValue>(multiplication->getFirstExpression()));
+		EXPECT_EQ(std::get<DecimalValue>(multiplication->getFirstExpression()).getValue(), "12.4");
+	}
+	else {
+		FAIL() << "Expected multiplication operation";
+	}
+}
+
+TEST(ParserUnitTests, CreateDivision) {
+	ScannerMock scanner({
+		Token(Token::TokenType::SLASH, "//"),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
+		});
+	Parser parser(scanner);
+	Expression expr = DecimalValue(Position(), "12.4");
+	if (auto multiplication = parser.tryBuildMultiplication(expr); multiplication) {
+		EXPECT_TRUE(dynamic_cast<Division*>(multiplication.get()) != nullptr);
+	}
+	else {
+		FAIL() << "Expected division";
 	}
 }
 
@@ -396,11 +448,10 @@ TEST(ParserUnitTests, CreateLogicalExpression) {
 		Token(Token::TokenType::AND, "&&"),
 		Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
 		Token(Token::TokenType::EQUAL_SIGN, "="),
-		Token(Token::TokenType::DECIMAL_CONST, "0.3"),
-		Token(TokenType::END_OF_FILE)
+		Token(Token::TokenType::DECIMAL_CONST, "0.3")
 		});
 	Parser parser(scanner);
-	Value val = DecimalValue(Position(), "12.4");
+	Expression expr = DecimalValue(Position(), "12.4");
 	/* expected structure:
 		Logical OR : DisjunctionExpression
 			-Comparison greater or equal:
@@ -414,7 +465,7 @@ TEST(ParserUnitTests, CreateLogicalExpression) {
 					-identifier roof
 					-decimal const 0.3
 	*/
-	if (auto comparison = parser.tryBuildComparison(val); comparison) {
+	if (auto comparison = parser.tryBuildComparison(expr); comparison) {
 		EXPECT_TRUE(dynamic_cast<GreaterOrEqual*>(comparison.get()));
 		//LogicalSubExpression subexp = std::move(comparison);
 
@@ -428,8 +479,8 @@ TEST(ParserUnitTests, CreateLogicalExpression) {
 				EXPECT_TRUE(std::holds_alternative<ComparisonPtr>(firstSubExpression));
 				auto& comp = std::get<ComparisonPtr>(firstSubExpression);
 
-				EXPECT_EQ(std::get<DecimalValue>(*(comp->getFirstValue())).getValue(), "12.4");
-				EXPECT_EQ(std::get<Identifier>(*(comp->getSecondValue())).getValue(), "width");
+				EXPECT_EQ(std::get<DecimalValue>(comp->getFirstExpression()).getValue(), "12.4");
+				EXPECT_EQ(std::get<Identifier>(comp->getSecondExpression()).getValue(), "width");
 				EXPECT_TRUE(dynamic_cast<GreaterOrEqual*>(comp.get()));
 			}
 			{
@@ -446,8 +497,8 @@ TEST(ParserUnitTests, CreateLogicalExpression) {
 					EXPECT_TRUE(std::holds_alternative<ComparisonPtr>(firstSubExpression));
 					auto& comp = std::get<ComparisonPtr>(firstSubExpression);
 
-					EXPECT_EQ(std::get<Identifier>(*(comp->getFirstValue())).getValue(), "height");
-					EXPECT_EQ(std::get<DecimalValue>(*(comp->getSecondValue())).getValue(), "-10.7");
+					EXPECT_EQ(std::get<Identifier>(comp->getFirstExpression()).getValue(), "height");
+					EXPECT_EQ(std::get<DecimalValue>(comp->getSecondExpression()).getValue(), "-10.7");
 					EXPECT_TRUE(dynamic_cast<LessThan*>(comp.get()));
 				}
 
@@ -457,8 +508,8 @@ TEST(ParserUnitTests, CreateLogicalExpression) {
 					EXPECT_TRUE(std::holds_alternative<ComparisonPtr>(secondSubExpression));
 					auto& comp = std::get<ComparisonPtr>(secondSubExpression);
 
-					EXPECT_EQ(std::get<Identifier>(*(comp->getFirstValue())).getValue(), "roof");
-					EXPECT_EQ(std::get<DecimalValue>(*(comp->getSecondValue())).getValue(), "0.3");
+					EXPECT_EQ(std::get<Identifier>(comp->getFirstExpression()).getValue(), "roof");
+					EXPECT_EQ(std::get<DecimalValue>(comp->getSecondExpression()).getValue(), "0.3");
 					EXPECT_TRUE(dynamic_cast<Equal*>(comp.get()));
 				}
 			}
@@ -476,12 +527,11 @@ TEST(ParserUnitTests, CreateComparison) {
 	{
 		ScannerMock scanner({
 			Token(Token::TokenType::EQUAL_SIGN, "="),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
-			Token(TokenType::END_OF_FILE)
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
 			});
 		Parser parser(scanner);
-		Value val = DecimalValue(Position(), "12.4");
-		if (auto comparison = parser.tryBuildComparison(val); comparison) {
+		Expression expr = DecimalValue(Position(), "12.4");
+		if (auto comparison = parser.tryBuildComparison(expr); comparison) {
 			EXPECT_TRUE(dynamic_cast<Equal*>(comparison.get()));
 		}
 		else
@@ -490,12 +540,11 @@ TEST(ParserUnitTests, CreateComparison) {
 	{
 		ScannerMock scanner({
 			Token(Token::TokenType::NOT_EQUAL, "!="),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
-			Token(TokenType::END_OF_FILE)
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
 			});
 		Parser parser(scanner);
-		Value val = DecimalValue(Position(), "12.4");
-		if (auto comparison = parser.tryBuildComparison(val); comparison) {
+		Expression expr = DecimalValue(Position(), "12.4");
+		if (auto comparison = parser.tryBuildComparison(expr); comparison) {
 			EXPECT_TRUE(dynamic_cast<NotEqual*>(comparison.get()));
 		}
 		else
@@ -504,12 +553,11 @@ TEST(ParserUnitTests, CreateComparison) {
 	{
 		ScannerMock scanner({
 			Token(Token::TokenType::LESS_OR_EQUAL, "<="),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
-			Token(TokenType::END_OF_FILE)
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
 			});
 		Parser parser(scanner);
-		Value val = DecimalValue(Position(), "12.4");
-		if (auto comparison = parser.tryBuildComparison(val); comparison) {
+		Expression expr = DecimalValue(Position(), "12.4");
+		if (auto comparison = parser.tryBuildComparison(expr); comparison) {
 			EXPECT_TRUE(dynamic_cast<LessOrEqual*>(comparison.get()));
 		}
 		else
@@ -518,12 +566,11 @@ TEST(ParserUnitTests, CreateComparison) {
 	{
 		ScannerMock scanner({
 			Token(Token::TokenType::GREATER_OR_EQUAL, ">="),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
-			Token(TokenType::END_OF_FILE)
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
 			});
 		Parser parser(scanner);
-		Value val = DecimalValue(Position(), "12.4");
-		if (auto comparison = parser.tryBuildComparison(val); comparison) {
+		Expression expr = DecimalValue(Position(), "12.4");
+		if (auto comparison = parser.tryBuildComparison(expr); comparison) {
 			EXPECT_TRUE(dynamic_cast<GreaterOrEqual*>(comparison.get()));
 		}
 		else
@@ -532,12 +579,11 @@ TEST(ParserUnitTests, CreateComparison) {
 	{
 		ScannerMock scanner({
 			Token(Token::TokenType::LESS_THAN, "<"),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
-			Token(TokenType::END_OF_FILE)
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
 			});
 		Parser parser(scanner);
-		Value val = DecimalValue(Position(), "12.4");
-		if (auto comparison = parser.tryBuildComparison(val); comparison) {
+		Expression expr = DecimalValue(Position(), "12.4");
+		if (auto comparison = parser.tryBuildComparison(expr); comparison) {
 			EXPECT_TRUE(dynamic_cast<LessThan*>(comparison.get()));
 		}
 		else
@@ -546,12 +592,11 @@ TEST(ParserUnitTests, CreateComparison) {
 	{
 		ScannerMock scanner({
 			Token(Token::TokenType::GREATER_THAN, ">"),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
-			Token(TokenType::END_OF_FILE)
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
 			});
 		Parser parser(scanner);
-		Value val = DecimalValue(Position(), "12.4");
-		if (auto comparison = parser.tryBuildComparison(val); comparison) {
+		Expression expr = DecimalValue(Position(), "12.4");
+		if (auto comparison = parser.tryBuildComparison(expr); comparison) {
 			EXPECT_TRUE(dynamic_cast<GreaterThan*>(comparison.get()));
 		}
 		else
@@ -560,25 +605,23 @@ TEST(ParserUnitTests, CreateComparison) {
 	{
 		ScannerMock scanner({
 			Token(Token::TokenType::EQUAL_SIGN, "="),
-			Token(Token::TokenType::EQUAL_SIGN, "+"),
-			Token(TokenType::END_OF_FILE)
+			Token(Token::TokenType::EQUAL_SIGN, "+")
 			});
 		Parser parser(scanner);
 		EXPECT_THROW({
-		Value val = DecimalValue(Position(), "12.4");
-			if (auto comparison = parser.tryBuildComparison(val); comparison) {
+		Expression expr = DecimalValue(Position(), "12.4");
+			if (auto comparison = parser.tryBuildComparison(expr); comparison) {
 				FAIL() << "Comparison building should fail";
 			}
 			}, SyntaxError);
 	}
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "fcdsad"),
-			Token(TokenType::END_OF_FILE)
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "fcdsad")
 			});
 		Parser parser(scanner);
-		Value val = DecimalValue(Position(), "12.4");
-		if (auto comparison = parser.tryBuildComparison(val); comparison) {
+		Expression expr = DecimalValue(Position(), "12.4");
+		if (auto comparison = parser.tryBuildComparison(expr); comparison) {
 			FAIL() << "Comparison building should return nullopt";
 		}
 	}

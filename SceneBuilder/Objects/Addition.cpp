@@ -9,12 +9,12 @@ bool AdditionFactory::isAdditionOperator(const Token::TokenType& oper) {
 	auto res = std::find(tokens.begin(), tokens.end(), oper);
 	return res != tokens.end();
 }
-std::unique_ptr<Addition> AdditionFactory::getAddition(const Position& position, std::unique_ptr<Term> value1, std::unique_ptr<Term> value2, const Token::TokenType& oper) {
+AdditionPtr AdditionFactory::getAddition(const Position& position, Expression& expr1, Expression& expr2, const Token::TokenType& oper) {
 	switch (oper) {
 	case Token::TokenType::PLUS:
-		return std::make_unique<Sum>(position, std::move(value1), std::move(value2));
+		return std::make_unique<Sum>(position, std::move(expr1), std::move(expr2));
 	case Token::TokenType::MINUS:
-		return std::make_unique<Substraction>(position, std::move(value1), std::move(value2));
+		return std::make_unique<Substraction>(position, std::move(expr1), std::move(expr2));
 	default:
 		return nullptr;
 	}

@@ -2,12 +2,9 @@
 #include <optional>
 #include <variant>
 #include "SceneRoot.h"
-#include "../Objects/Value.h"
-#include "../Objects/Addition.h"
-#include "../Objects/Multiplication.h"
+#include "../Objects/Expression.h"
 #include "../Scanner/Scanner.h"
 #include "../Scanner/Token.h"
-#include "../Objects/LogicalExpression.h"
 
 
 class Parser
@@ -17,7 +14,7 @@ public:
 
 	virtual std::unique_ptr<SceneRoot> parse();
 
-	//there will be replaced later
+	//these will be replaced later
 	bool tryBuildComplexObject();
 	bool tryBuildAnimationDeclaration();
 	bool tryBuildComplexObjectDeclaration();
@@ -27,20 +24,18 @@ public:
 	//each tryBuild function assumes that current token should be chacked, and leaves 1 token that it didn't include
 	//testing now
 
-	//this
-	std::optional<Value> tryBuildValue();
+	std::optional<Expression> tryBuildValue();
+	std::optional<Expression> tryBuildExpression();
+	std::optional<Expression> tryBuildBracedExpression();
 	//tested
 	std::optional<Color> tryBuildColor();
 	std::optional<Point> tryBuildPoint();
 	std::optional<DecimalValue> tryBuildDecimalValue();
 	std::optional<Identifier> tryBuildIdentifier();
-
-	std::unique_ptr<Comparison> tryBuildComparison(Value& firstValue);
-
-	std::unique_ptr<Addition> tryBuildAddition(Value& firstValue);
-	std::unique_ptr<Multiplication> tryBuildMultiplication(Value& firstValue);
+	std::unique_ptr<Comparison> tryBuildComparison(Expression& firstValue);
 	std::unique_ptr<LogicalExpression> tryBuildLogicalExpression(std::unique_ptr<LogicalSubExpression>& firstValue);
-
+	std::unique_ptr<Addition> tryBuildAddition(Expression& firstValue);
+	std::unique_ptr<Multiplication> tryBuildMultiplication(Expression& firstValue);
 
 private:
 	Scanner& scanner;

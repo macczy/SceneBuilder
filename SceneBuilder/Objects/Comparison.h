@@ -1,74 +1,74 @@
 #pragma once
 #include <memory>
 #include "../Scanner/Token.h"
-#include "Value.h"
+#include "Expression.h"
 
 class Comparison
 {
 public:
-	Comparison(const Position& position, std::unique_ptr<Value> value1, std::unique_ptr<Value>  value2) :
-		value1(std::move(value1)), value2(std::move(value2)), position(position) {};
+	Comparison(const Position& position, Expression expr1, Expression expr2) :
+		expr1(std::move(expr1)), expr2(std::move(expr2)), position(position) {};
 
-	Value* getFirstValue() { return value1.get(); }
-	Value* getSecondValue() { return value2.get(); }
+	Expression& getFirstExpression() { return expr1; }
+	Expression& getSecondExpression() { return expr2; }
 	const Position& getPosition() { return position; }
 	virtual ~Comparison() {}
 private:
-	std::unique_ptr<Value> value1;
-	std::unique_ptr<Value> value2;
+	Expression expr1;
+	Expression expr2;
 	Position position;
 };
 
 class LessThan : public Comparison
 {
 public:
-	LessThan(const Position& position, std::unique_ptr<Value> value1, std::unique_ptr<Value>  value2) :
-		Comparison(position, std::move(value1), std::move(value2)) {};
+	LessThan(const Position& position, Expression expr1, Expression expr2) :
+		Comparison(position, std::move(expr1), std::move(expr2)) {};
 	virtual ~LessThan() {}
 };
 
 class LessOrEqual : public Comparison
 {
 public:
-	LessOrEqual(const Position& position, std::unique_ptr<Value> value1, std::unique_ptr<Value>  value2) :
-		Comparison(position, std::move(value1), std::move(value2)) {};
+	LessOrEqual(const Position& position, Expression expr1, Expression expr2) :
+		Comparison(position, std::move(expr1), std::move(expr2)) {};
 	virtual ~LessOrEqual() {}
 };
 
 class GreaterThan : public Comparison
 {
 public:
-	GreaterThan(const Position& position, std::unique_ptr<Value> value1, std::unique_ptr<Value>  value2) :
-		Comparison(position, std::move(value1), std::move(value2)) {};
+	GreaterThan(const Position& position, Expression expr1, Expression expr2) :
+		Comparison(position, std::move(expr1), std::move(expr2)) {};
 	virtual ~GreaterThan() {}
 };
 
 class GreaterOrEqual : public Comparison
 {
 public:
-	GreaterOrEqual(const Position& position, std::unique_ptr<Value> value1, std::unique_ptr<Value>  value2) :
-		Comparison(position, std::move(value1), std::move(value2)) {};
+	GreaterOrEqual(const Position& position, Expression expr1, Expression expr2) :
+		Comparison(position, std::move(expr1), std::move(expr2)) {};
 	virtual ~GreaterOrEqual() {}
 };
 
 class Equal : public Comparison
 {
 public:
-	Equal(const Position& position, std::unique_ptr<Value> value1, std::unique_ptr<Value>  value2) :
-		Comparison(position, std::move(value1), std::move(value2)) {};
+	Equal(const Position& position, Expression expr1, Expression expr2) :
+		Comparison(position, std::move(expr1), std::move(expr2)) {};
 	virtual ~Equal() {}
 };
 
 class NotEqual : public Comparison
 {
 public:
-	NotEqual(const Position& position, std::unique_ptr<Value> value1, std::unique_ptr<Value>  value2) :
-		Comparison(position, std::move(value1), std::move(value2)) {};
+	NotEqual(const Position& position, Expression expr1, Expression expr2) :
+		Comparison(position, std::move(expr1), std::move(expr2)) {};
 	virtual ~NotEqual() {}
 };
 
 namespace ComparisonFactory
 {
 	bool isComparisonOperator(const Token::TokenType& oper);
-	std::unique_ptr<Comparison> getComparison(const Position& position, std::unique_ptr<Value> value1, std::unique_ptr<Value> value2, const Token::TokenType& oper);
+	std::unique_ptr<Comparison> getComparison(const Position& position, Expression& expr1, Expression& expr2, const Token::TokenType& oper);
 };
