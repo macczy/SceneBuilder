@@ -112,7 +112,7 @@ std::optional<DecimalValue> Parser::tryBuildDecimalValue() {
     return std::nullopt;
 }
 
-void Parser::throwSyntaxError(const std::string& expected, const std::string& got, Token& token) {
+[[noreturn]] void Parser::throwSyntaxError(const std::string& expected, const std::string& got, Token& token) {
     throw SyntaxError(expected, got, token.getPosition(), [=](const Position& pos) {
         return scanner.getLineError(pos);
     });
@@ -192,7 +192,7 @@ std::optional<Expression> Parser::tryBuildValue() {
         return color;
     }
     if (auto identifier = tryBuildIdentifier(); identifier.has_value()) {
-        return std::move(Expression(std::move(identifier.value())));
+        return identifier;
     }
     return std::nullopt;
 }
@@ -218,19 +218,6 @@ std::optional<Expression> Parser::tryBuildExpression() {
     return std::nullopt;
 }
 
-AdditionPtr Parser::tryBuildAddition( Expression& firstValue) {
-    if(!AdditionFactory::isAdditionOperator(currentToken.getType()))
-        return nullptr;
-    auto operatorToken = currentToken;
-    getNextToken();
-    if (auto secondValue = tryBuildValue(); secondValue.has_value()) {
-         return std::move(AdditionFactory::getAddition(getExpressionPosition(firstValue),
-            firstValue, secondValue.value(), operatorToken.getType()));
-    }
-    throwSyntaxError("value after " + operatorToken.getValue(), currentToken.getValue(), currentToken);
-    return nullptr;
-}
-
 MultiplicationPtr Parser::tryBuildMultiplication(Expression& firstValue) {
     if (!MultiplicationFactory::isMultiplicationOperator(currentToken.getType()))
         return nullptr;
@@ -241,8 +228,20 @@ MultiplicationPtr Parser::tryBuildMultiplication(Expression& firstValue) {
             firstValue, secondValue.value(), operatorToken.getType()));
     }
     throwSyntaxError("value after " + operatorToken.getValue(), currentToken.getValue(), currentToken);
-    return nullptr;
 }
+
+AdditionPtr Parser::tryBuildAddition( Expression& firstValue) {
+    if(!AdditionFactory::isAdditionOperator(currentToken.getType()))
+        return nullptr;
+    auto operatorToken = currentToken;
+    getNextToken();
+    if (auto secondValue = tryBuildValue(); secondValue.has_value()) {
+         return std::move(AdditionFactory::getAddition(getExpressionPosition(firstValue),
+            firstValue, secondValue.value(), operatorToken.getType()));
+    }
+    throwSyntaxError("value after " + operatorToken.getValue(), currentToken.getValue(), currentToken);
+}
+
 
 std::unique_ptr<LogicalExpression> Parser::tryBuildLogicalExpression(std::unique_ptr<LogicalSubExpression>& firstValue) {
     if (!firstValue) return nullptr;
@@ -273,7 +272,6 @@ std::unique_ptr<LogicalExpression> Parser::tryBuildLogicalExpression(std::unique
         }
     }
     throwSyntaxError("value", currentToken.getValue(), operatorToken);
-    return nullptr;
 }
 
 std::unique_ptr<Comparison> Parser::tryBuildComparison(Expression& firstValue) {
@@ -286,7 +284,6 @@ std::unique_ptr<Comparison> Parser::tryBuildComparison(Expression& firstValue) {
             secondValue.value(), comparisonToken.getType()));
     }
     throwSyntaxError("value after " + comparisonToken.getValue(), nextToken.getValue(), nextToken);
-    return nullptr;
 }
 
 std::unique_ptr<SceneRoot> Parser::parse() {

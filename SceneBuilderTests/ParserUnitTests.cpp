@@ -379,7 +379,7 @@ TEST(ParserUnitTests, CreateAdditionPlus) {
 		EXPECT_EQ(std::get<DecimalValue>(addition->getFirstExpression()).getValue(), "12.4");
 	}
 	else {
-		FAIL() << "Expected addition operation";
+		FAIL() << "Expected addition";
 	}
 }
 
@@ -416,7 +416,7 @@ TEST(ParserUnitTests, CreateMultiplication) {
 		EXPECT_EQ(std::get<DecimalValue>(multiplication->getFirstExpression()).getValue(), "12.4");
 	}
 	else {
-		FAIL() << "Expected multiplication operation";
+		FAIL() << "Expected multiplication";
 	}
 }
 
