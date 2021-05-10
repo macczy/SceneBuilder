@@ -8,7 +8,7 @@ public:
 		expr1(std::move(expr1_)), expr2(std::move(expr2_)), position(position) {};
 	Expression& getFirstExpression() { return expr1; }
 	Expression& getSecondExpression() { return expr2; }
-	const Position& getPosition() { return position; }
+	const Position& getPosition() const { return position; }
 	virtual ~Multiplication() {};
 private:
 	Expression expr1;

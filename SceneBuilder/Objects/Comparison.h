@@ -11,7 +11,7 @@ public:
 
 	Expression& getFirstExpression() { return expr1; }
 	Expression& getSecondExpression() { return expr2; }
-	const Position& getPosition() { return position; }
+	const Position& getPosition() const { return position; }
 	virtual ~Comparison() {}
 private:
 	Expression expr1;

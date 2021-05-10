@@ -23,19 +23,29 @@ public:
 	bool tryBuildKnownType();
 	//each tryBuild function assumes that current token should be chacked, and leaves 1 token that it didn't include
 	//testing now
+	std::optional<Expression> tryBuildMultiplicationOrAddition(Expression& expr);
+
+	std::optional<Expression> tryBuildBrackets();
+
 
 	std::optional<Expression> tryBuildValue();
 	std::optional<Expression> tryBuildExpression();
-	std::optional<Expression> tryBuildBracedExpression();
+
+	std::optional<Expression> tryBuildExpressionOrTernaryExpression();
+	std::optional<Expression> tryBuildSimpleExpression();
 	//tested
 	std::optional<Color> tryBuildColor();
 	std::optional<Point> tryBuildPoint();
 	std::optional<DecimalValue> tryBuildDecimalValue();
 	std::optional<Identifier> tryBuildIdentifier();
-	std::unique_ptr<Comparison> tryBuildComparison(Expression& firstValue);
-	std::unique_ptr<LogicalExpression> tryBuildLogicalExpression(std::unique_ptr<LogicalSubExpression>& firstValue);
-	std::unique_ptr<Addition> tryBuildAddition(Expression& firstValue);
-	std::unique_ptr<Multiplication> tryBuildMultiplication(Expression& firstValue);
+    ComparisonPtr tryBuildComparison(Expression& firstValue);
+    AdditionPtr tryBuildAddition(Expression& firstValue);
+    MultiplicationPtr tryBuildMultiplication(Expression& firstValue);
+    LogicalExpressionPtr tryBuildLogicalExpression(LogicalSubExpressionPtr& firstValue);
+    TernaryExpressionPtr tryBuildTernaryExpression(LogicalSubExpressionPtr& condition);
+
+
+	bool checkClosingBracket();
 
 private:
 	Scanner& scanner;

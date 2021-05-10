@@ -197,25 +197,96 @@ std::optional<Expression> Parser::tryBuildValue() {
     return std::nullopt;
 }
 
+std::optional<Expression> Parser::tryBuildBrackets() {
+    if (currentToken.getType() == Token::TokenType::OPENING_BRACKET) {
+        auto openingToken = currentToken;
+        getNextToken();
+        if (auto subExpr = tryBuildExpression(); subExpr) {
+            if (currentToken.getType() == Token::TokenType::CLOSING_BRACKET) {
+                getNextToken();
+                return subExpr;
+            }
+            else {
+                throwSyntaxError("expression", "empty brackets", openingToken);
+            }
+        }
+        else {
+            throwSyntaxError("closing bracket", currentToken.getValue(), openingToken);
+        }
+    }
+    return std::nullopt;
+}
 
-std::optional<Expression> Parser::tryBuildBracedExpression() {
-    //if (currentToken.getType() != TokenType::OPENING_BRACE)
+std::optional<Expression> Parser::tryBuildExpression() {
+    if (auto brackets = tryBuildBrackets(); brackets.has_value()) {
+        if (auto expr = tryBuildMultiplicationOrAddition(*brackets); expr.has_value()) {
+            return expr;
+        }
+        return brackets;
+    }
+    else if (auto expr = tryBuildSimpleExpression(); expr.has_value()) {
+        if (auto comparison = tryBuildComparison(expr.value()); comparison) {
+            auto subExpr = std::make_unique<LogicalSubExpression>(std::move(comparison));
+            if (auto logicalExpr =  tryBuildLogicalExpression(subExpr); logicalExpr) {
+                LogicalSubExpressionPtr logicSubExpr = std::make_unique<LogicalSubExpression>(std::move(logicalExpr));
+                if (auto ternary = tryBuildTernaryExpression(logicSubExpr); ternary) {
+                    return ternary;
+                }
+                else {
+                    throwSyntaxError("question mark", currentToken.getValue(), currentToken);
+                }
+            }
+            else {
+                if (auto ternary = tryBuildTernaryExpression(subExpr); ternary) {
+                    return ternary;
+                }
+                else {
+                    throwSyntaxError("question mark", currentToken.getValue(), currentToken);
+                }
+            }
+        }
+        else {
+            return expr;
+        }
+    } else
         return std::nullopt;
-    //auto expr = tryBuildExpression();
-    //if (currentToken.getType() != TokenType::CLOSING_BRACE)
-    //    throwSyntaxError("closing brace", currentToken.getValue(), currentToken);
-    //if (auto comp = tryBuildComparison(expr.value()); comp) {
-    //    if (auto logical = tryBuildLogicalExpression(expr); logical) {
+}
 
-    //    }
-    //}
+std::optional<Expression> Parser::tryBuildSimpleExpression() {
+    if (auto brackets = tryBuildBrackets(); brackets) {
+        return tryBuildMultiplicationOrAddition(*brackets);
+    }
+    else if (auto val = tryBuildValue(); val) {
+        if (auto addOrMult = tryBuildMultiplicationOrAddition(*val); addOrMult.has_value()) {
+            return addOrMult;
+        }
+        else {
+            return val;
+        }
+    }
+    else {
+        return std::nullopt;
+    }
+}
 
-    //return expr;
+std::optional<Expression> Parser::tryBuildMultiplicationOrAddition(Expression& expr) {
+    if (auto multi = tryBuildMultiplication(expr); multi) {
+        Expression multExpr = std::move(multi);
+        if (auto add = tryBuildAddition(multExpr); add) {
+            return add;
+        }
+        return multExpr;
+    } else if (auto add = tryBuildAddition(expr); add) {
+        return add;
+    }
+    else {
+        return std::nullopt;
+    }
 }
 
 
-std::optional<Expression> Parser::tryBuildExpression() {
-    return std::nullopt;
+TernaryExpressionPtr Parser::tryBuildTernaryExpression(LogicalSubExpressionPtr &condition) {
+    return nullptr;
 }
 
 MultiplicationPtr Parser::tryBuildMultiplication(Expression& firstValue) {
@@ -223,7 +294,7 @@ MultiplicationPtr Parser::tryBuildMultiplication(Expression& firstValue) {
         return nullptr;
     auto operatorToken = currentToken;
     getNextToken();
-    if (auto secondValue = tryBuildValue(); secondValue.has_value()) {
+    if (auto secondValue = tryBuildExpression(); secondValue.has_value()) {
         return std::move(MultiplicationFactory::getMultiplication(getExpressionPosition(firstValue),
             firstValue, secondValue.value(), operatorToken.getType()));
     }
@@ -235,7 +306,7 @@ AdditionPtr Parser::tryBuildAddition( Expression& firstValue) {
         return nullptr;
     auto operatorToken = currentToken;
     getNextToken();
-    if (auto secondValue = tryBuildValue(); secondValue.has_value()) {
+    if (auto secondValue = tryBuildExpression(); secondValue.has_value()) {
          return std::move(AdditionFactory::getAddition(getExpressionPosition(firstValue),
             firstValue, secondValue.value(), operatorToken.getType()));
     }
@@ -243,12 +314,12 @@ AdditionPtr Parser::tryBuildAddition( Expression& firstValue) {
 }
 
 
-std::unique_ptr<LogicalExpression> Parser::tryBuildLogicalExpression(std::unique_ptr<LogicalSubExpression>& firstValue) {
+LogicalExpressionPtr Parser::tryBuildLogicalExpression(LogicalSubExpressionPtr &firstValue) {
     if (!firstValue) return nullptr;
     if (!LogicalExpressionFactory::isLogicalOperator(currentToken.getType())) return nullptr;
     auto operatorToken = currentToken;
     getNextToken();
-    if (auto secondValue = tryBuildValue(); secondValue.has_value()) {
+    if (auto secondValue = tryBuildExpression(); secondValue.has_value()) {
         if (auto comparison = tryBuildComparison(secondValue.value()); comparison) {
             if (operatorToken.getType() == Token::TokenType::OR) {//DisjunctionExpression
                 LogicalSubExpressionPtr expression(std::make_unique<LogicalSubExpression>(std::move(comparison)));
@@ -279,7 +350,7 @@ std::unique_ptr<Comparison> Parser::tryBuildComparison(Expression& firstValue) {
     if(!ComparisonFactory::isComparisonOperator(currentToken.getType()))
         return nullptr;
     auto nextToken = getNextToken();
-    if (auto secondValue = tryBuildValue(); secondValue.has_value()) {
+    if (auto secondValue = tryBuildExpression(); secondValue.has_value()) {
         return std::move(ComparisonFactory::getComparison(getExpressionPosition(firstValue), firstValue, 
             secondValue.value(), comparisonToken.getType()));
     }
