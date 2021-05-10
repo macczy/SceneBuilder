@@ -5,7 +5,7 @@
 class Identifier
 {
 public:
-	Identifier(const Position& position, const std::string& value, std::unique_ptr<Identifier> next) :
+	Identifier(const Position& position, const std::string& value, std::unique_ptr<Identifier>& next) :
 		position(position), value(value), next(std::move(next)) {};
 	Identifier(const Position& position, const std::string& value) :
 		position(position), value(value) {};

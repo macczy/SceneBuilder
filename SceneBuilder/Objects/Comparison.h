@@ -6,7 +6,7 @@
 class Comparison
 {
 public:
-	Comparison(const Position& position, Expression expr1, Expression expr2) :
+	Comparison(const Position& position, Expression& expr1, Expression& expr2) :
 		expr1(std::move(expr1)), expr2(std::move(expr2)), position(position) {};
 
 	Expression& getFirstExpression() { return expr1; }
@@ -22,48 +22,48 @@ private:
 class LessThan : public Comparison
 {
 public:
-	LessThan(const Position& position, Expression expr1, Expression expr2) :
-		Comparison(position, std::move(expr1), std::move(expr2)) {};
+	LessThan(const Position& position, Expression& expr1, Expression& expr2) :
+		Comparison(position, expr1, expr2) {};
 	virtual ~LessThan() {}
 };
 
 class LessOrEqual : public Comparison
 {
 public:
-	LessOrEqual(const Position& position, Expression expr1, Expression expr2) :
-		Comparison(position, std::move(expr1), std::move(expr2)) {};
+	LessOrEqual(const Position& position, Expression& expr1, Expression& expr2) :
+		Comparison(position, expr1, expr2) {};
 	virtual ~LessOrEqual() {}
 };
 
 class GreaterThan : public Comparison
 {
 public:
-	GreaterThan(const Position& position, Expression expr1, Expression expr2) :
-		Comparison(position, std::move(expr1), std::move(expr2)) {};
+	GreaterThan(const Position& position, Expression& expr1, Expression& expr2) :
+		Comparison(position, expr1, expr2) {};
 	virtual ~GreaterThan() {}
 };
 
 class GreaterOrEqual : public Comparison
 {
 public:
-	GreaterOrEqual(const Position& position, Expression expr1, Expression expr2) :
-		Comparison(position, std::move(expr1), std::move(expr2)) {};
+	GreaterOrEqual(const Position& position, Expression& expr1, Expression& expr2) :
+		Comparison(position, expr1, expr2) {};
 	virtual ~GreaterOrEqual() {}
 };
 
 class Equal : public Comparison
 {
 public:
-	Equal(const Position& position, Expression expr1, Expression expr2) :
-		Comparison(position, std::move(expr1), std::move(expr2)) {};
+	Equal(const Position& position, Expression& expr1, Expression& expr2) :
+		Comparison(position, expr1, expr2) {};
 	virtual ~Equal() {}
 };
 
 class NotEqual : public Comparison
 {
 public:
-	NotEqual(const Position& position, Expression expr1, Expression expr2) :
-		Comparison(position, std::move(expr1), std::move(expr2)) {};
+	NotEqual(const Position& position, Expression& expr1, Expression& expr2) :
+		Comparison(position, expr1, expr2) {};
 	virtual ~NotEqual() {}
 };
 

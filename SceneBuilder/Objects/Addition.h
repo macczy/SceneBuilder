@@ -6,7 +6,7 @@
 
 class Addition {
 public:
-	Addition(const Position& position, Expression expr1, Expression expr2) :
+	Addition(const Position& position, Expression& expr1, Expression& expr2) :
 		expr1(std::move(expr1)), expr2(std::move(expr2)), position(position) {};
 	Expression& getFirstExpression() { return expr1; }
 	Expression& getSecondExpression() { return expr2; }
@@ -21,8 +21,8 @@ private:
 class Sum : public Addition
 {
 public:
-	Sum(const Position& position, Expression expr1, Expression  expr2) :
-		Addition(position, std::move(expr1), std::move(expr2)) {};
+	Sum(const Position& position, Expression& expr1, Expression&  expr2) :
+		Addition(position, expr1, expr2) {};
 
 	virtual ~Sum() {};
 };
@@ -30,8 +30,8 @@ public:
 class Substraction : public Addition
 {
 public:
-	Substraction(const Position& position, Expression expr1, Expression expr2) :
-		Addition(position, std::move(expr1), std::move(expr2)) {};
+	Substraction(const Position& position, Expression& expr1, Expression& expr2) :
+		Addition(position, expr1, expr2) {};
 	virtual ~Substraction() {};
 };
 

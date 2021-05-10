@@ -4,8 +4,8 @@
 
 class Multiplication {
 public:
-	Multiplication(const Position& position, Expression expr1_, Expression expr2_) :
-		expr1(std::move(expr1_)), expr2(std::move(expr2_)), position(position) {};
+	Multiplication(const Position& position, Expression& expr1, Expression& expr2) :
+		expr1(std::move(expr1)), expr2(std::move(expr2)), position(position) {};
 	Expression& getFirstExpression() { return expr1; }
 	Expression& getSecondExpression() { return expr2; }
 	const Position& getPosition() const { return position; }
@@ -19,8 +19,8 @@ private:
 class Multiplication_ : public Multiplication
 {
 public:
-	Multiplication_(const Position& position, Expression expr1, Expression  expr2) :
-		Multiplication(position, std::move(expr1), std::move(expr2)) {};
+	Multiplication_(const Position& position, Expression& expr1, Expression&  expr2) :
+		Multiplication(position, expr1, expr2) {};
 
 	virtual ~Multiplication_() {};
 };
@@ -28,8 +28,8 @@ public:
 class Division : public Multiplication
 {
 public:
-	Division(const Position& position, Expression expr1, Expression expr2) :
-		Multiplication(position, std::move(expr1), std::move(expr2)) {};
+	Division(const Position& position, Expression& expr1, Expression& expr2) :
+		Multiplication(position, expr1, expr2) {};
 	virtual ~Division() {};
 };
 

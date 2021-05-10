@@ -43,7 +43,9 @@ public:
     MultiplicationPtr tryBuildMultiplication(Expression& firstValue);
     LogicalExpressionPtr tryBuildLogicalExpression(LogicalSubExpressionPtr& firstValue);
     TernaryExpressionPtr tryBuildTernaryExpression(LogicalSubExpressionPtr& condition);
+	LogicalSubExpressionPtr tryBuildLogicalExpressionInBrackets();
 
+	LogicalExpressionPtr getLogicalSubExpression(const Token& operatorToken, LogicalSubExpressionPtr& comparison, LogicalSubExpressionPtr& firstValue);
 
 	bool checkClosingBracket();
 

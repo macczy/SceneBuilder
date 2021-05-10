@@ -467,8 +467,6 @@ TEST(ParserUnitTests, CreateLogicalExpression) {
 	*/
 	if (auto comparison = parser.tryBuildComparison(expr); comparison) {
 		EXPECT_TRUE(dynamic_cast<GreaterOrEqual*>(comparison.get()));
-		//LogicalSubExpression subexp = std::move(comparison);
-
 		std::unique_ptr<LogicalSubExpression> sub = std::make_unique<LogicalSubExpression>(std::move(comparison));
 	
 		if (auto logicalExpr = parser.tryBuildLogicalExpression(sub); logicalExpr) { 
@@ -520,6 +518,115 @@ TEST(ParserUnitTests, CreateLogicalExpression) {
 	}
 	else
 		FAIL() << "Expected equality comparison";
+}
+
+
+TEST(ParserUnitTests, CreateTernaryExpression) {
+	ScannerMock scanner({
+		Token(Token::TokenType::DECIMAL_CONST, "0.25"),
+		Token(Token::TokenType::GREATER_OR_EQUAL, ">="),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+		Token(Token::TokenType::OR, "||"),
+		Token(Token::TokenType::OPENING_BRACKET, "("),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "height"),
+		Token(Token::TokenType::LESS_THAN, "<"),
+		Token(Token::TokenType::MINUS, "-"),
+		Token(Token::TokenType::DECIMAL_CONST, "10.7"),
+		Token(Token::TokenType::AND, "&&"),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
+		Token(Token::TokenType::EQUAL_SIGN, "="),
+		Token(Token::TokenType::DECIMAL_CONST, "0.3"),
+		Token(Token::TokenType::CLOSING_BRACKET, ")"),
+		Token(Token::TokenType::QUESTION_MARK, "?"),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "that"),
+		Token(Token::TokenType::COLON, ":"),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "other")
+		});
+	Parser parser(scanner);
+	Expression expr = DecimalValue(Position(), "12.4");
+	/* expected structure:
+	* TernaryExpression:
+		Condition:
+			Logical OR : DisjunctionExpression
+				-Comparison greater or equal:
+					-DecimalValue 0.25
+					-identifier width
+				-Logical AND: ConjuctionExpression
+					-Comparison less than:
+						-identifier height
+						-decimal const -10.7
+					-Comparison Equal:
+						-identifier roof
+						-decimal const 0.3
+		ifTrue:
+			identifier that
+		ifFalse:
+			ifentifier other
+	*/
+	if (auto ternary = parser.tryBuildExpression(); ternary) {
+		auto& expr = std::get<TernaryExpressionPtr>(*ternary);
+		{
+			auto& condition = std::get<LogicalExpressionPtr>(*expr->getCondition());
+
+			EXPECT_TRUE(dynamic_cast<DisjunctionExpression*>(condition.get()) != nullptr);
+			{ //check conditions
+				auto firstSubExpr = condition->getFirstValue();
+				auto& comparison = std::get<ComparisonPtr>(*firstSubExpr);
+				EXPECT_TRUE(dynamic_cast<GreaterOrEqual*>(comparison.get()));
+
+				auto& comparExpr1 = comparison->getFirstExpression();
+
+				auto& decVal = std::get<DecimalValue>(comparExpr1);
+				EXPECT_EQ(decVal.getValue(), "0.25");
+
+				auto& comparExpr2 = comparison->getSecondExpression();
+				auto& identVal = std::get<Identifier>(comparExpr2);
+				EXPECT_EQ(identVal.getValue(), "width");
+			}
+			{
+				auto secondSubExpr = condition->getSecondValue();
+				auto& conjExpr = std::get<LogicalExpressionPtr>(*secondSubExpr);
+				ConjuctionExpression* conj = dynamic_cast<ConjuctionExpression*>(conjExpr.get());
+				EXPECT_TRUE(conj);
+				{//now check the left side of it - Comparison less than
+					auto& firstSubExpression = *conj->getFirstValue();
+
+					EXPECT_TRUE(std::holds_alternative<ComparisonPtr>(firstSubExpression));
+					auto& comp = std::get<ComparisonPtr>(firstSubExpression);
+
+					EXPECT_EQ(std::get<Identifier>(comp->getFirstExpression()).getValue(), "height");
+					EXPECT_EQ(std::get<DecimalValue>(comp->getSecondExpression()).getValue(), "-10.7");
+					EXPECT_TRUE(dynamic_cast<LessThan*>(comp.get()));
+				}
+
+				{//now check the right side - Comparison Equal
+					auto& secondSubExpression = *conj->getSecondValue();
+
+					EXPECT_TRUE(std::holds_alternative<ComparisonPtr>(secondSubExpression));
+					auto& comp = std::get<ComparisonPtr>(secondSubExpression);
+
+					EXPECT_EQ(std::get<Identifier>(comp->getFirstExpression()).getValue(), "roof");
+					EXPECT_EQ(std::get<DecimalValue>(comp->getSecondExpression()).getValue(), "0.3");
+					EXPECT_TRUE(dynamic_cast<Equal*>(comp.get()));
+				}
+			}
+		}
+
+		auto& ifTrue = expr->getTrueExpression();
+		{
+			auto& comp = std::get<Identifier>(ifTrue);
+			EXPECT_EQ(comp.getValue(), "that");
+
+		}
+
+
+		auto& ifFalse = expr->getFalseExpression();
+		{
+			auto& comp = std::get<Identifier>(ifFalse);
+			EXPECT_EQ(comp.getValue(), "other");
+		}
+
+	}	
 }
 
 

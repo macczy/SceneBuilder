@@ -7,16 +7,16 @@
 class TernaryExpression
 {
 public:
-	TernaryExpression(const Position& position, LogicalExpressionPtr condition, Expression& ifTrue, Expression& ifFalse)
+	TernaryExpression(const Position& position, LogicalSubExpressionPtr& condition, Expression& ifTrue, Expression& ifFalse)
 		: condition(std::move(condition)), expressionIfTrue(std::move(ifTrue)), expressionIfFalse(std::move(ifFalse)), position(position) {};
 	const Expression& getTrueExpression() const { return expressionIfTrue; }
 	const Expression& getFalseExpression() const { return expressionIfFalse; }
-	const LogicalExpressionPtr& getCondition() const { return condition; }
+	const LogicalSubExpression* getCondition() const { return condition.get(); }
 	const Position& getPosition() const { return position; }
 	~TernaryExpression() {};
 private:
 	Position position;
-	LogicalExpressionPtr condition;
+	LogicalSubExpressionPtr condition;
 	Expression expressionIfTrue;
 	Expression expressionIfFalse;
 };
