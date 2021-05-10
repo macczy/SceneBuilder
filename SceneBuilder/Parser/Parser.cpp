@@ -319,7 +319,7 @@ LogicalExpressionPtr Parser::tryBuildLogicalExpression(LogicalSubExpressionPtr &
     if (!LogicalExpressionFactory::isLogicalOperator(currentToken.getType())) return nullptr;
     auto operatorToken = currentToken;
     getNextToken();
-    if (auto secondValue = tryBuildExpression(); secondValue.has_value()) {
+    if (auto secondValue = tryBuildSimpleExpression(); secondValue.has_value()) {
         if (auto comparison = tryBuildComparison(secondValue.value()); comparison) {
             if (operatorToken.getType() == Token::TokenType::OR) {//DisjunctionExpression
                 LogicalSubExpressionPtr expression(std::make_unique<LogicalSubExpression>(std::move(comparison)));
