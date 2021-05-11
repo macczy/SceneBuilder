@@ -15,8 +15,8 @@ public:
 	const Position& getPosition() const { return position; }
 	virtual ~LogicalExpression() {}
 private:
-	std::unique_ptr<LogicalSubExpression> value1;
-	std::unique_ptr<LogicalSubExpression> value2;
+	LogicalSubExpressionPtr value1;
+	LogicalSubExpressionPtr value2;
 	Position position;
 };
 

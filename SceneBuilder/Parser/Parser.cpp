@@ -347,6 +347,28 @@ LogicalSubExpressionPtr Parser::tryBuildLogicalExpressionInBrackets() {
                     return subExpr;
                 }
                 throwSyntaxError("closing bracket", currentToken.getValue(), currentToken);
+            }        
+            if (currentToken.getType() == Token::TokenType::CLOSING_BRACKET) {
+                getNextToken();
+                if (auto add = tryBuildMultiplicationOrAddition(*expr); add) {
+                    if (auto comparison = tryBuildComparison(*add); comparison) {
+                        auto subExpr = std::make_unique<LogicalSubExpression>(std::move(comparison));
+                        if (auto subExpr1 = tryBuildLogicalExpression(subExpr); subExpr1) {
+                            if (currentToken.getType() == Token::TokenType::CLOSING_BRACKET) {
+                                getNextToken();
+                                return std::make_unique<LogicalSubExpression>(std::move(subExpr1));
+                            }
+                            throwSyntaxError("closing bracket", currentToken.getValue(), currentToken);
+                        }
+                        if (currentToken.getType() == Token::TokenType::CLOSING_BRACKET) {
+                            getNextToken();
+                            return subExpr;
+                        }
+                        throwSyntaxError("closing bracket", currentToken.getValue(), currentToken);
+                    }
+                    throwSyntaxError("logical expression or comparison", "expression", openingToken);
+                }
+                throwSyntaxError("logical expression or comparison", "expression", openingToken);
             }
             throwSyntaxError("expression", "empty brackets", openingToken);
         }

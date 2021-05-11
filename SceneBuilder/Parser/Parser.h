@@ -21,34 +21,28 @@ public:
 	bool tryBuildVariableObject();
 	bool tryBuildComplexOrSimpleObject();
 	bool tryBuildKnownType();
-	//each tryBuild function assumes that current token should be chacked, and leaves 1 token that it didn't include
-	//testing now
-	std::optional<Expression> tryBuildMultiplicationOrAddition(Expression& expr);
 
-	std::optional<Expression> tryBuildBrackets();
-
-
-	std::optional<Expression> tryBuildValue();
-	std::optional<Expression> tryBuildExpression();
-
-	std::optional<Expression> tryBuildExpressionOrTernaryExpression();
-	std::optional<Expression> tryBuildSimpleExpression();
 	//tested
 	std::optional<Color> tryBuildColor();
 	std::optional<Point> tryBuildPoint();
 	std::optional<DecimalValue> tryBuildDecimalValue();
 	std::optional<Identifier> tryBuildIdentifier();
+	std::optional<Expression> tryBuildValue();
+	std::optional<Expression> tryBuildExpression();
+	std::optional<Expression> tryBuildBrackets();
+	//builds all exceptions except Comparison, LogicalExpression and TernaryExpression - unless it's in brackets
+	std::optional<Expression> tryBuildSimpleExpression();
     ComparisonPtr tryBuildComparison(Expression& firstValue);
     AdditionPtr tryBuildAddition(Expression& firstValue);
     MultiplicationPtr tryBuildMultiplication(Expression& firstValue);
+	std::optional<Expression> tryBuildMultiplicationOrAddition(Expression& expr);
+	LogicalSubExpressionPtr tryBuildLogicalExpressionInBrackets();
     LogicalExpressionPtr tryBuildLogicalExpression(LogicalSubExpressionPtr& firstValue);
     TernaryExpressionPtr tryBuildTernaryExpression(LogicalSubExpressionPtr& condition);
-	LogicalSubExpressionPtr tryBuildLogicalExpressionInBrackets();
 
-	LogicalExpressionPtr getLogicalSubExpression(const Token& operatorToken, LogicalSubExpressionPtr& comparison, LogicalSubExpressionPtr& firstValue);
-
-	bool checkClosingBracket();
-
+	//helper functions not consuming tokens
+	LogicalExpressionPtr getLogicalSubExpression(const Token& operatorToken, 
+		LogicalSubExpressionPtr& comparison, LogicalSubExpressionPtr& firstValue);
 private:
 	Scanner& scanner;
 	Token currentToken;
