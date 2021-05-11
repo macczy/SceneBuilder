@@ -59,7 +59,7 @@ TEST(ParserUnitTests, CreateColor) {
 			});
 		Parser parser(scanner);
 		
-		if (auto color = parser.tryBuildColor(); color.has_value()) {
+		if (auto color = parser.tryBuildColor(); color) {
 			EXPECT_EQ(color->getValues(), tripleHexValues("#AB234", "#123", "#0123"));
 		} else {
 			FAIL() << "Expected Color";
@@ -104,7 +104,7 @@ TEST(ParserUnitTests, CreatePoint) {
 		ScannerMock scanner(getValidPointTokenSequence());
 		Parser parser(scanner);
 
-		if (auto point = parser.tryBuildPoint(); point.has_value()) {
+		if (auto point = parser.tryBuildPoint(); point) {
 			auto& [x, y, z] = point->getValues();
 			EXPECT_EQ(x.getValue(), "0.12");
 			EXPECT_EQ(y.getValue(), "12.4");
@@ -123,7 +123,7 @@ TEST(ParserUnitTests, CreatePoint) {
 			});
 		Parser parser(scanner);
 
-		if (auto point = parser.tryBuildPoint(); point.has_value()) {
+		if (auto point = parser.tryBuildPoint(); point) {
 			auto& [x, y, z] = point->getValues();
 			EXPECT_EQ(x.getValue(), "0.12");
 			EXPECT_EQ(y.getValue(), "0");
@@ -140,7 +140,7 @@ TEST(ParserUnitTests, CreatePoint) {
 		tokens.insert(tokens.begin() + 8, Token(Token::TokenType::MINUS, "-"));
 		ScannerMock scanner(tokens);
 		Parser parser(scanner);
-		if (auto point = parser.tryBuildPoint(); point.has_value()) {
+		if (auto point = parser.tryBuildPoint(); point) {
 			auto& [x, y, z] = point->getValues();
 			EXPECT_EQ(x.getValue(), "-0.12");
 			EXPECT_EQ(y.getValue(), "-12.4");
@@ -174,7 +174,7 @@ TEST(ParserUnitTests, CreatePoint) {
 			});
 		Parser parser(scanner);
 
-		if (auto point = parser.tryBuildPoint(); point.has_value()) {
+		if (auto point = parser.tryBuildPoint(); point) {
 			FAIL() << "Should return nullopt";
 		}
 		else {
@@ -186,7 +186,7 @@ TEST(ParserUnitTests, CreatePoint) {
 			});
 		Parser parser(scanner);
 
-		if (auto point = parser.tryBuildPoint(); point.has_value()) {
+		if (auto point = parser.tryBuildPoint(); point) {
 			FAIL() << "Should return nullopt";
 		}
 	}
@@ -198,7 +198,7 @@ TEST(ParserUnitTests, CreateIdentifier) {
 		});
 	Parser parser(scanner);
 
-	if (auto identifier = parser.tryBuildIdentifier(); identifier.has_value()) {
+	if (auto identifier = parser.tryBuildIdentifier(); identifier) {
 		EXPECT_EQ(identifier->getValue(), "house");
 		EXPECT_EQ(identifier->hasNext(), false);
 	}
@@ -216,7 +216,7 @@ TEST(ParserUnitTests, CreateIdentifierPropertyList) {
 			Token(Token::TokenType::VARIABLE_IDENTIFIER, "chimeny")
 			});
 		Parser parser(scanner);
-		if (auto identifier = parser.tryBuildIdentifier(); identifier.has_value()) {
+		if (auto identifier = parser.tryBuildIdentifier(); identifier) {
 			EXPECT_EQ(identifier->getValue(), "house");
 			EXPECT_EQ(identifier->hasNext(), true);
 			auto roof = identifier->getNext();
@@ -237,7 +237,7 @@ TEST(ParserUnitTests, CreateIdentifierPropertyList) {
 	Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof")
 			});
 		Parser parser(scanner);
-		if (auto identifier = parser.tryBuildIdentifier(); identifier.has_value()) {
+		if (auto identifier = parser.tryBuildIdentifier(); identifier) {
 			EXPECT_EQ(identifier->getValue(), "house");
 			EXPECT_EQ(identifier->hasNext(), true);
 			auto roof = identifier->getNext();
@@ -258,7 +258,7 @@ TEST(ParserUnitTests, FailCreateIdentifier) {
 			});
 		Parser parser(scanner);
 		EXPECT_THROW({
-			if (auto identifier = parser.tryBuildIdentifier(); identifier.has_value()) {
+			if (auto identifier = parser.tryBuildIdentifier(); identifier) {
 				FAIL() << "Identifier building should fail";
 			}
 			}, SyntaxError);
@@ -272,7 +272,7 @@ TEST(ParserUnitTests, FailCreateIdentifier) {
 			});
 		Parser parser(scanner);
 		EXPECT_THROW({
-			if (auto identifier = parser.tryBuildIdentifier(); identifier.has_value()) {
+			if (auto identifier = parser.tryBuildIdentifier(); identifier) {
 				FAIL() << "Identifier building should fail";
 			}
 			}, SyntaxError);
@@ -290,7 +290,7 @@ TEST(ParserUnitTests, CreateValue) {
 			});
 		Parser parser(scanner);
 
-		if (auto value = parser.tryBuildValue(); value.has_value()) {
+		if (auto value = parser.tryBuildValue(); value) {
 			EXPECT_TRUE(std::holds_alternative<DecimalValue>(value.value()));
 			DecimalValue dec = std::get<DecimalValue>(value.value());
 			EXPECT_EQ(dec.getValue(), "-0.12");
@@ -306,7 +306,7 @@ TEST(ParserUnitTests, CreateValue) {
 			});
 		Parser parser(scanner);
 
-		if (auto value = parser.tryBuildValue(); value.has_value()) {
+		if (auto value = parser.tryBuildValue(); value) {
 			EXPECT_TRUE(std::holds_alternative<DecimalValue>(value.value()));
 			DecimalValue dec = std::get<DecimalValue>(value.value());
 			EXPECT_EQ(dec.getValue(), "0.12");
@@ -320,7 +320,7 @@ TEST(ParserUnitTests, CreateValue) {
 		ScannerMock scanner(getValidPointTokenSequence());
 		Parser parser(scanner);
 
-		if (auto value = parser.tryBuildValue(); value.has_value()) {
+		if (auto value = parser.tryBuildValue(); value) {
 			EXPECT_TRUE(std::holds_alternative<Point>(value.value()));
 			Point point = std::get<Point>(value.value());
 			auto& [x, y, z] = point.getValues();
@@ -346,7 +346,7 @@ TEST(ParserUnitTests, CreateValue) {
 			});
 		Parser parser(scanner);
 
-		if (auto value = parser.tryBuildValue(); value.has_value()) {
+		if (auto value = parser.tryBuildValue(); value) {
 			EXPECT_TRUE(std::holds_alternative<Color>(value.value()));
 			Color color = std::get<Color>(value.value());
 			EXPECT_EQ(color.getValues(), tripleHexValues("#AB234", "#123", "#0123"));
@@ -732,6 +732,38 @@ TEST(ParserUnitTests, CreateComparison) {
 		if (auto comparison = parser.tryBuildComparison(expr); comparison) {
 			FAIL() << "Comparison building should return nullopt";
 		}
+	}
+}
+
+
+TEST(ParserUnitTests, CreateBasicObject) {
+	ScannerMock scanner({
+		Token(Token::TokenType::TYPE_IDENTIFIER, "Circle"),
+		Token(Token::TokenType::OPENING_BRACE, "{"),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+		Token(Token::TokenType::COLON, ":"),
+		Token(Token::TokenType::DECIMAL_CONST, "12.7"),
+		Token(Token::TokenType::ASTERISK, "*"),
+		Token(Token::TokenType::MINUS, "-"),
+		Token(Token::TokenType::DECIMAL_CONST, "10"),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "height"),
+		Token(Token::TokenType::COLON, ":"),
+		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+		Token(Token::TokenType::CLOSING_BRACE, "}")
+		});
+	Parser parser(scanner);
+	if (auto obj = parser.tryBuildBasicObject(); obj) {
+		EXPECT_NE(dynamic_cast<Circle*>(obj.get()), nullptr);
+		auto& properties = obj->getProperties();
+		EXPECT_EQ(properties.size(), 2);
+		auto& expr1 = properties[0].getValue();
+		EXPECT_TRUE(std::holds_alternative<MultiplicationPtr>(expr1));
+		auto& expr2 = properties[1].getValue();
+		EXPECT_TRUE(std::holds_alternative<Identifier>(expr2));
+		EXPECT_EQ(std::get<Identifier>(expr2).getValue(), "width");
+	}
+	else {
+		FAIL() << "Circle should be built";
 	}
 }
 

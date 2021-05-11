@@ -387,6 +387,7 @@ BasicObjectPtr Parser::tryBuildBasicObject() {
     Properties properties;
     getNextToken();
     if(currentToken.getType() != Token::TokenType::OPENING_BRACE) throwSyntaxError("{", currentToken.getValue(), currentToken);
+    getNextToken(); 
     while(auto ident = tryBuildIdentifier()) {
         if (auto property = tryBuildProperty(*ident)) {
             properties.push_back(std::move(*property));

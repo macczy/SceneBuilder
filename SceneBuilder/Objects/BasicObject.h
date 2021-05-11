@@ -18,7 +18,7 @@ public:
 	Position& getPosition() { return pos; }
 	Properties& getProperties() { return properties; }
 
-	~BasicObject() {}
+	virtual ~BasicObject() {}
 protected:
 	Position pos;
 	Properties properties;
@@ -28,28 +28,28 @@ class Circle : public BasicObject
 {
 public:
 	Circle(const Position& pos, Properties& properties) : BasicObject(pos, properties) {};
-	~Circle() {}
+	virtual ~Circle() {}
 };
 
 class Polygon : public BasicObject
 {
 public:
 	Polygon(const Position& pos, Properties& properties) : BasicObject(pos, properties) {};
-	~Polygon() {}
+	virtual ~Polygon() {}
 };
 
 class Rectangle : public BasicObject
 {
 public:
 	Rectangle(const Position& pos, Properties& properties) : BasicObject(pos, properties) {};
-	~Rectangle() {}
+	virtual ~Rectangle() {}
 };
 
 class Line : public BasicObject
 {
 public:
 	Line(const Position& pos, Properties& properties) : BasicObject(pos, properties) {};
-	~Line() {}
+	virtual ~Line() {}
 };
 
 class BasicObjectFactory {
