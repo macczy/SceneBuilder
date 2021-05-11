@@ -227,12 +227,15 @@ void SceneBuilderScanner::next() {
 		if (isDecimalConst(tokenStartPosition)) return;
 		if (isHexConst(tokenStartPosition)) return;
 
-		auto& lambda = lambdaGeneratedTokens[character];
-		if(lambda != nullptr) {
-			lambda(tokenStartPosition);
+		auto lambda = lambdaGeneratedTokens.find(character);
+		if(lambda != lambdaGeneratedTokens.end()) {
+			lambda->second(tokenStartPosition);
 		} else {
-			Token::TokenType type = singleCharTokens[character]; //returns UNDEFINED if character not found
-			currentToken = Token(type, std::string(1, character), tokenStartPosition);
+			auto type = singleCharTokens.find(character);
+			if (type != singleCharTokens.end())
+				currentToken = Token(type->second, std::string(1, character), tokenStartPosition);
+			else 
+				currentToken = Token(Token::TokenType::UNDEFINED, std::string(1, character), tokenStartPosition);
 			getNextChar();
 		}
 	}

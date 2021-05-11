@@ -3,6 +3,7 @@
 #include <variant>
 #include "SceneRoot.h"
 #include "../Objects/Expression.h"
+#include "../Objects/BasicObject.h"
 #include "../Scanner/Scanner.h"
 #include "../Scanner/Token.h"
 
@@ -21,6 +22,10 @@ public:
 	bool tryBuildVariableObject();
 	bool tryBuildComplexOrSimpleObject();
 	bool tryBuildKnownType();
+
+	std::optional<Property> tryBuildProperty(Identifier& ident);
+	BasicObjectPtr tryBuildBasicObject();
+
 
 	//tested
 	std::optional<Color> tryBuildColor();

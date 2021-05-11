@@ -354,17 +354,9 @@ LogicalSubExpressionPtr Parser::tryBuildLogicalExpressionInBrackets() {
                     if (auto comparison = tryBuildComparison(*add); comparison) {
                         auto subExpr = std::make_unique<LogicalSubExpression>(std::move(comparison));
                         if (auto subExpr1 = tryBuildLogicalExpression(subExpr); subExpr1) {
-                            if (currentToken.getType() == Token::TokenType::CLOSING_BRACKET) {
-                                getNextToken();
-                                return std::make_unique<LogicalSubExpression>(std::move(subExpr1));
-                            }
-                            throwSyntaxError("closing bracket", currentToken.getValue(), currentToken);
+                            return std::make_unique<LogicalSubExpression>(std::move(subExpr1));
                         }
-                        if (currentToken.getType() == Token::TokenType::CLOSING_BRACKET) {
-                            getNextToken();
-                            return subExpr;
-                        }
-                        throwSyntaxError("closing bracket", currentToken.getValue(), currentToken);
+                        return subExpr;
                     }
                     throwSyntaxError("logical expression or comparison", "expression", openingToken);
                 }
@@ -377,6 +369,35 @@ LogicalSubExpressionPtr Parser::tryBuildLogicalExpressionInBrackets() {
     return nullptr;
 }
 
+
+std::optional<Property> Parser::tryBuildProperty(Identifier& ident) {
+    if (ident.hasNext()) return std::nullopt;
+    if(currentToken.getType() != Token::TokenType::COLON) return std::nullopt;
+    getNextToken();
+    if (auto expr = tryBuildExpression(); expr) {
+        return Property(ident.getPosition(), ident, *expr);
+    }
+    return std::nullopt;
+}
+
+
+BasicObjectPtr Parser::tryBuildBasicObject() {
+    if (!BasicObjectFactory::isBasicObjectNameToken(currentToken)) return nullptr;
+    auto startingToken = currentToken;
+    Properties properties;
+    getNextToken();
+    if(currentToken.getType() != Token::TokenType::OPENING_BRACE) throwSyntaxError("{", currentToken.getValue(), currentToken);
+    while(auto ident = tryBuildIdentifier()) {
+        if (auto property = tryBuildProperty(*ident)) {
+            properties.push_back(std::move(*property));
+        }
+        else {
+            throwSyntaxError("expression", currentToken.getValue(), currentToken);
+        }
+    }
+    if (currentToken.getType() != Token::TokenType::CLOSING_BRACE) throwSyntaxError("}", currentToken.getValue(), currentToken);
+    return BasicObjectFactory::getBasicObject(startingToken.getPosition(), properties, startingToken);
+}
 
 LogicalExpressionPtr Parser::tryBuildLogicalExpression(LogicalSubExpressionPtr &firstValue) {
     if (!firstValue) return nullptr;

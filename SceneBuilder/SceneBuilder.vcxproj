@@ -213,6 +213,7 @@
   <ItemGroup>
     <ClCompile Include="Animations\AnimationSequence.cpp" />
     <ClCompile Include="Objects\Addition.cpp" />
+    <ClCompile Include="Objects\BasicObject.cpp" />
     <ClCompile Include="Objects\Comparison.cpp" />
     <ClCompile Include="Objects\ComplexObject.cpp" />
     <ClCompile Include="Objects\LogicalExpression.cpp" />
@@ -235,9 +236,11 @@
   <ItemGroup>
     <ClInclude Include="Animations\AnimationSequence.h" />
     <ClInclude Include="Objects\Addition.h" />
+    <ClInclude Include="Objects\BasicObject.h" />
     <ClInclude Include="Objects\Color.h" />
     <ClInclude Include="Objects\Comparison.h" />
     <ClInclude Include="Objects\ComplexObject.h" />
+    <ClInclude Include="Objects\Property.h" />
     <ClInclude Include="Objects\TernaryExpression.h" />
     <ClInclude Include="Objects\DecimalValue.h" />
     <ClInclude Include="Objects\HexValue.h" />

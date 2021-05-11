@@ -7,6 +7,7 @@
 #include "../SceneBuilder/Objects/Addition.cpp"
 #include "../SceneBuilder/Objects/Multiplication.cpp"
 #include "../SceneBuilder/Objects/LogicalExpression.cpp"
+#include "../SceneBuilder/Objects/BasicObject.cpp"
 
 class ScannerMock : public Scanner {
 public:

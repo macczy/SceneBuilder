@@ -9,7 +9,6 @@ public:
 		position(position), value(value), next(std::move(next)) {};
 	Identifier(const Position& position, const std::string& value) :
 		position(position), value(value) {};
-
 	const Position& getPosition() const { 
 		return position; 
 	}
