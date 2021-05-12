@@ -16,7 +16,7 @@ std::map<std::string, std::function<BasicObjectPtr(const Position& pos, Properti
 };
 
 std::array<std::string, 4> BasicObjectFactory::basicObjectsNames = {
-		"Rectangle"
+		"Rectangle",
 		"Polygon",
 		"Line",
 		"Circle"
