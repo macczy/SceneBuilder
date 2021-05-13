@@ -6,6 +6,7 @@
 #include "HexValue.h"
 #include "Point.h"
 #include "Identifier.h"
+#include "PointArray.h"
 
 class Addition;
 using AdditionPtr = std::unique_ptr<Addition>;
@@ -15,7 +16,7 @@ using MultiplicationPtr = std::unique_ptr<Multiplication>;
 class TernaryExpression;
 using TernaryExpressionPtr = std::unique_ptr<TernaryExpression>;
 
-using Expression = std::variant<DecimalValue, HexValue, Color, Point, Identifier, TernaryExpressionPtr, MultiplicationPtr, AdditionPtr>;
+using Expression = std::variant<DecimalValue, HexValue, Color, Point, Identifier, PointArray, TernaryExpressionPtr, MultiplicationPtr, AdditionPtr>;
 
 class Comparison;
 using ComparisonPtr = std::unique_ptr<Comparison>;

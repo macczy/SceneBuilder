@@ -2,6 +2,9 @@
 #include <memory>
 #include "../Scanner/Token.h"
 
+class Identifier;
+
+using IdentifierPtr = std::unique_ptr<Identifier>;
 class Identifier
 {
 public:
@@ -9,6 +12,7 @@ public:
 		position(position), value(value), next(std::move(next)) {};
 	Identifier(const Position& position, const std::string& value) :
 		position(position), value(value) {};
+
 	const Position& getPosition() const { 
 		return position; 
 	}
@@ -24,6 +28,6 @@ public:
 private:
 	std::string value;
 	Position position;
-	std::unique_ptr<Identifier> next;
+	IdentifierPtr next;
 };
 

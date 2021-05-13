@@ -737,33 +737,94 @@ TEST(ParserUnitTests, CreateComparison) {
 
 
 TEST(ParserUnitTests, CreateBasicObject) {
-	ScannerMock scanner({
-		Token(Token::TokenType::TYPE_IDENTIFIER, "Circle"),
-		Token(Token::TokenType::OPENING_BRACE, "{"),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
-		Token(Token::TokenType::COLON, ":"),
-		Token(Token::TokenType::DECIMAL_CONST, "12.7"),
-		Token(Token::TokenType::ASTERISK, "*"),
-		Token(Token::TokenType::MINUS, "-"),
-		Token(Token::TokenType::DECIMAL_CONST, "10"),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "height"),
-		Token(Token::TokenType::COLON, ":"),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
-		Token(Token::TokenType::CLOSING_BRACE, "}")
-		});
-	Parser parser(scanner);
-	if (auto obj = parser.tryBuildBasicObject(); obj) {
-		EXPECT_NE(dynamic_cast<Circle*>(obj.get()), nullptr);
-		auto& properties = obj->getProperties();
-		EXPECT_EQ(properties.size(), 2);
-		auto& expr1 = properties[0].getValue();
-		EXPECT_TRUE(std::holds_alternative<MultiplicationPtr>(expr1));
-		auto& expr2 = properties[1].getValue();
-		EXPECT_TRUE(std::holds_alternative<Identifier>(expr2));
-		EXPECT_EQ(std::get<Identifier>(expr2).getValue(), "width");
+	{
+		ScannerMock scanner({
+			Token(Token::TokenType::TYPE_IDENTIFIER, "Circle"),
+			Token(Token::TokenType::OPENING_BRACE, "{"),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+			Token(Token::TokenType::COLON, ":"),
+			Token(Token::TokenType::DECIMAL_CONST, "12.7"),
+			Token(Token::TokenType::ASTERISK, "*"),
+			Token(Token::TokenType::MINUS, "-"),
+			Token(Token::TokenType::DECIMAL_CONST, "10"),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "height"),
+			Token(Token::TokenType::COLON, ":"),
+			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
+			Token(Token::TokenType::CLOSING_BRACE, "}")
+			});
+		Parser parser(scanner);
+		if (auto obj = parser.tryBuildBasicObject(); obj) {
+			EXPECT_NE(dynamic_cast<Circle*>(obj.get()), nullptr);
+			auto& properties = obj->getProperties();
+			EXPECT_EQ(properties.size(), 2);
+			auto& expr1 = properties[0]->getValue();
+			EXPECT_TRUE(std::holds_alternative<MultiplicationPtr>(expr1));
+			auto& expr2 = properties[1]->getValue();
+			EXPECT_TRUE(std::holds_alternative<Identifier>(expr2));
+			EXPECT_EQ(std::get<Identifier>(expr2).getValue(), "width");
+		}
+		else {
+			FAIL() << "Circle should be built";
+		}
 	}
-	else {
-		FAIL() << "Circle should be built";
+	{
+		ScannerMock scanner({
+		Token(Token::TokenType::TYPE_IDENTIFIER, "Rectangle"),
+		Token(Token::TokenType::OPENING_BRACE, "{"),
+		Token(Token::TokenType::CLOSING_BRACE, "}")
+			});
+		Parser parser(scanner);
+		if (auto obj = parser.tryBuildBasicObject(); obj) {
+			EXPECT_NE(dynamic_cast<Rectangle*>(obj.get()), nullptr);
+			auto& properties = obj->getProperties();
+			EXPECT_EQ(properties.size(), 0);
+		}
+		else {
+			FAIL() << "Rectangle should be built";
+		}
+	}
+	{
+		ScannerMock scanner({
+		Token(Token::TokenType::TYPE_IDENTIFIER, "Line"),
+		Token(Token::TokenType::OPENING_BRACE, "{"),
+		Token(Token::TokenType::CLOSING_BRACE, "}")
+			});
+		Parser parser(scanner);
+		if (auto obj = parser.tryBuildBasicObject(); obj) {
+			EXPECT_NE(dynamic_cast<Line*>(obj.get()), nullptr);
+			auto& properties = obj->getProperties();
+			EXPECT_EQ(properties.size(), 0);
+		}
+		else {
+			FAIL() << "Line should be built";
+		}
+	}
+	{
+		ScannerMock scanner({
+		Token(Token::TokenType::TYPE_IDENTIFIER, "Polygon"),
+		Token(Token::TokenType::OPENING_BRACE, "{"),
+		Token(Token::TokenType::CLOSING_BRACE, "}")
+			});
+		Parser parser(scanner);
+		if (auto obj = parser.tryBuildBasicObject(); obj) {
+			EXPECT_NE(dynamic_cast<Polygon*>(obj.get()), nullptr);
+			auto& properties = obj->getProperties();
+			EXPECT_EQ(properties.size(), 0);
+		}
+		else {
+			FAIL() << "Polygon should be built";
+		}
+	}
+	{
+		ScannerMock scanner({
+		Token(Token::TokenType::TYPE_IDENTIFIER, "MyObject"),
+		Token(Token::TokenType::OPENING_BRACE, "{"),
+		Token(Token::TokenType::CLOSING_BRACE, "}")
+			});
+		Parser parser(scanner);
+		if (auto obj = parser.tryBuildBasicObject(); obj) {
+			FAIL() << "Should fail";
+		}
 	}
 }
 

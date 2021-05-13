@@ -1,6 +1,6 @@
 House = {
 	roof = Polygon {
-		color: Color(xCC, xCC, xCC)
+		color: Color(#CC, #CC, #CC)
 		vertexes: [  
 			Point(0.1, 0.2, 0.3),
 			Point(0.2, 0.3, 0.4),
@@ -9,7 +9,7 @@ House = {
 	}
 	doorHandle = Line {
 		points: [Point(0.1, 0.2, 0.3), Point(0.5, 0.4, 0.5)]
-		color: Color(xCC, xCC, xCC)
+		color: Color(#CC, #CC, #CC)
 	}
 	
 	mainBuilding = Rectangle {
@@ -74,5 +74,4 @@ Circle {
 	radius: 10
 	vertex: Point(0.1, 0.2, 0.3)
 	color: Color(#DD, #DD, #DD)
-} fwef fgew
-#o
+}

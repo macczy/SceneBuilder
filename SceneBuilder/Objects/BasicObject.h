@@ -11,17 +11,23 @@
 class BasicObject;
 using BasicObjectPtr = std::unique_ptr<BasicObject>;
 
-class BasicObject
+class Object
 {
 public:
-	BasicObject(const Position& pos, Properties& properties) : pos(pos), properties(std::move(properties)) {};
+	Object(const Position& pos, Properties& properties) : pos(pos), properties(std::move(properties)) {};
 	Position& getPosition() { return pos; }
 	Properties& getProperties() { return properties; }
-
-	virtual ~BasicObject() {}
+	virtual ~Object() {}
 protected:
 	Position pos;
 	Properties properties;
+};
+
+class BasicObject : public Object
+{
+public:
+	BasicObject(const Position& pos, Properties& properties) : Object(pos, properties) {};
+	virtual ~BasicObject() {}
 };
 
 class Circle : public BasicObject

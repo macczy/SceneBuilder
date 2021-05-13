@@ -1,6 +1,7 @@
 #pragma once
 #include <optional>
 #include <variant>
+#include <vector>
 #include "SceneRoot.h"
 #include "../Objects/Expression.h"
 #include "../Objects/BasicObject.h"
@@ -16,26 +17,25 @@ public:
 	virtual std::unique_ptr<SceneRoot> parse();
 
 	//these will be replaced later
-	bool tryBuildComplexObject();
 	bool tryBuildAnimationDeclaration();
-	bool tryBuildComplexObjectDeclaration();
-	bool tryBuildVariableObject();
-	bool tryBuildComplexOrSimpleObject();
-	bool tryBuildKnownType();
+	std::optional<Scene> tryBuildScene();
 
-	std::optional<Property> tryBuildProperty(Identifier& ident);
-	BasicObjectPtr tryBuildBasicObject();
 
+	ComplexObjectDeclarationPtr tryBuildNewComplexObject(const std::string& name);
 
 	//tested
+	PropertyPtr tryBuildProperty(Identifier& ident);
+	BasicObjectPtr tryBuildBasicObject();
+	ComplexObjectPtr tryBuildComplexObject();
 	std::optional<Color> tryBuildColor();
 	std::optional<Point> tryBuildPoint();
 	std::optional<DecimalValue> tryBuildDecimalValue();
 	std::optional<Identifier> tryBuildIdentifier();
+	std::optional<PointArray> tryBuildPointArray();
 	std::optional<Expression> tryBuildValue();
 	std::optional<Expression> tryBuildExpression();
 	std::optional<Expression> tryBuildBrackets();
-	//builds all exceptions except Comparison, LogicalExpression and TernaryExpression - unless it's in brackets
+	//builds all Expressions except Comparison, LogicalExpression and TernaryExpression - unless it's in brackets
 	std::optional<Expression> tryBuildSimpleExpression();
     ComparisonPtr tryBuildComparison(Expression& firstValue);
     AdditionPtr tryBuildAddition(Expression& firstValue);
@@ -52,7 +52,7 @@ private:
 	Scanner& scanner;
 	Token currentToken;
 	std::unique_ptr<SceneRoot> root;
-	std::vector<std::string> knownTypes;
+	std::vector<ComplexObjectDeclarationPtr> knownTypes;
 	const Token& getNextToken();
 	bool isKnownType(const std::string& value);
 

@@ -28,7 +28,11 @@ int main(int argc, char* argv[])
     catch (const SyntaxError& er) {
         std::cout << er.what() << std::endl;
     }
+    catch (const std::runtime_error& er) {
+        std::cout << er.what() << std::endl;
+    }
     catch (...) {
         std::cout << "Undefined error" << std::endl;
+        throw;
     }
 }

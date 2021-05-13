@@ -249,6 +249,7 @@
     <ClInclude Include="Objects\Multiplication.h" />
     <ClInclude Include="Objects\Point.h" />
     <ClInclude Include="Objects\Expression.h" />
+    <ClInclude Include="Objects\PointArray.h" />
     <ClInclude Include="Parser\Parser.h" />
     <ClInclude Include="Parser\Scene.h" />
     <ClInclude Include="Parser\SceneRoot.h" />

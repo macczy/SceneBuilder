@@ -5,6 +5,7 @@ struct ExpressionPositionVisitor {
 	const Position& operator()(const HexValue& value) { return value.getPosition(); }
 	const Position& operator()(const Color& value) { return value.getPosition(); }
 	const Position& operator()(const Point& value) { return value.getPosition(); }
+	const Position& operator()(const PointArray& value) { return value.getPosition(); }
 	const Position& operator()(const Identifier& value) { return value.getPosition(); }
 	const Position& operator()(const TernaryExpressionPtr& value) { return value->getPosition(); }
 	const Position& operator()(const MultiplicationPtr& value) { return value->getPosition(); }
