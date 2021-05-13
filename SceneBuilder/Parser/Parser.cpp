@@ -50,10 +50,13 @@ bool Parser::isKnownType(const std::string& value) {
      }) != knownTypes.end();
 }
 
-bool Parser::tryBuildAnimationDeclaration() {
+AnimationDeclarationPtr Parser::tryBuildAnimationDeclaration() {
     //throw std::runtime_error("not implemented");
-    if (currentToken.getType() != TokenType::VARIABLE_IDENTIFIER) return false;
-    return false;
+    if (currentToken.getType() != TokenType::TYPE_IDENTIFIER) return nullptr;
+    if(currentToken.getValue() != "AnimationSequence") return nullptr;
+
+
+    return nullptr;
 }
 
 std::optional<Color> Parser::tryBuildColor() {
@@ -495,10 +498,7 @@ std::optional<Scene> Parser::tryBuildScene() { //TODO
 std::unique_ptr<SceneRoot> Parser::parse() {
     try {
         while (currentToken.getType() != TokenType::END_OF_FILE) {
-            if (tryBuildAnimationDeclaration()) {
-                //add animations to list of animations TODO
-            }
-            else if (currentToken.getType() != TokenType::TYPE_IDENTIFIER) throwSyntaxError("expected animation, complex object, or scene declaration", currentToken.getValue(), currentToken);
+            if (currentToken.getType() != TokenType::TYPE_IDENTIFIER) throwSyntaxError("expected animation, complex object, or scene declaration", currentToken.getValue(), currentToken);
             auto ident = currentToken;
             if (auto scene = tryBuildScene(); scene) {
                 //TODO
@@ -507,7 +507,9 @@ std::unique_ptr<SceneRoot> Parser::parse() {
                 if(getNextToken().getType() != TokenType::EQUAL_SIGN)
                     throwSyntaxError("expected animation, complex object, or scene declaration", currentToken.getValue(), currentToken);
                 getNextToken();
-                if (auto obj = tryBuildNewComplexObject(ident.getValue()); obj) {
+                if (auto anim = tryBuildAnimationDeclaration(); anim) {
+                    //add animations to list of animations TODO
+                }else if (auto obj = tryBuildNewComplexObject(ident.getValue()); obj) {
                     if (isKnownType(ident.getValue())) throw SyntaxError("Redefinition of " + ident.getValue() +
                         std::string(" ", 1) + ident.getPosition().toString() + scanner.getLineError(ident.getPosition()));
                     knownTypes.push_back(std::move(obj));

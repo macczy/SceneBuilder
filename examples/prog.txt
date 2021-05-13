@@ -31,13 +31,13 @@ customAnimation = AnimationSequence(first, second) {
 					object: first
 					type: Animation.Rotation
 					axis: Animation.XAxis
-					duration: 5s
+					duration: "5s"
 				}
 				Animation {
 				object: second
 					type: Animation.Movement
 					vector: [0., 0.2, 0.1]
-					duration: 5s
+					duration: "5s"
 				}
 			}
 			

@@ -211,11 +211,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Animations\AnimationSequence.cpp" />
     <ClCompile Include="Objects\Addition.cpp" />
     <ClCompile Include="Objects\BasicObject.cpp" />
     <ClCompile Include="Objects\Comparison.cpp" />
-    <ClCompile Include="Objects\ComplexObject.cpp" />
     <ClCompile Include="Objects\LogicalExpression.cpp" />
     <ClCompile Include="Objects\Expression.cpp" />
     <ClCompile Include="Objects\Multiplication.cpp" />
@@ -234,8 +232,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Animations\AnimationSequence.h" />
     <ClInclude Include="Objects\Addition.h" />
+    <ClInclude Include="Objects\Animation.h" />
+    <ClInclude Include="Objects\AnimationDeclaration.h" />
     <ClInclude Include="Objects\BasicObject.h" />
     <ClInclude Include="Objects\Color.h" />
     <ClInclude Include="Objects\Comparison.h" />

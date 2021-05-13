@@ -4,10 +4,10 @@
 #include <vector>
 #include "SceneRoot.h"
 #include "../Objects/Expression.h"
-#include "../Objects/BasicObject.h"
+#include "../Objects/ComplexObject.h"
+#include "../Objects/AnimationDeclaration.h"
 #include "../Scanner/Scanner.h"
 #include "../Scanner/Token.h"
-
 
 class Parser
 {
@@ -17,7 +17,7 @@ public:
 	virtual std::unique_ptr<SceneRoot> parse();
 
 	//these will be replaced later
-	bool tryBuildAnimationDeclaration();
+	AnimationDeclarationPtr tryBuildAnimationDeclaration();
 	std::optional<Scene> tryBuildScene();
 
 
