@@ -29,7 +29,8 @@ std::map<Token::TokenType, std::string> Token::TokenTypeToStringMap {
 		{ TokenType::GREATER_OR_EQUAL, "GREATER_OR_EQUAL"},
 		{ TokenType::OR, "OR"},
 		{ TokenType::AND, "AND"},
-		{ TokenType::NOT_EQUAL, "NOT_EQUAL"}
+		{ TokenType::NOT_EQUAL, "NOT_EQUAL"},
+		{ TokenType::DOUBLE_QUOTE_CHARACTER, "DOUBLE_QUOTE_CHARACTER"}
 };
 
 

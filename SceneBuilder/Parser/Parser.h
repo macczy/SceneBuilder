@@ -14,49 +14,54 @@ class Parser
 public:
 	Parser(Scanner& scanner);
 
-	virtual std::unique_ptr<SceneRoot> parse();
+	[[nodiscard]] std::unique_ptr<SceneRoot> parse();
 
-	//these will be replaced later
-	AnimationDeclarationPtr tryBuildAnimationDeclaration();
-	std::optional<Scene> tryBuildScene();
+	[[nodiscard]] AnimationPtr tryBuildAnimation();
+	[[nodiscard]] AnimationPtr tryBuildWait();
+	[[nodiscard]] AnimationPtr tryBuildComplexAnimation();
+	[[nodiscard]] AnimationPtr tryBuildConditionalAnimation();
+	[[nodiscard]] AnimationPtr tryBuildBasicAnimation();
+	[[nodiscard]] AnimationDeclarationPtr tryBuildAnimationDeclaration(const Token& identifierToken);
+	[[nodiscard]] ScenePtr tryBuildScene();
 
-
-	ComplexObjectDeclarationPtr tryBuildNewComplexObject(const std::string& name);
+	[[nodiscard]] std::optional<TimeDeclaration> tryBuildTimeDeclaration();
+	[[nodiscard]] ComplexObjectDeclarationPtr tryBuildNewComplexObject(const Token& identifierToken);
 
 	//tested
-	PropertyPtr tryBuildProperty(Identifier& ident);
-	BasicObjectPtr tryBuildBasicObject();
-	ComplexObjectPtr tryBuildComplexObject();
-	std::optional<Color> tryBuildColor();
-	std::optional<Point> tryBuildPoint();
-	std::optional<DecimalValue> tryBuildDecimalValue();
-	std::optional<Identifier> tryBuildIdentifier();
-	std::optional<PointArray> tryBuildPointArray();
-	std::optional<Expression> tryBuildValue();
-	std::optional<Expression> tryBuildExpression();
-	std::optional<Expression> tryBuildBrackets();
-	//builds all Expressions except Comparison, LogicalExpression and TernaryExpression - unless it's in brackets
-	std::optional<Expression> tryBuildSimpleExpression();
-    ComparisonPtr tryBuildComparison(Expression& firstValue);
-    AdditionPtr tryBuildAddition(Expression& firstValue);
-    MultiplicationPtr tryBuildMultiplication(Expression& firstValue);
-	std::optional<Expression> tryBuildMultiplicationOrAddition(Expression& expr);
-	LogicalSubExpressionPtr tryBuildLogicalExpressionInBrackets();
-    LogicalExpressionPtr tryBuildLogicalExpression(LogicalSubExpressionPtr& firstValue);
-    TernaryExpressionPtr tryBuildTernaryExpression(LogicalSubExpressionPtr& condition);
+	[[nodiscard]] PropertyPtr tryBuildProperty(Identifier& ident);
+	[[nodiscard]] BasicObjectPtr tryBuildBasicObject();
+	[[nodiscard]] ComplexObjectPtr tryBuildComplexObject();
+	[[nodiscard]] std::optional<Color> tryBuildColor();
+	[[nodiscard]] std::optional<Point> tryBuildPoint();
+	[[nodiscard]] std::optional<DecimalValue> tryBuildDecimalValue();
+	[[nodiscard]] std::optional<Identifier> tryBuildIdentifier();
+	[[nodiscard]] std::optional<ConstantIdentifier> tryBuildConstantIdentifier();
+	[[nodiscard]] std::optional<PointArray> tryBuildPointArray();
+	[[nodiscard]] std::optional<Expression> tryBuildValue();
+	[[nodiscard]] std::optional<Expression> tryBuildExpression();
+	[[nodiscard]] std::optional<Expression> tryBuildBrackets();
 
-	//helper functions not consuming tokens
-	LogicalExpressionPtr getLogicalSubExpression(const Token& operatorToken, 
+	//builds all Expressions except Comparison, LogicalExpression and TernaryExpression - unless it's in brackets
+	[[nodiscard]] std::optional<Expression> tryBuildSimpleExpression();
+	[[nodiscard]] ComparisonPtr tryBuildComparison(Expression& firstValue);
+	[[nodiscard]] AdditionPtr tryBuildAddition(Expression& firstValue);
+	[[nodiscard]] MultiplicationPtr tryBuildMultiplication(Expression& firstValue);
+	[[nodiscard]] std::optional<Expression> tryBuildMultiplicationOrAddition(Expression& expr);
+	[[nodiscard]] LogicalSubExpressionPtr tryBuildLogicalExpressionInBrackets();
+	[[nodiscard]] LogicalExpressionPtr tryBuildLogicalExpression(LogicalSubExpressionPtr& firstValue);
+    [[nodiscard]] TernaryExpressionPtr tryBuildTernaryExpression(LogicalSubExpressionPtr& condition);
+	[[nodiscard]] LogicalExpressionPtr getLogicalSubExpression(const Token& operatorToken,
 		LogicalSubExpressionPtr& comparison, LogicalSubExpressionPtr& firstValue);
 private:
 	Scanner& scanner;
 	Token currentToken;
-	std::unique_ptr<SceneRoot> root;
+	std::unique_ptr<Scene> scene;
 	std::vector<ComplexObjectDeclarationPtr> knownTypes;
+	std::vector<AnimationDeclarationPtr> knownAnimations;
 	const Token& getNextToken();
 	bool isKnownType(const std::string& value);
+	bool isKnownAnimation(const std::string& value);
 
-	//helper functions:
-	inline void throwSyntaxError(const std::string& got, const std::string& expected, Token& token );
+	[[noreturn]] inline void throwSyntaxError(const std::string& got, const std::string& expected, Token& token );
 };
 

@@ -41,7 +41,8 @@ public:
 		GREATER_OR_EQUAL,
 		NOT_EQUAL,
 		OR,
-		AND
+		AND,
+		DOUBLE_QUOTE_CHARACTER
 	};
 
 	static std::map<TokenType, std::string> TokenTypeToStringMap;
@@ -53,7 +54,7 @@ public:
 		return value; 
 	}
 
-	Position getPosition() {
+	const Position& getPosition() const {
 		return position;
 	}
 

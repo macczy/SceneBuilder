@@ -212,6 +212,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Objects\Addition.cpp" />
+    <ClCompile Include="Objects\Animation.cpp" />
     <ClCompile Include="Objects\BasicObject.cpp" />
     <ClCompile Include="Objects\Comparison.cpp" />
     <ClCompile Include="Objects\LogicalExpression.cpp" />
@@ -239,6 +240,8 @@
     <ClInclude Include="Objects\Color.h" />
     <ClInclude Include="Objects\Comparison.h" />
     <ClInclude Include="Objects\ComplexObject.h" />
+    <ClInclude Include="Objects\ConstantIdentifier.h" />
+    <ClInclude Include="Objects\Header.h" />
     <ClInclude Include="Objects\Property.h" />
     <ClInclude Include="Objects\TernaryExpression.h" />
     <ClInclude Include="Objects\DecimalValue.h" />
@@ -249,6 +252,7 @@
     <ClInclude Include="Objects\Point.h" />
     <ClInclude Include="Objects\Expression.h" />
     <ClInclude Include="Objects\PointArray.h" />
+    <ClInclude Include="Objects\TimeDeclaration.h" />
     <ClInclude Include="Parser\Parser.h" />
     <ClInclude Include="Parser\Scene.h" />
     <ClInclude Include="Parser\SceneRoot.h" />

@@ -15,14 +15,12 @@ using Objects = std::vector<ObjectIdentifierPairPtr>;
 
 class ComplexObject : public Object {
 public:
-	ComplexObject(const std::string& typeIdentifier, const Position& pos, Properties& properties, Objects& objects)
-		: Object(pos, properties), typeIdentifier(typeIdentifier), objects(std::move(objects)) {}
+	ComplexObject(const std::string& typeIdentifier, const Position& pos, Properties& properties)
+		: Object(pos, properties), typeIdentifier(typeIdentifier) {}
 	virtual ~ComplexObject() {}
-	Objects& getObjects() { return objects; }
 	const std::string& getTypeIdentifier() { return typeIdentifier; }
 protected:
 	const std::string typeIdentifier;
-	Objects objects;
 	//Animations animations;
 };
 

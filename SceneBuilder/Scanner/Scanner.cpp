@@ -19,7 +19,8 @@ SceneBuilderScanner::SceneBuilderScanner(std::istream& input) : input(input), li
 		{'/', Token::TokenType::SLASH},
 		{'*', Token::TokenType::ASTERISK},
 		{'=', Token::TokenType::EQUAL_SIGN},
-		{'?', Token::TokenType::QUESTION_MARK}
+		{'?', Token::TokenType::QUESTION_MARK},
+		{'"', Token::TokenType::DOUBLE_QUOTE_CHARACTER}
 	};
 	lambdaGeneratedTokens = {
 		{'|', [=](Position tokenStartPosition) {

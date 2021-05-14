@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
             }
             SceneBuilderScanner scanner(infile);
             Parser parser(scanner);
-            parser.parse();
+            auto result = parser.parse();
             infile.close();
         }
     }
