@@ -9,6 +9,7 @@
 #include "../SceneBuilder/Objects/LogicalExpression.cpp"
 #include "../SceneBuilder/Objects/BasicObject.cpp"
 #include "../SceneBuilder/Objects/AnimationDeclaration.h"
+#include "../SceneBuilder/Objects/Animation.cpp"
 
 class ScannerMock : public Scanner {
 public:
@@ -828,4 +829,3 @@ TEST(ParserUnitTests, CreateBasicObject) {
 		}
 	}
 }
-

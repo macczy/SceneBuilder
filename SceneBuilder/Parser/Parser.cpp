@@ -161,8 +161,11 @@ AnimationPtr Parser::tryBuildConditionalAnimation() {
             if (ident.getValue() == "condition") {
                 if (log) throw SyntaxError("Redefinition of condition property " + 
                     currentToken.getPosition().toString() + "\n" + scanner.getLineError(currentToken.getPosition()));
-                Expression exp = std::move(ident);
-                if (auto comparison = tryBuildComparison(exp); comparison) {
+                if (currentToken.getType() != TokenType::COLON) throwSyntaxError(":", currentToken);
+                getNextToken();
+                auto exp = tryBuildValue();
+                if (!exp) throwSyntaxError("logical expression", currentToken);
+                if (auto comparison = tryBuildComparison(*exp); comparison) {
                     auto subExpr = std::make_unique<LogicalSubExpression>(std::move(comparison));
                     if (auto subExpr1 = tryBuildLogicalExpression(subExpr); subExpr1) {
                         log = std::make_unique<LogicalSubExpression>(std::move(subExpr1));
@@ -172,8 +175,7 @@ AnimationPtr Parser::tryBuildConditionalAnimation() {
                 else {
                     throwSyntaxError("logical expression", currentToken);
                 }
-            }
-            if (auto property = tryBuildProperty(ident); property) {
+            } else if (auto property = tryBuildProperty(ident); property) {
                 properties.push_back(std::move(property));
             }
             else
@@ -507,12 +509,7 @@ std::optional<Expression> Parser::tryBuildBrackets() {
 }
 
 std::optional<Expression> Parser::tryBuildExpression() {
-    if (auto brackets = tryBuildBrackets(); brackets) {
-        if (auto expr = tryBuildMultiplicationOrAddition(*brackets); expr)
-            return expr;
-        return brackets;
-    }
-    else if (auto expr = tryBuildSimpleExpression(); expr) {
+    if (auto expr = tryBuildSimpleExpression(); expr) {
         if (auto comparison = tryBuildComparison(*expr); comparison) {
             auto subExpr = std::make_unique<LogicalSubExpression>(std::move(comparison));
             if (auto logicalExpr =  tryBuildLogicalExpression(subExpr); logicalExpr) {

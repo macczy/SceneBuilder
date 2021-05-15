@@ -41,6 +41,13 @@ CustomAnimation = AnimationSequence(first, second) {
 					duration: "5s"
 				}
 			}
+			ConditionalAnimation {
+				condition: 10 > 8 || 3 < avc
+			}
+			
+			ConditionalAnimation {
+				condition: first.color = second.color
+			}
 			
 			Animation {
 				
