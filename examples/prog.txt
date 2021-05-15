@@ -15,7 +15,7 @@ House = {
 	mainBuilding = Rectangle {
 		vertex: Point(0.1, 0.2, 0.3)
 		width: 10
-		height: 10
+		height: a*b+10 > 18 || a > b ? 10 : 20
 		color: Color(#CC, #C34324C12, #CC)
 	}
 	animations: [ CustomAnimation(mainBuilding), AnotherAnimation(rec) ]
@@ -43,15 +43,22 @@ CustomAnimation = AnimationSequence(first, second) {
 			}
 			ConditionalAnimation {
 				condition: 10 > 8 || 3 < avc
-			}
-			
-			ConditionalAnimation {
-				condition: first.color = second.color
-			}
-			
-			Animation {
+				AnimationSequence {
+					Animation {
 				
+					}
+					Animation {
+						
+					}
+				}
 			}
+			ConditionalAnimation {
+				condition: first.color = second.color			
+				Animation {
+					
+				}
+			}
+
 			Animation {
 				
 			}
