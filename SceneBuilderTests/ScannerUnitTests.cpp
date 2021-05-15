@@ -6,129 +6,129 @@
 TEST(ScannerUnitTest, EmptySourceTest) {
 	std::stringstream stream("");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::END_OF_FILE);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::END_OF_FILE);
 	scanner.next();
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::END_OF_FILE);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::END_OF_FILE);
 }
 
 TEST(ScannerUnitTest, CreateOpenBracketToken) {
 	std::stringstream stream("(");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::OPENING_BRACKET);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::OPENING_BRACKET);
 }
 
 TEST(ScannerUnitTest, CreateClosingBracketToken) {
 	std::stringstream stream(")");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::CLOSING_BRACKET);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::CLOSING_BRACKET);
 }
 
 TEST(ScannerUnitTest, CreateOpeningBraceToken) {
 	std::stringstream stream("{");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::OPENING_BRACE);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::OPENING_BRACE);
 }
 
 TEST(ScannerUnitTest, CreateClosingBraceToken) {
 	std::stringstream stream("}");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::CLOSING_BRACE);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::CLOSING_BRACE);
 }
 
 TEST(ScannerUnitTest, CreateColonToken) {
 	std::stringstream stream(":");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::COLON);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::COLON);
 }
 
 TEST(ScannerUnitTest, CreateDotToken) {
 	std::stringstream stream(".");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::DOT);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::DOT);
 }
 
 TEST(ScannerUnitTest, CreateCommaToken) {
 	std::stringstream stream(",");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::COMMA);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::COMMA);
 }
 
 TEST(ScannerUnitTest, CreateOpeningSquareBraceToken) {
 	std::stringstream stream("[");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::OPENING_SQUARE_BRACE);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::OPENING_SQUARE_BRACE);
 }
 
 TEST(ScannerUnitTest, CreateClosingSquareBraceToken) {
 	std::stringstream stream("]");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::CLOSING_SQUARE_BRACE);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::CLOSING_SQUARE_BRACE);
 }
 
 TEST(ScannerUnitTest, CreatePlusToken) {
 	std::stringstream stream("+");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::PLUS);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::PLUS);
 }
 
 TEST(ScannerUnitTest, CreateMinusToken) {
 	std::stringstream stream("-");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::MINUS);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::MINUS);
 }
 
 TEST(ScannerUnitTest, CreateSlashToken) {
 	std::stringstream stream("/");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::SLASH);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::SLASH);
 }
 
 TEST(ScannerUnitTest, CreateAsteriskToken) {
 	std::stringstream stream("*");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::ASTERISK);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::ASTERISK);
 }
 
 TEST(ScannerUnitTest, CreateEqualSignToken) {
 	std::stringstream stream("=");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::EQUAL_SIGN);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::EQUAL_SIGN);
 }
 
 TEST(ScannerUnitTest, CreateQuestionMarkToken) {
 	std::stringstream stream("?");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::QUESTION_MARK);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::QUESTION_MARK);
 }
 
 TEST(ScannerUnitTest, CreateLessThanToken) {
 	std::stringstream stream("<");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::LESS_THAN);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::LESS_THAN);
 }
 
 TEST(ScannerUnitTest, CreateGreaterThanToken) {
 	std::stringstream stream(">");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::GREATER_THAN);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::GREATER_THAN);
 }
 
 TEST(ScannerUnitTest, CreateLessOrEqualToken) {
 	std::stringstream stream("<=");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::LESS_OR_EQUAL);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::LESS_OR_EQUAL);
 }
 
 TEST(ScannerUnitTest, CreateGreaterOrEqualToken) {
 	std::stringstream stream(">=");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::GREATER_OR_EQUAL);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::GREATER_OR_EQUAL);
 }
 
 TEST(ScannerUnitTest, CreateNotEqualToken) {
 	std::stringstream stream("!=");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::NOT_EQUAL);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::NOT_EQUAL);
 }
 
 
@@ -136,12 +136,12 @@ TEST(ScannerUnitTest, CreateOrToken) {
 	{
 		std::stringstream stream("||");
 		SceneBuilderScanner scanner(stream);
-		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::OR);
+		EXPECT_EQ(scanner.getToken().getType(), TokenType::OR);
 	}
 	 try {
 		std::stringstream stream("|sada");
 		SceneBuilderScanner scanner(stream);
-		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::UNDEFINED);
+		EXPECT_EQ(scanner.getToken().getType(), TokenType::UNDEFINED);
 		FAIL() << "Expected SyntaxError";
 	 }
 	 catch (const SyntaxError& err) {
@@ -157,7 +157,7 @@ TEST(ScannerUnitTest, CreateAndToken) {
 	{
 		std::stringstream stream("&&");
 		SceneBuilderScanner scanner(stream);
-		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::AND);
+		EXPECT_EQ(scanner.getToken().getType(), TokenType::AND);
 	}
 	try {
 		std::stringstream stream("&sada");
@@ -177,20 +177,20 @@ TEST(ScannerUnitTest, CreateHexConstToken) {
 	{
 		std::stringstream stream("#ABCDEF0123456789zzasd");
 		SceneBuilderScanner scanner(stream);
-		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::HEX_CONST);
+		EXPECT_EQ(scanner.getToken().getType(), TokenType::HEX_CONST);
 		EXPECT_EQ(scanner.getToken().getValue(), "0xABCDEF0123456789");
 		scanner.next();
-		EXPECT_NE(scanner.getToken().getType(), Token::TokenType::HEX_CONST);
+		EXPECT_NE(scanner.getToken().getType(), TokenType::HEX_CONST);
 	}
 
 	{
 		std::stringstream stream("fw#ABCDEF0123456789 zzasd");
 		SceneBuilderScanner scanner(stream);
 		scanner.next();
-		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::HEX_CONST);
+		EXPECT_EQ(scanner.getToken().getType(), TokenType::HEX_CONST);
 		EXPECT_EQ(scanner.getToken().getValue(), "0xABCDEF0123456789");
 		scanner.next();
-		EXPECT_NE(scanner.getToken().getType(), Token::TokenType::HEX_CONST);
+		EXPECT_NE(scanner.getToken().getType(), TokenType::HEX_CONST);
 	}
 }
 
@@ -198,13 +198,13 @@ TEST(ScannerUnitTest, CreateDecimalConstToken) {
 	{
 		std::stringstream stream("1 1. 1234567890.0987654321");
 		SceneBuilderScanner scanner(stream);
-		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::DECIMAL_CONST);
+		EXPECT_EQ(scanner.getToken().getType(), TokenType::DECIMAL_CONST);
 		EXPECT_EQ(scanner.getToken().getValue(), "1");
 		scanner.next();
-		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::DECIMAL_CONST);
+		EXPECT_EQ(scanner.getToken().getType(), TokenType::DECIMAL_CONST);
 		EXPECT_EQ(scanner.getToken().getValue(), "1.");
 		scanner.next();
-		EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::DECIMAL_CONST);
+		EXPECT_EQ(scanner.getToken().getType(), TokenType::DECIMAL_CONST);
 		EXPECT_EQ(scanner.getToken().getValue(), "1234567890.0987654321");
 	}
 }
@@ -212,14 +212,14 @@ TEST(ScannerUnitTest, CreateDecimalConstToken) {
 TEST(ScannerUnitTest, CreateTypeIdentifierToken) {
 	std::stringstream stream("Aqwertyuiopasdfghjklzxcvbnm1234567890_.");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::TYPE_IDENTIFIER);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::TYPE_IDENTIFIER);
 	EXPECT_EQ(scanner.getToken().getValue(), "Aqwertyuiopasdfghjklzxcvbnm1234567890_");
 }
 
 TEST(ScannerUnitTest, CreateVariableIdentifierToken) {
 	std::stringstream stream("aqwertyuiopasdfghjklzxcvbnm1234567890_.");
 	SceneBuilderScanner scanner(stream);
-	EXPECT_EQ(scanner.getToken().getType(), Token::TokenType::VARIABLE_IDENTIFIER);
+	EXPECT_EQ(scanner.getToken().getType(), TokenType::VARIABLE_IDENTIFIER);
 	EXPECT_EQ(scanner.getToken().getValue(), "aqwertyuiopasdfghjklzxcvbnm1234567890_");
 }
 

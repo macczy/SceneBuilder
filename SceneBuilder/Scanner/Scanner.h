@@ -21,7 +21,7 @@ private:
 	std::istream& input;
 	Token currentToken;
 
-	std::map<char, Token::TokenType> singleCharTokens;
+	std::map<char, TokenType> singleCharTokens;
 	std::map<char, std::function<void(Position&)>> lambdaGeneratedTokens;
 
 	int line;

@@ -3,8 +3,6 @@
 #include <optional>
 #include <functional>
 
-using TokenType = Token::TokenType;
-
 Parser::Parser(Scanner& scanner) : scanner(scanner) {
     currentToken = scanner.getToken();
 }
@@ -100,6 +98,8 @@ AnimationPtr Parser::tryBuildWait() {
     getNextToken();
     Properties properties;
     while (auto ident = tryBuildIdentifier()) {
+        //if (currentToken.getType() != TokenType::COLON) throwSyntaxError("colon", currentToken);
+        //getNextToken();
         if (auto property = tryBuildProperty(*ident); property) {
             properties.push_back(std::move(property));
         }
@@ -128,6 +128,7 @@ AnimationPtr Parser::tryBuildComplexAnimation() {
             getNextToken();
             if (auto property = tryBuildProperty(ident); property) {
                 properties.push_back(std::move(property));
+                build = true;
             }
             else
                 throwSyntaxError("property", currentToken);
@@ -156,6 +157,7 @@ AnimationPtr Parser::tryBuildConditionalAnimation() {
             build = true;
         }
         if (currentToken.getType() == TokenType::VARIABLE_IDENTIFIER) {
+            build = true;
             Identifier ident(currentToken.getPosition(), currentToken.getValue());
             getNextToken();
             if (ident.getValue() == "condition") {
@@ -163,17 +165,25 @@ AnimationPtr Parser::tryBuildConditionalAnimation() {
                     currentToken.getPosition().toString() + "\n" + scanner.getLineError(currentToken.getPosition()));
                 if (currentToken.getType() != TokenType::COLON) throwSyntaxError(":", currentToken);
                 getNextToken();
-                auto exp = tryBuildValue();
-                if (!exp) throwSyntaxError("logical expression", currentToken);
-                if (auto comparison = tryBuildComparison(*exp); comparison) {
-                    auto subExpr = std::make_unique<LogicalSubExpression>(std::move(comparison));
-                    if (auto subExpr1 = tryBuildLogicalExpression(subExpr); subExpr1) {
+                if (auto inBrackets = tryBuildLogicalExpressionInBrackets(); inBrackets) {
+                    if (auto subExpr1 = tryBuildLogicalExpression(inBrackets); subExpr1)
                         log = std::make_unique<LogicalSubExpression>(std::move(subExpr1));
-                    }
-                    log = std::move(subExpr);
+                    else
+                        log = std::move(inBrackets);
                 }
                 else {
-                    throwSyntaxError("logical expression", currentToken);
+                    auto exp = tryBuildValue();
+                    if (!exp) throwSyntaxError("logical expression", currentToken);
+                    if (auto comparison = tryBuildComparison(*exp); comparison) {
+                        auto subExpr = std::make_unique<LogicalSubExpression>(std::move(comparison));
+                        if (auto subExpr1 = tryBuildLogicalExpression(subExpr); subExpr1)
+                            log = std::make_unique<LogicalSubExpression>(std::move(subExpr1));
+                        else
+                            log = std::move(subExpr);
+                    }
+                    else {
+                        throwSyntaxError("logical expression", currentToken);
+                    }
                 }
             } else if (auto property = tryBuildProperty(ident); property) {
                 properties.push_back(std::move(property));
@@ -247,7 +257,7 @@ std::optional<Color> Parser::tryBuildColor() {
 std::optional<DecimalValue> Parser::tryBuildDecimalValue() {
     Position pos = currentToken.getPosition();
     if (currentToken.getType() == TokenType::MINUS) {
-        if (getNextToken().getType() != Token::TokenType::DECIMAL_CONST) 
+        if (getNextToken().getType() != TokenType::DECIMAL_CONST) 
             throwSyntaxError("decimal value", currentToken);
         auto value = currentToken.getValue();
         getNextToken();
@@ -493,11 +503,11 @@ std::optional<Expression> Parser::tryBuildArrayType() {
 }
 
 std::optional<Expression> Parser::tryBuildBrackets() {
-    if (currentToken.getType() == Token::TokenType::OPENING_BRACKET) {
+    if (currentToken.getType() == TokenType::OPENING_BRACKET) {
         auto openingToken = currentToken;
         getNextToken();
         if (auto subExpr = tryBuildExpression(); subExpr) {
-            if (currentToken.getType() == Token::TokenType::CLOSING_BRACKET) {
+            if (currentToken.getType() == TokenType::CLOSING_BRACKET) {
                 getNextToken();
                 return subExpr;
             }
@@ -518,11 +528,9 @@ std::optional<Expression> Parser::tryBuildExpression() {
                     return ternary;
                 throwSyntaxError("question mark", currentToken);
             }
-            else {
-                if (auto ternary = tryBuildTernaryExpression(subExpr); ternary)
-                    return ternary;
-                throwSyntaxError("question mark", currentToken);
-            }
+            if (auto ternary = tryBuildTernaryExpression(subExpr); ternary)
+                return ternary;
+            throwSyntaxError("question mark", currentToken);
         }
         return expr;
     }
@@ -531,7 +539,10 @@ std::optional<Expression> Parser::tryBuildExpression() {
 
 std::optional<Expression> Parser::tryBuildSimpleExpression() {
     if (auto brackets = tryBuildBrackets(); brackets) {
-        return tryBuildMultiplicationOrAddition(*brackets);
+        if (auto multOrAdd = tryBuildMultiplicationOrAddition(*brackets); multOrAdd) {
+            return multOrAdd;
+        }
+        return brackets;
     }
     else if (auto val = tryBuildValue(); val) {
         if (auto addOrMult = tryBuildMultiplicationOrAddition(*val); addOrMult) {
@@ -558,10 +569,10 @@ std::optional<Expression> Parser::tryBuildMultiplicationOrAddition(Expression& e
 }
 
 TernaryExpressionPtr Parser::tryBuildTernaryExpression(LogicalSubExpressionPtr &condition) {
-    if (currentToken.getType() != Token::TokenType::QUESTION_MARK) return nullptr;
+    if (currentToken.getType() != TokenType::QUESTION_MARK) return nullptr;
     getNextToken();
     if (auto ifTrue = tryBuildExpression(); ifTrue) {
-        if (currentToken.getType() != Token::TokenType::COLON)
+        if (currentToken.getType() != TokenType::COLON)
             throwSyntaxError("colon", currentToken);
         getNextToken();
         if (auto ifFalse = tryBuildExpression(); ifFalse) {
@@ -597,26 +608,26 @@ AdditionPtr Parser::tryBuildAddition( Expression& firstValue) {
 }
 
 LogicalSubExpressionPtr Parser::tryBuildLogicalExpressionInBrackets() {
-    if (currentToken.getType() == Token::TokenType::OPENING_BRACKET) {
+    if (currentToken.getType() == TokenType::OPENING_BRACKET) {
         auto openingToken = currentToken;
         getNextToken();
         if (auto expr = tryBuildSimpleExpression(); expr) {
             if (auto comparison = tryBuildComparison(*expr); comparison) {
                 auto subExpr = std::make_unique<LogicalSubExpression>(std::move(comparison));
                 if (auto subExpr1 = tryBuildLogicalExpression(subExpr); subExpr1) {
-                    if (currentToken.getType() == Token::TokenType::CLOSING_BRACKET) {
+                    if (currentToken.getType() == TokenType::CLOSING_BRACKET) {
                         getNextToken();
                         return std::make_unique<LogicalSubExpression>(std::move(subExpr1));
                     }
                     throwSyntaxError("closing bracket", currentToken);
                 }
-                if (currentToken.getType() == Token::TokenType::CLOSING_BRACKET) {
+                if (currentToken.getType() == TokenType::CLOSING_BRACKET) {
                     getNextToken();
                     return subExpr;
                 }
                 throwSyntaxError("closing bracket", currentToken);
             }        
-            if (currentToken.getType() == Token::TokenType::CLOSING_BRACKET) {
+            if (currentToken.getType() == TokenType::CLOSING_BRACKET) {
                 getNextToken();
                 if (auto add = tryBuildMultiplicationOrAddition(*expr); add) {
                     if (auto comparison = tryBuildComparison(*add); comparison) {
@@ -639,7 +650,7 @@ LogicalSubExpressionPtr Parser::tryBuildLogicalExpressionInBrackets() {
 
 PropertyPtr Parser::tryBuildProperty(Identifier& ident) {
     if (ident.hasNext()) return nullptr;
-    if(currentToken.getType() != Token::TokenType::COLON) return nullptr;
+    if(currentToken.getType() != TokenType::COLON) return nullptr;
     getNextToken();
     if (auto expr = tryBuildExpression(); expr) {
         return std::make_unique<Property>(ident.getPosition(), ident, *expr);
@@ -653,17 +664,15 @@ BasicObjectPtr Parser::tryBuildBasicObject() {
     auto startingToken = currentToken;
     Properties properties;
     getNextToken();
-    if(currentToken.getType() != Token::TokenType::OPENING_BRACE) throwSyntaxError("{", currentToken);
+    if(currentToken.getType() != TokenType::OPENING_BRACE) throwSyntaxError("{", currentToken);
     getNextToken(); 
     while(auto ident = tryBuildIdentifier()) {
         if (auto property = tryBuildProperty(*ident); property) {
             properties.push_back(std::move(property));
         }
-        else {
-            throwSyntaxError("expression", currentToken);
-        }
+        else throwSyntaxError("expression", currentToken);
     }
-    if (currentToken.getType() != Token::TokenType::CLOSING_BRACE) throwSyntaxError("}", currentToken);
+    if (currentToken.getType() != TokenType::CLOSING_BRACE) throwSyntaxError("}", currentToken);
     getNextToken();
     return BasicObjectFactory::getBasicObject(startingToken.getPosition(), properties, startingToken);
 }
@@ -675,7 +684,7 @@ ComplexObjectPtr Parser::tryBuildComplexObject()
     auto startingToken = currentToken;
     Properties properties;
     getNextToken();
-    if (currentToken.getType() != Token::TokenType::OPENING_BRACE) throwSyntaxError("{", currentToken);
+    if (currentToken.getType() != TokenType::OPENING_BRACE) throwSyntaxError("{", currentToken);
     getNextToken();
     while (auto ident = tryBuildIdentifier()) {
         if (auto property = tryBuildProperty(*ident); property) {
@@ -684,7 +693,7 @@ ComplexObjectPtr Parser::tryBuildComplexObject()
         else
             throwSyntaxError("property declaration", currentToken);
     }
-    if (currentToken.getType() != Token::TokenType::CLOSING_BRACE) throwSyntaxError("}", currentToken);
+    if (currentToken.getType() != TokenType::CLOSING_BRACE) throwSyntaxError("}", currentToken);
     getNextToken();
     return std::make_unique<ComplexObject>(startingToken.getValue(), startingToken.getPosition(), properties);
 }
@@ -706,7 +715,7 @@ LogicalExpressionPtr Parser::tryBuildLogicalExpression(LogicalSubExpressionPtr &
     throwSyntaxError("value", currentToken.getValue(), operatorToken);
 }
 LogicalExpressionPtr Parser::getLogicalSubExpression(const Token& operatorToken, LogicalSubExpressionPtr& comparison, LogicalSubExpressionPtr& firstValue){
-    if (operatorToken.getType() == Token::TokenType::OR) {//DisjunctionExpression
+    if (operatorToken.getType() == TokenType::OR) {//DisjunctionExpression
         if (auto nextExpr = tryBuildLogicalExpression(comparison); nextExpr) {
             auto secondValue = std::make_unique<LogicalSubExpression>(std::move(nextExpr));
             return std::make_unique<DisjunctionExpression>(getLogicalSubExpressionPosition(*firstValue.get()),
@@ -715,7 +724,7 @@ LogicalExpressionPtr Parser::getLogicalSubExpression(const Token& operatorToken,
         return std::make_unique<DisjunctionExpression>(getLogicalSubExpressionPosition(*firstValue.get()),
             firstValue, comparison);
     }
-    //Token::TokenType::AND ConjuctionExpression
+    //TokenType::AND ConjuctionExpression
     LogicalSubExpressionPtr expression(std::make_unique<LogicalSubExpression>(
         std::make_unique<ConjuctionExpression>(getLogicalSubExpressionPosition(*firstValue.get()),
         firstValue, comparison)));

@@ -1,10 +1,10 @@
 #include <array>
 #include "LogicalExpression.h"
 
-bool LogicalExpressionFactory::isLogicalOperator(const Token::TokenType& oper) {
-	std::array<Token::TokenType, 2> tokens = {
-		Token::TokenType::OR,
-		Token::TokenType::AND,
+bool LogicalExpressionFactory::isLogicalOperator(const TokenType& oper) {
+	std::array<TokenType, 2> tokens = {
+		TokenType::OR,
+		TokenType::AND,
 	};
 	auto res = std::find(tokens.begin(), tokens.end(), oper);
 	return res != tokens.end();

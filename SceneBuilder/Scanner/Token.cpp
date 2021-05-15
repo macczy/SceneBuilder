@@ -1,7 +1,7 @@
 #include "Token.h"
 #include <string>
 
-std::map<Token::TokenType, std::string> Token::TokenTypeToStringMap {
+std::map<TokenType, std::string> TokenTypeToStringMap {
 		{ TokenType::UNDEFINED, "UNDEFINED"},
 		{ TokenType::OPENING_BRACKET, "OPENING_BRACKET"},
 		{ TokenType::CLOSING_BRACKET, "CLOSING_BRACKET"},
@@ -39,12 +39,12 @@ std::string Position::toString() const {
 }
 
 std::ostream& operator<< (std::ostream& stream, const Token& token) {
-	stream << "Token " << token.type;
+	stream << "Token " << (token.type);
 	return stream;
 }
 
-
-std::ostream& operator<< (std::ostream& stream, const Token::TokenType& tokenType) {
-	stream << Token::TokenTypeToStringMap[tokenType];
+std::ostream& operator<< (std::ostream& stream, const TokenType& tokenType) {
+	const auto& str = TokenTypeToStringMap.at(tokenType);
+	stream << str;
 	return stream;
 }

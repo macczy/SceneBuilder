@@ -71,9 +71,9 @@ public:
 };
 
 class ComparisonFactory {
-	static std::map<Token::TokenType, std::function<ComparisonPtr(const Position& position, Expression& expr1, Expression& expr2)>> generator;
-	static std::array<Token::TokenType, 6> tokens;
+	static std::map<TokenType, std::function<ComparisonPtr(const Position& position, Expression& expr1, Expression& expr2)>> generator;
+	static std::array<TokenType, 6> tokens;
 public:
-	static bool isComparisonOperator(const Token::TokenType& oper);
-	static std::unique_ptr<Comparison> getComparison(const Position& position, Expression& expr1, Expression& expr2, const Token::TokenType& oper);
+	static bool isComparisonOperator(const TokenType& oper);
+	static std::unique_ptr<Comparison> getComparison(const Position& position, Expression& expr1, Expression& expr2, const TokenType& oper);
 };

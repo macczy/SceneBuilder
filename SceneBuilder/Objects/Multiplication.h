@@ -35,6 +35,6 @@ public:
 
 namespace MultiplicationFactory
 {
-	bool isMultiplicationOperator(const Token::TokenType& oper);
-	std::unique_ptr<Multiplication> getMultiplication(const Position& position, Expression& expr1, Expression& expr2, const Token::TokenType& oper);
+	bool isMultiplicationOperator(const TokenType& oper);
+	std::unique_ptr<Multiplication> getMultiplication(const Position& position, Expression& expr1, Expression& expr2, const TokenType& oper);
 };

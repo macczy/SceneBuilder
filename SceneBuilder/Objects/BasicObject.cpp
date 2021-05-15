@@ -30,7 +30,7 @@ BasicObjectPtr BasicObjectFactory::getBasicObject(const Position& pos, Propertie
 }
 
 bool BasicObjectFactory::isBasicObjectNameToken(const Token& nameToken) {
-	if (nameToken.getType() != Token::TokenType::TYPE_IDENTIFIER) return false;
+	if (nameToken.getType() != TokenType::TYPE_IDENTIFIER) return false;
 	auto res = std::find(basicObjectsNames.begin(), basicObjectsNames.end(), nameToken.getValue());
 	return res != basicObjectsNames.end();
 }

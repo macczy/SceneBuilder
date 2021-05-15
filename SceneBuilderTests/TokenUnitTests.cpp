@@ -4,5 +4,5 @@
 
 TEST(TokenUnitTests, defaultConstructorTest) {
 	Token token;
-	EXPECT_EQ(token.getType(), Token::TokenType::UNDEFINED);
+	EXPECT_EQ(token.getType(), TokenType::UNDEFINED);
 }

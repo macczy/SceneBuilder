@@ -38,6 +38,6 @@ public:
 };
 
 namespace LogicalExpressionFactory {
-	bool isLogicalOperator(const Token::TokenType& oper);
+	bool isLogicalOperator(const TokenType& oper);
 }
 const Position& getLogicalSubExpressionPosition(const LogicalSubExpression& val);

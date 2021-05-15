@@ -5,27 +5,27 @@
 
 SceneBuilderScanner::SceneBuilderScanner(std::istream& input) : input(input), line(1), column(0) {
 	singleCharTokens = { 
-		{'}', Token::TokenType::CLOSING_BRACE},
-		{'{', Token::TokenType::OPENING_BRACE},
-		{'(', Token::TokenType::OPENING_BRACKET},
-		{')', Token::TokenType::CLOSING_BRACKET},
-		{':', Token::TokenType::COLON},
-		{'.', Token::TokenType::DOT},
-		{',', Token::TokenType::COMMA},
-		{'[', Token::TokenType::OPENING_SQUARE_BRACE},
-		{']', Token::TokenType::CLOSING_SQUARE_BRACE},
-		{'+', Token::TokenType::PLUS},
-		{'-', Token::TokenType::MINUS},
-		{'/', Token::TokenType::SLASH},
-		{'*', Token::TokenType::ASTERISK},
-		{'=', Token::TokenType::EQUAL_SIGN},
-		{'?', Token::TokenType::QUESTION_MARK},
-		{'"', Token::TokenType::DOUBLE_QUOTE_CHARACTER}
+		{'}', TokenType::CLOSING_BRACE},
+		{'{', TokenType::OPENING_BRACE},
+		{'(', TokenType::OPENING_BRACKET},
+		{')', TokenType::CLOSING_BRACKET},
+		{':', TokenType::COLON},
+		{'.', TokenType::DOT},
+		{',', TokenType::COMMA},
+		{'[', TokenType::OPENING_SQUARE_BRACE},
+		{']', TokenType::CLOSING_SQUARE_BRACE},
+		{'+', TokenType::PLUS},
+		{'-', TokenType::MINUS},
+		{'/', TokenType::SLASH},
+		{'*', TokenType::ASTERISK},
+		{'=', TokenType::EQUAL_SIGN},
+		{'?', TokenType::QUESTION_MARK},
+		{'"', TokenType::DOUBLE_QUOTE_CHARACTER}
 	};
 	lambdaGeneratedTokens = {
 		{'|', [=](Position tokenStartPosition) {
 			if (getNextChar() == '|') {
-				currentToken = Token(Token::TokenType::OR, "||", tokenStartPosition);
+				currentToken = Token(TokenType::OR, "||", tokenStartPosition);
 				getNextChar();
 			}
 			else {
@@ -35,7 +35,7 @@ SceneBuilderScanner::SceneBuilderScanner(std::istream& input) : input(input), li
 				}}},
 		{'&', [=](Position tokenStartPosition) {
 			if (getNextChar() == '&') {
-				currentToken = Token(Token::TokenType::AND, "&&", tokenStartPosition);
+				currentToken = Token(TokenType::AND, "&&", tokenStartPosition);
 				getNextChar();
 			}
 			else {
@@ -45,27 +45,27 @@ SceneBuilderScanner::SceneBuilderScanner(std::istream& input) : input(input), li
 			}}},
 		{'<', [=](Position tokenStartPosition) {
 			if (getNextChar() == '=') {
-				currentToken = Token(Token::TokenType::LESS_OR_EQUAL, "<=", tokenStartPosition);
+				currentToken = Token(TokenType::LESS_OR_EQUAL, "<=", tokenStartPosition);
 				getNextChar();
 			}
 			else
-				currentToken = Token(Token::TokenType::LESS_THAN, "<", tokenStartPosition);
+				currentToken = Token(TokenType::LESS_THAN, "<", tokenStartPosition);
 			}},
 		{'>', [=](Position tokenStartPosition) {
 			if (getNextChar() == '=') {
-				currentToken = Token(Token::TokenType::GREATER_OR_EQUAL, ">=", tokenStartPosition);
+				currentToken = Token(TokenType::GREATER_OR_EQUAL, ">=", tokenStartPosition);
 				getNextChar();
 			}
 			else
-				currentToken = Token(Token::TokenType::GREATER_THAN, ">", tokenStartPosition);
+				currentToken = Token(TokenType::GREATER_THAN, ">", tokenStartPosition);
 			}},
 		{'!', [=](Position tokenStartPosition) {
 			if (getNextChar() == '=') {
-				currentToken = Token(Token::TokenType::NOT_EQUAL, "!=", tokenStartPosition);
+				currentToken = Token(TokenType::NOT_EQUAL, "!=", tokenStartPosition);
 				getNextChar();
 			}
 			else
-				currentToken = Token(Token::TokenType::UNDEFINED, "!", tokenStartPosition);
+				currentToken = Token(TokenType::UNDEFINED, "!", tokenStartPosition);
 			}}
 	};
 	getNextChar();
@@ -119,7 +119,7 @@ bool SceneBuilderScanner::isVariableIdentifier(Position tokenStartPosition) {
 			tokenValue += character;
 			checkIfTokenMaxLengthReached(MAX_NAME_LENGTH, tokenStartPosition, "Variable name exceeded maximum length ", tokenValue.size());
 		}
-		currentToken = Token(Token::TokenType::VARIABLE_IDENTIFIER, tokenValue, tokenStartPosition);
+		currentToken = Token(TokenType::VARIABLE_IDENTIFIER, tokenValue, tokenStartPosition);
 		return true;
 	}
 	return false;
@@ -132,7 +132,7 @@ bool SceneBuilderScanner::isTypeIdentifier(Position tokenStartPosition) {
 			tokenValue += character;
 			checkIfTokenMaxLengthReached(MAX_NAME_LENGTH, tokenStartPosition, "Type name exceeded maximum length ", tokenValue.size());
 		}
-		currentToken = Token(Token::TokenType::TYPE_IDENTIFIER, tokenValue, tokenStartPosition);
+		currentToken = Token(TokenType::TYPE_IDENTIFIER, tokenValue, tokenStartPosition);
 		return true;
 	}
 	return false;
@@ -151,7 +151,7 @@ bool SceneBuilderScanner::isHexConst(Position tokenStartPosition) {
 				+ tokenStartPosition.toString() + getLineError(tokenStartPosition);
 			throw SyntaxError(errorMessage);
 		}
-		currentToken = Token(Token::TokenType::HEX_CONST, tokenValue.replace(0, 1, "0x"), tokenStartPosition);
+		currentToken = Token(TokenType::HEX_CONST, tokenValue.replace(0, 1, "0x"), tokenStartPosition);
 		return true;
 	}
 	return false;
@@ -182,7 +182,7 @@ bool SceneBuilderScanner::isDecimalConst(Position tokenStartPosition) {
 				}
 			}
 			else {
-				currentToken = Token(Token::TokenType::DECIMAL_CONST, tokenValue, tokenStartPosition);
+				currentToken = Token(TokenType::DECIMAL_CONST, tokenValue, tokenStartPosition);
 				getNextChar();
 			}
 		}
@@ -198,7 +198,7 @@ bool SceneBuilderScanner::isDecimalConst(Position tokenStartPosition) {
 					checkIfTokenMaxLengthReached(MAX_DECIMAL_VALUE_LENGTH, tokenStartPosition, "Decimal value exceeded maximum length ", tokenValue.size());
 				}
 			}
-			currentToken = Token(Token::TokenType::DECIMAL_CONST, tokenValue, tokenStartPosition);
+			currentToken = Token(TokenType::DECIMAL_CONST, tokenValue, tokenStartPosition);
 			return true;
 		}
 	}
@@ -220,7 +220,7 @@ void SceneBuilderScanner::next() {
 		}
 		tokenStartPosition = Position{ line, column, input.tellg() };
 		if (input.eof()) {
-			currentToken = Token(Token::TokenType::END_OF_FILE, "", tokenStartPosition);
+			currentToken = Token(TokenType::END_OF_FILE, "", tokenStartPosition);
 			return;
 		}
 		if (isVariableIdentifier(tokenStartPosition)) return;
@@ -236,12 +236,12 @@ void SceneBuilderScanner::next() {
 			if (type != singleCharTokens.end())
 				currentToken = Token(type->second, std::string(1, character), tokenStartPosition);
 			else 
-				currentToken = Token(Token::TokenType::UNDEFINED, std::string(1, character), tokenStartPosition);
+				currentToken = Token(TokenType::UNDEFINED, std::string(1, character), tokenStartPosition);
 			getNextChar();
 		}
 	}
 	catch (SyntaxError&) {
-		currentToken = Token(Token::TokenType::UNDEFINED, "", Position{ line, column, input.tellg() });
+		currentToken = Token(TokenType::UNDEFINED, "", Position{ line, column, input.tellg() });
 		throw;
 	}
 }

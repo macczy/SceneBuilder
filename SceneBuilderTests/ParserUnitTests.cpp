@@ -13,7 +13,7 @@
 
 class ScannerMock : public Scanner {
 public:
-	ScannerMock(std::deque<Token> tokens) : tokens(tokens) {
+	ScannerMock(std::initializer_list<Token> tokens) : tokens(tokens) {
 		next();
 	}
 	Token virtual getToken() {
@@ -35,7 +35,7 @@ private:
 
 TEST(ParserUnitTests, ConstructorTest) {
 	try {
-		ScannerMock scanner({ Token(Token::TokenType::UNDEFINED, "") });
+		ScannerMock scanner({ Token(TokenType::UNDEFINED, "") });
 		Parser parser(scanner);
 		std::unique_ptr<SceneRoot> root = parser.parse();
 	}
@@ -50,14 +50,14 @@ TEST(ParserUnitTests, ConstructorTest) {
 TEST(ParserUnitTests, CreateColor) {
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::TYPE_IDENTIFIER, "Color"),
-			Token(Token::TokenType::OPENING_BRACKET, "("),
-			Token(Token::TokenType::HEX_CONST, "#AB234"),
-			Token(Token::TokenType::COMMA, ","),
-			Token(Token::TokenType::HEX_CONST, "#123"),
-			Token(Token::TokenType::COMMA, ","),
-			Token(Token::TokenType::HEX_CONST, "#0123"),
-			Token(Token::TokenType::CLOSING_BRACKET, ")")
+			Token(TokenType::TYPE_IDENTIFIER, "Color"),
+			Token(TokenType::OPENING_BRACKET, "("),
+			Token(TokenType::HEX_CONST, "#AB234"),
+			Token(TokenType::COMMA, ","),
+			Token(TokenType::HEX_CONST, "#123"),
+			Token(TokenType::COMMA, ","),
+			Token(TokenType::HEX_CONST, "#0123"),
+			Token(TokenType::CLOSING_BRACKET, ")")
 			});
 		Parser parser(scanner);
 		
@@ -69,14 +69,14 @@ TEST(ParserUnitTests, CreateColor) {
 	}
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::TYPE_IDENTIFIER, "Color"),
-			Token(Token::TokenType::OPENING_BRACKET, "("),
-			Token(Token::TokenType::DECIMAL_CONST, "123"),
-			Token(Token::TokenType::COMMA, ","),
-			Token(Token::TokenType::HEX_CONST, "#AB234"),
-			Token(Token::TokenType::COMMA, ","),
-			Token(Token::TokenType::HEX_CONST, "#AB234"),
-			Token(Token::TokenType::CLOSING_BRACE, ")")
+			Token(TokenType::TYPE_IDENTIFIER, "Color"),
+			Token(TokenType::OPENING_BRACKET, "("),
+			Token(TokenType::DECIMAL_CONST, "123"),
+			Token(TokenType::COMMA, ","),
+			Token(TokenType::HEX_CONST, "#AB234"),
+			Token(TokenType::COMMA, ","),
+			Token(TokenType::HEX_CONST, "#AB234"),
+			Token(TokenType::CLOSING_BRACE, ")")
 			});
 		Parser parser(scanner);
 		EXPECT_THROW({
@@ -87,23 +87,18 @@ TEST(ParserUnitTests, CreateColor) {
 	}
 }
 
-inline std::deque<Token> getValidPointTokenSequence() {
-	return {
-			Token(Token::TokenType::TYPE_IDENTIFIER, "Point"),
-			Token(Token::TokenType::OPENING_BRACKET, "("),
-			Token(Token::TokenType::DECIMAL_CONST, "0.12"),
-			Token(Token::TokenType::COMMA, ","),
-			Token(Token::TokenType::DECIMAL_CONST, "12.4"),
-			Token(Token::TokenType::COMMA, ","),
-			Token(Token::TokenType::DECIMAL_CONST, "123.5"),
-			Token(Token::TokenType::CLOSING_BRACKET, ")")
-	};
-}
-
-
 TEST(ParserUnitTests, CreatePoint) {
 	{
-		ScannerMock scanner(getValidPointTokenSequence());
+		ScannerMock scanner({
+			Token(TokenType::TYPE_IDENTIFIER, "Point"),
+			Token(TokenType::OPENING_BRACKET, "("),
+			Token(TokenType::DECIMAL_CONST, "0.12"),
+			Token(TokenType::COMMA, ","),
+			Token(TokenType::DECIMAL_CONST, "12.4"),
+			Token(TokenType::COMMA, ","),
+			Token(TokenType::DECIMAL_CONST, "123.5"),
+			Token(TokenType::CLOSING_BRACKET, ")")
+			});
 		Parser parser(scanner);
 
 		if (auto point = parser.tryBuildPoint(); point) {
@@ -118,10 +113,10 @@ TEST(ParserUnitTests, CreatePoint) {
 	}
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::TYPE_IDENTIFIER, "Point"),
-			Token(Token::TokenType::OPENING_BRACKET, "("),
-			Token(Token::TokenType::DECIMAL_CONST, "0.12"),
-			Token(Token::TokenType::CLOSING_BRACKET, ")")
+			Token(TokenType::TYPE_IDENTIFIER, "Point"),
+			Token(TokenType::OPENING_BRACKET, "("),
+			Token(TokenType::DECIMAL_CONST, "0.12"),
+			Token(TokenType::CLOSING_BRACKET, ")")
 			});
 		Parser parser(scanner);
 
@@ -136,11 +131,19 @@ TEST(ParserUnitTests, CreatePoint) {
 		}
 	}
 	{
-		auto tokens = getValidPointTokenSequence();
-		tokens.insert(tokens.begin() + 2, Token(Token::TokenType::MINUS, "-"));
-		tokens.insert(tokens.begin() + 5, Token(Token::TokenType::MINUS, "-"));
-		tokens.insert(tokens.begin() + 8, Token(Token::TokenType::MINUS, "-"));
-		ScannerMock scanner(tokens);
+		ScannerMock scanner({
+			Token(TokenType::TYPE_IDENTIFIER, "Point"),
+			Token(TokenType::OPENING_BRACKET, "("),
+			Token(TokenType::MINUS, "-"),
+			Token(TokenType::DECIMAL_CONST, "0.12"),
+			Token(TokenType::COMMA, ","),
+			Token(TokenType::MINUS, "-"),
+			Token(TokenType::DECIMAL_CONST, "12.4"),
+			Token(TokenType::COMMA, ","),
+			Token(TokenType::MINUS, "-"),
+			Token(TokenType::DECIMAL_CONST, "123.5"),
+			Token(TokenType::CLOSING_BRACKET, ")")
+			});
 		Parser parser(scanner);
 		if (auto point = parser.tryBuildPoint(); point) {
 			auto& [x, y, z] = point->getValues();
@@ -154,14 +157,14 @@ TEST(ParserUnitTests, CreatePoint) {
 	}
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::TYPE_IDENTIFIER, "Point"),
-			Token(Token::TokenType::OPENING_BRACKET, "("),
-			Token(Token::TokenType::DECIMAL_CONST, "123"),
-			Token(Token::TokenType::COMMA, ","),
-			Token(Token::TokenType::HEX_CONST, "#AB234"),
-			Token(Token::TokenType::COMMA, ","),
-			Token(Token::TokenType::HEX_CONST, "#AB234"),
-			Token(Token::TokenType::CLOSING_BRACE, ")")
+			Token(TokenType::TYPE_IDENTIFIER, "Point"),
+			Token(TokenType::OPENING_BRACKET, "("),
+			Token(TokenType::DECIMAL_CONST, "123"),
+			Token(TokenType::COMMA, ","),
+			Token(TokenType::HEX_CONST, "#AB234"),
+			Token(TokenType::COMMA, ","),
+			Token(TokenType::HEX_CONST, "#AB234"),
+			Token(TokenType::CLOSING_BRACE, ")")
 			});
 		Parser parser(scanner);
 		EXPECT_THROW({
@@ -172,7 +175,7 @@ TEST(ParserUnitTests, CreatePoint) {
 	}
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::TYPE_IDENTIFIER, "Color"),
+			Token(TokenType::TYPE_IDENTIFIER, "Color"),
 			});
 		Parser parser(scanner);
 
@@ -184,7 +187,7 @@ TEST(ParserUnitTests, CreatePoint) {
 	}
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "Point"),
+			Token(TokenType::VARIABLE_IDENTIFIER, "Point"),
 			});
 		Parser parser(scanner);
 
@@ -196,7 +199,7 @@ TEST(ParserUnitTests, CreatePoint) {
 
 TEST(ParserUnitTests, CreateIdentifier) {
 	ScannerMock scanner({
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "house")
+		Token(TokenType::VARIABLE_IDENTIFIER, "house")
 		});
 	Parser parser(scanner);
 
@@ -211,11 +214,11 @@ TEST(ParserUnitTests, CreateIdentifier) {
 TEST(ParserUnitTests, CreateIdentifierPropertyList) {
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "house"),
-			Token(Token::TokenType::DOT, "."),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
-			Token(Token::TokenType::DOT, "."),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "chimeny")
+			Token(TokenType::VARIABLE_IDENTIFIER, "house"),
+			Token(TokenType::DOT, "."),
+			Token(TokenType::VARIABLE_IDENTIFIER, "roof"),
+			Token(TokenType::DOT, "."),
+			Token(TokenType::VARIABLE_IDENTIFIER, "chimeny")
 			});
 		Parser parser(scanner);
 		if (auto identifier = parser.tryBuildIdentifier(); identifier) {
@@ -234,9 +237,9 @@ TEST(ParserUnitTests, CreateIdentifierPropertyList) {
 	}
 	{
 		ScannerMock scanner({
-	Token(Token::TokenType::VARIABLE_IDENTIFIER, "house"),
-	Token(Token::TokenType::DOT, "."),
-	Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof")
+	Token(TokenType::VARIABLE_IDENTIFIER, "house"),
+	Token(TokenType::DOT, "."),
+	Token(TokenType::VARIABLE_IDENTIFIER, "roof")
 			});
 		Parser parser(scanner);
 		if (auto identifier = parser.tryBuildIdentifier(); identifier) {
@@ -255,8 +258,8 @@ TEST(ParserUnitTests, CreateIdentifierPropertyList) {
 TEST(ParserUnitTests, FailCreateIdentifier) {
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
-			Token(Token::TokenType::DOT, ".")
+			Token(TokenType::VARIABLE_IDENTIFIER, "roof"),
+			Token(TokenType::DOT, ".")
 			});
 		Parser parser(scanner);
 		EXPECT_THROW({
@@ -267,10 +270,10 @@ TEST(ParserUnitTests, FailCreateIdentifier) {
 	}
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
-			Token(Token::TokenType::DOT, "."),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "house"),
-			Token(Token::TokenType::DOT, ".")
+			Token(TokenType::VARIABLE_IDENTIFIER, "roof"),
+			Token(TokenType::DOT, "."),
+			Token(TokenType::VARIABLE_IDENTIFIER, "house"),
+			Token(TokenType::DOT, ".")
 			});
 		Parser parser(scanner);
 		EXPECT_THROW({
@@ -286,9 +289,9 @@ TEST(ParserUnitTests, CreateValue) {
 	//decimal values through Value
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::MINUS, "-"),
-			Token(Token::TokenType::DECIMAL_CONST, "0.12"),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "test"),
+			Token(TokenType::MINUS, "-"),
+			Token(TokenType::DECIMAL_CONST, "0.12"),
+			Token(TokenType::VARIABLE_IDENTIFIER, "test"),
 			});
 		Parser parser(scanner);
 
@@ -303,8 +306,8 @@ TEST(ParserUnitTests, CreateValue) {
 	}
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::DECIMAL_CONST, "0.12"),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "test"),
+			Token(TokenType::DECIMAL_CONST, "0.12"),
+			Token(TokenType::VARIABLE_IDENTIFIER, "test"),
 			});
 		Parser parser(scanner);
 
@@ -319,7 +322,16 @@ TEST(ParserUnitTests, CreateValue) {
 	}
 	//point through Value
 	{
-		ScannerMock scanner(getValidPointTokenSequence());
+		ScannerMock scanner({
+			Token(TokenType::TYPE_IDENTIFIER, "Point"),
+			Token(TokenType::OPENING_BRACKET, "("),
+			Token(TokenType::DECIMAL_CONST, "0.12"),
+			Token(TokenType::COMMA, ","),
+			Token(TokenType::DECIMAL_CONST, "12.4"),
+			Token(TokenType::COMMA, ","),
+			Token(TokenType::DECIMAL_CONST, "123.5"),
+			Token(TokenType::CLOSING_BRACKET, ")")
+			});
 		Parser parser(scanner);
 
 		if (auto value = parser.tryBuildValue(); value) {
@@ -337,14 +349,14 @@ TEST(ParserUnitTests, CreateValue) {
 	//color through value
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::TYPE_IDENTIFIER, "Color"),
-			Token(Token::TokenType::OPENING_BRACKET, "("),
-			Token(Token::TokenType::HEX_CONST, "#AB234"),
-			Token(Token::TokenType::COMMA, ","),
-			Token(Token::TokenType::HEX_CONST, "#123"),
-			Token(Token::TokenType::COMMA, ","),
-			Token(Token::TokenType::HEX_CONST, "#0123"),
-			Token(Token::TokenType::CLOSING_BRACKET, ")")
+			Token(TokenType::TYPE_IDENTIFIER, "Color"),
+			Token(TokenType::OPENING_BRACKET, "("),
+			Token(TokenType::HEX_CONST, "#AB234"),
+			Token(TokenType::COMMA, ","),
+			Token(TokenType::HEX_CONST, "#123"),
+			Token(TokenType::COMMA, ","),
+			Token(TokenType::HEX_CONST, "#0123"),
+			Token(TokenType::CLOSING_BRACKET, ")")
 			});
 		Parser parser(scanner);
 
@@ -362,10 +374,10 @@ TEST(ParserUnitTests, CreateValue) {
 
 TEST(ParserUnitTests, CreateAdditionPlus) {
 	ScannerMock scanner({
-		Token(Token::TokenType::PLUS, "+"),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "house"),
-		Token(Token::TokenType::DOT, "."),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
+		Token(TokenType::PLUS, "+"),
+		Token(TokenType::VARIABLE_IDENTIFIER, "house"),
+		Token(TokenType::DOT, "."),
+		Token(TokenType::VARIABLE_IDENTIFIER, "width")
 		});
 	Parser parser(scanner);
 
@@ -388,8 +400,8 @@ TEST(ParserUnitTests, CreateAdditionPlus) {
 
 TEST(ParserUnitTests, CreateSubstraction) {
 	ScannerMock scanner({
-		Token(Token::TokenType::MINUS, "-"),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
+		Token(TokenType::MINUS, "-"),
+		Token(TokenType::VARIABLE_IDENTIFIER, "width")
 		});
 	Parser parser(scanner);
 	Expression expr = DecimalValue(Position(), "12.4");
@@ -403,8 +415,8 @@ TEST(ParserUnitTests, CreateSubstraction) {
 
 TEST(ParserUnitTests, CreateMultiplication) {
 	ScannerMock scanner({
-		Token(Token::TokenType::ASTERISK, "*"),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "house")
+		Token(TokenType::ASTERISK, "*"),
+		Token(TokenType::VARIABLE_IDENTIFIER, "house")
 		});
 	Parser parser(scanner);
 
@@ -425,8 +437,8 @@ TEST(ParserUnitTests, CreateMultiplication) {
 
 TEST(ParserUnitTests, CreateDivision) {
 	ScannerMock scanner({
-		Token(Token::TokenType::SLASH, "//"),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
+		Token(TokenType::SLASH, "//"),
+		Token(TokenType::VARIABLE_IDENTIFIER, "width")
 		});
 	Parser parser(scanner);
 	Expression expr = DecimalValue(Position(), "12.4");
@@ -441,17 +453,17 @@ TEST(ParserUnitTests, CreateDivision) {
 
 TEST(ParserUnitTests, CreateLogicalExpression) {
 	ScannerMock scanner({
-		Token(Token::TokenType::GREATER_OR_EQUAL, ">="),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
-		Token(Token::TokenType::OR, "||"),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "height"),
-		Token(Token::TokenType::LESS_THAN, "<"),
-		Token(Token::TokenType::MINUS, "-"),
-		Token(Token::TokenType::DECIMAL_CONST, "10.7"),
-		Token(Token::TokenType::AND, "&&"),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
-		Token(Token::TokenType::EQUAL_SIGN, "="),
-		Token(Token::TokenType::DECIMAL_CONST, "0.3")
+		Token(TokenType::GREATER_OR_EQUAL, ">="),
+		Token(TokenType::VARIABLE_IDENTIFIER, "width"),
+		Token(TokenType::OR, "||"),
+		Token(TokenType::VARIABLE_IDENTIFIER, "height"),
+		Token(TokenType::LESS_THAN, "<"),
+		Token(TokenType::MINUS, "-"),
+		Token(TokenType::DECIMAL_CONST, "10.7"),
+		Token(TokenType::AND, "&&"),
+		Token(TokenType::VARIABLE_IDENTIFIER, "roof"),
+		Token(TokenType::EQUAL_SIGN, "="),
+		Token(TokenType::DECIMAL_CONST, "0.3")
 		});
 	Parser parser(scanner);
 	Expression expr = DecimalValue(Position(), "12.4");
@@ -526,24 +538,24 @@ TEST(ParserUnitTests, CreateLogicalExpression) {
 
 TEST(ParserUnitTests, CreateTernaryExpression) {
 	ScannerMock scanner({
-		Token(Token::TokenType::DECIMAL_CONST, "0.25"),
-		Token(Token::TokenType::GREATER_OR_EQUAL, ">="),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
-		Token(Token::TokenType::OR, "||"),
-		Token(Token::TokenType::OPENING_BRACKET, "("),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "height"),
-		Token(Token::TokenType::LESS_THAN, "<"),
-		Token(Token::TokenType::MINUS, "-"),
-		Token(Token::TokenType::DECIMAL_CONST, "10.7"),
-		Token(Token::TokenType::AND, "&&"),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "roof"),
-		Token(Token::TokenType::EQUAL_SIGN, "="),
-		Token(Token::TokenType::DECIMAL_CONST, "0.3"),
-		Token(Token::TokenType::CLOSING_BRACKET, ")"),
-		Token(Token::TokenType::QUESTION_MARK, "?"),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "that"),
-		Token(Token::TokenType::COLON, ":"),
-		Token(Token::TokenType::VARIABLE_IDENTIFIER, "other")
+		Token(TokenType::DECIMAL_CONST, "0.25"),
+		Token(TokenType::GREATER_OR_EQUAL, ">="),
+		Token(TokenType::VARIABLE_IDENTIFIER, "width"),
+		Token(TokenType::OR, "||"),
+		Token(TokenType::OPENING_BRACKET, "("),
+		Token(TokenType::VARIABLE_IDENTIFIER, "height"),
+		Token(TokenType::LESS_THAN, "<"),
+		Token(TokenType::MINUS, "-"),
+		Token(TokenType::DECIMAL_CONST, "10.7"),
+		Token(TokenType::AND, "&&"),
+		Token(TokenType::VARIABLE_IDENTIFIER, "roof"),
+		Token(TokenType::EQUAL_SIGN, "="),
+		Token(TokenType::DECIMAL_CONST, "0.3"),
+		Token(TokenType::CLOSING_BRACKET, ")"),
+		Token(TokenType::QUESTION_MARK, "?"),
+		Token(TokenType::VARIABLE_IDENTIFIER, "that"),
+		Token(TokenType::COLON, ":"),
+		Token(TokenType::VARIABLE_IDENTIFIER, "other")
 		});
 	Parser parser(scanner);
 	Expression expr = DecimalValue(Position(), "12.4");
@@ -636,8 +648,8 @@ TEST(ParserUnitTests, CreateTernaryExpression) {
 TEST(ParserUnitTests, CreateComparison) {
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::EQUAL_SIGN, "="),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
+			Token(TokenType::EQUAL_SIGN, "="),
+			Token(TokenType::VARIABLE_IDENTIFIER, "width")
 			});
 		Parser parser(scanner);
 		Expression expr = DecimalValue(Position(), "12.4");
@@ -649,8 +661,8 @@ TEST(ParserUnitTests, CreateComparison) {
 	}
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::NOT_EQUAL, "!="),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
+			Token(TokenType::NOT_EQUAL, "!="),
+			Token(TokenType::VARIABLE_IDENTIFIER, "width")
 			});
 		Parser parser(scanner);
 		Expression expr = DecimalValue(Position(), "12.4");
@@ -662,8 +674,8 @@ TEST(ParserUnitTests, CreateComparison) {
 	}
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::LESS_OR_EQUAL, "<="),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
+			Token(TokenType::LESS_OR_EQUAL, "<="),
+			Token(TokenType::VARIABLE_IDENTIFIER, "width")
 			});
 		Parser parser(scanner);
 		Expression expr = DecimalValue(Position(), "12.4");
@@ -675,8 +687,8 @@ TEST(ParserUnitTests, CreateComparison) {
 	}
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::GREATER_OR_EQUAL, ">="),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
+			Token(TokenType::GREATER_OR_EQUAL, ">="),
+			Token(TokenType::VARIABLE_IDENTIFIER, "width")
 			});
 		Parser parser(scanner);
 		Expression expr = DecimalValue(Position(), "12.4");
@@ -688,8 +700,8 @@ TEST(ParserUnitTests, CreateComparison) {
 	}
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::LESS_THAN, "<"),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
+			Token(TokenType::LESS_THAN, "<"),
+			Token(TokenType::VARIABLE_IDENTIFIER, "width")
 			});
 		Parser parser(scanner);
 		Expression expr = DecimalValue(Position(), "12.4");
@@ -701,8 +713,8 @@ TEST(ParserUnitTests, CreateComparison) {
 	}
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::GREATER_THAN, ">"),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width")
+			Token(TokenType::GREATER_THAN, ">"),
+			Token(TokenType::VARIABLE_IDENTIFIER, "width")
 			});
 		Parser parser(scanner);
 		Expression expr = DecimalValue(Position(), "12.4");
@@ -714,8 +726,8 @@ TEST(ParserUnitTests, CreateComparison) {
 	}
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::EQUAL_SIGN, "="),
-			Token(Token::TokenType::EQUAL_SIGN, "+")
+			Token(TokenType::EQUAL_SIGN, "="),
+			Token(TokenType::EQUAL_SIGN, "+")
 			});
 		Parser parser(scanner);
 		EXPECT_THROW({
@@ -727,7 +739,7 @@ TEST(ParserUnitTests, CreateComparison) {
 	}
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "fcdsad")
+			Token(TokenType::VARIABLE_IDENTIFIER, "fcdsad")
 			});
 		Parser parser(scanner);
 		Expression expr = DecimalValue(Position(), "12.4");
@@ -741,18 +753,18 @@ TEST(ParserUnitTests, CreateComparison) {
 TEST(ParserUnitTests, CreateBasicObject) {
 	{
 		ScannerMock scanner({
-			Token(Token::TokenType::TYPE_IDENTIFIER, "Circle"),
-			Token(Token::TokenType::OPENING_BRACE, "{"),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
-			Token(Token::TokenType::COLON, ":"),
-			Token(Token::TokenType::DECIMAL_CONST, "12.7"),
-			Token(Token::TokenType::ASTERISK, "*"),
-			Token(Token::TokenType::MINUS, "-"),
-			Token(Token::TokenType::DECIMAL_CONST, "10"),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "height"),
-			Token(Token::TokenType::COLON, ":"),
-			Token(Token::TokenType::VARIABLE_IDENTIFIER, "width"),
-			Token(Token::TokenType::CLOSING_BRACE, "}")
+			Token(TokenType::TYPE_IDENTIFIER, "Circle"),
+			Token(TokenType::OPENING_BRACE, "{"),
+			Token(TokenType::VARIABLE_IDENTIFIER, "width"),
+			Token(TokenType::COLON, ":"),
+			Token(TokenType::DECIMAL_CONST, "12.7"),
+			Token(TokenType::ASTERISK, "*"),
+			Token(TokenType::MINUS, "-"),
+			Token(TokenType::DECIMAL_CONST, "10"),
+			Token(TokenType::VARIABLE_IDENTIFIER, "height"),
+			Token(TokenType::COLON, ":"),
+			Token(TokenType::VARIABLE_IDENTIFIER, "width"),
+			Token(TokenType::CLOSING_BRACE, "}")
 			});
 		Parser parser(scanner);
 		if (auto obj = parser.tryBuildBasicObject(); obj) {
@@ -771,9 +783,9 @@ TEST(ParserUnitTests, CreateBasicObject) {
 	}
 	{
 		ScannerMock scanner({
-		Token(Token::TokenType::TYPE_IDENTIFIER, "Rectangle"),
-		Token(Token::TokenType::OPENING_BRACE, "{"),
-		Token(Token::TokenType::CLOSING_BRACE, "}")
+		Token(TokenType::TYPE_IDENTIFIER, "Rectangle"),
+		Token(TokenType::OPENING_BRACE, "{"),
+		Token(TokenType::CLOSING_BRACE, "}")
 			});
 		Parser parser(scanner);
 		if (auto obj = parser.tryBuildBasicObject(); obj) {
@@ -787,9 +799,9 @@ TEST(ParserUnitTests, CreateBasicObject) {
 	}
 	{
 		ScannerMock scanner({
-		Token(Token::TokenType::TYPE_IDENTIFIER, "Line"),
-		Token(Token::TokenType::OPENING_BRACE, "{"),
-		Token(Token::TokenType::CLOSING_BRACE, "}")
+		Token(TokenType::TYPE_IDENTIFIER, "Line"),
+		Token(TokenType::OPENING_BRACE, "{"),
+		Token(TokenType::CLOSING_BRACE, "}")
 			});
 		Parser parser(scanner);
 		if (auto obj = parser.tryBuildBasicObject(); obj) {
@@ -803,9 +815,9 @@ TEST(ParserUnitTests, CreateBasicObject) {
 	}
 	{
 		ScannerMock scanner({
-		Token(Token::TokenType::TYPE_IDENTIFIER, "Polygon"),
-		Token(Token::TokenType::OPENING_BRACE, "{"),
-		Token(Token::TokenType::CLOSING_BRACE, "}")
+		Token(TokenType::TYPE_IDENTIFIER, "Polygon"),
+		Token(TokenType::OPENING_BRACE, "{"),
+		Token(TokenType::CLOSING_BRACE, "}")
 			});
 		Parser parser(scanner);
 		if (auto obj = parser.tryBuildBasicObject(); obj) {
@@ -819,9 +831,9 @@ TEST(ParserUnitTests, CreateBasicObject) {
 	}
 	{
 		ScannerMock scanner({
-		Token(Token::TokenType::TYPE_IDENTIFIER, "MyObject"),
-		Token(Token::TokenType::OPENING_BRACE, "{"),
-		Token(Token::TokenType::CLOSING_BRACE, "}")
+		Token(TokenType::TYPE_IDENTIFIER, "MyObject"),
+		Token(TokenType::OPENING_BRACE, "{"),
+		Token(TokenType::CLOSING_BRACE, "}")
 			});
 		Parser parser(scanner);
 		if (auto obj = parser.tryBuildBasicObject(); obj) {
@@ -829,3 +841,213 @@ TEST(ParserUnitTests, CreateBasicObject) {
 		}
 	}
 }
+
+
+TEST(ParserUnitTests, AnimationDeclarationBuilding) {
+	{
+		ScannerMock scanner({
+			Token(TokenType::TYPE_IDENTIFIER, "AnimationSequence"),
+			Token(TokenType::OPENING_BRACKET, "("),
+				Token(TokenType::VARIABLE_IDENTIFIER, "object"),
+				Token(TokenType::COMMA, ","),
+				Token(TokenType::VARIABLE_IDENTIFIER, "otherObject"),
+				Token(TokenType::COMMA, ","),
+				Token(TokenType::VARIABLE_IDENTIFIER, "thirdObject"),
+			Token(TokenType::CLOSING_BRACKET, ")"),
+			Token(TokenType::OPENING_BRACE, "{"),
+				Token(TokenType::VARIABLE_IDENTIFIER, "loops"),
+				Token(TokenType::COLON, ":"),
+				Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+				Token(TokenType::DOT, "."),
+				Token(TokenType::TYPE_IDENTIFIER, "INFINITE"),
+				//embeded conditional animation
+				Token(TokenType::TYPE_IDENTIFIER, "ConditionalAnimation"),
+				Token(TokenType::OPENING_BRACE, "{"),
+					Token(TokenType::VARIABLE_IDENTIFIER, "condition"),
+					Token(TokenType::COLON, ":"),
+					Token(TokenType::VARIABLE_IDENTIFIER, "object"),
+					Token(TokenType::DOT, "."),
+					Token(TokenType::VARIABLE_IDENTIFIER, "width"),
+					Token(TokenType::GREATER_THAN, ">"),
+					Token(TokenType::VARIABLE_IDENTIFIER, "otherObject"),
+					Token(TokenType::DOT, "."),
+					Token(TokenType::VARIABLE_IDENTIFIER, "width"),
+					//embeded basic animation
+					Token(TokenType::TYPE_IDENTIFIER, "Wait"),
+					Token(TokenType::OPENING_BRACE, "{"),
+					Token(TokenType::CLOSING_BRACE, "}"),
+				Token(TokenType::CLOSING_BRACE, "}"),
+				//embeded animation sequence
+				Token(TokenType::TYPE_IDENTIFIER, "AnimationSequence"),
+				Token(TokenType::OPENING_BRACE, "{"),
+					Token(TokenType::VARIABLE_IDENTIFIER, "duration"),
+					Token(TokenType::COLON, ":"),
+					Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+					Token(TokenType::DECIMAL_CONST, "10"),
+					Token(TokenType::VARIABLE_IDENTIFIER, "s"),
+					Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),					
+					//embeded basic animation
+					Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+					Token(TokenType::OPENING_BRACE, "{"),
+					Token(TokenType::CLOSING_BRACE, "}"),
+					//embeded basic animation
+					Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+					Token(TokenType::OPENING_BRACE, "{"),
+					Token(TokenType::CLOSING_BRACE, "}"),
+				Token(TokenType::CLOSING_BRACE, "}"),
+				//embeded paralel animation
+				Token(TokenType::TYPE_IDENTIFIER, "ParalelAnimation"),
+				Token(TokenType::OPENING_BRACE, "{"),
+					//embeded basic animation
+					Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+					Token(TokenType::OPENING_BRACE, "{"),
+						Token(TokenType::VARIABLE_IDENTIFIER, "some_property"),
+						Token(TokenType::COLON, ":"),
+						Token(TokenType::DECIMAL_CONST, "20"),
+					Token(TokenType::CLOSING_BRACE, "}"),
+					//embeded basic animation
+					Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+					Token(TokenType::OPENING_BRACE, "{"),
+						Token(TokenType::VARIABLE_IDENTIFIER, "duration"),
+						Token(TokenType::COLON, ":"),
+						Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+						Token(TokenType::DECIMAL_CONST, "30"),
+						Token(TokenType::VARIABLE_IDENTIFIER, "s"),
+						Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+					Token(TokenType::CLOSING_BRACE, "}"),
+				Token(TokenType::CLOSING_BRACE, "}"),
+				//embeded wait
+				Token(TokenType::TYPE_IDENTIFIER, "Wait"),
+				Token(TokenType::OPENING_BRACE, "{"),
+					Token(TokenType::VARIABLE_IDENTIFIER, "duration"),
+					Token(TokenType::COLON, ":"),
+					Token(TokenType::OPENING_BRACKET, "("),
+					Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+					Token(TokenType::DECIMAL_CONST, "40"),
+					Token(TokenType::VARIABLE_IDENTIFIER, "m"),
+					Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+					Token(TokenType::CLOSING_BRACKET, ")"),
+				Token(TokenType::CLOSING_BRACE, "}"),
+				//other properties
+				Token(TokenType::VARIABLE_IDENTIFIER, "duration"),
+				Token(TokenType::COLON, ":"),
+				Token(TokenType::OPENING_BRACKET, "("),
+				Token(TokenType::VARIABLE_IDENTIFIER, "object"),
+				Token(TokenType::DOT, "."),
+				Token(TokenType::VARIABLE_IDENTIFIER, "width"),
+				Token(TokenType::GREATER_THAN, ">"),
+				Token(TokenType::VARIABLE_IDENTIFIER, "otherObject"),
+				Token(TokenType::DOT, "."),
+				Token(TokenType::VARIABLE_IDENTIFIER, "width"),
+				Token(TokenType::QUESTION_MARK, "?"),
+				Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+				Token(TokenType::DECIMAL_CONST, "}"),
+				Token(TokenType::VARIABLE_IDENTIFIER, "ms"),
+				Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+				Token(TokenType::COLON, ":"),
+				Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+				Token(TokenType::DECIMAL_CONST, "12"),
+				Token(TokenType::VARIABLE_IDENTIFIER, "s"),
+				Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+				Token(TokenType::CLOSING_BRACKET, ")"),
+			Token(TokenType::CLOSING_BRACE, "}")
+			});
+		Parser parser(scanner); 
+		Token identToken(TokenType::TYPE_IDENTIFIER, "MyAnimation", Position());
+
+		if(auto animDecl = parser.tryBuildAnimationDeclaration(identToken); animDecl) {
+			EXPECT_EQ(animDecl->getName(), "MyAnimation");
+			auto& args = animDecl->getArgs();
+			EXPECT_EQ(args.size(), 3);
+			std::vector<std::string> argNames { "object", "otherObject", "thirdObject" };
+			for (int i = 0; i < 3; ++i) {
+				EXPECT_EQ(args[i].getValue(), argNames[i]);
+			}
+			auto& anims = animDecl->getAnimations();
+			EXPECT_EQ(anims.size(), 4);
+			{ //conditional animation
+				auto condAnim = dynamic_cast<ConditionalAnimation*>(anims[0].get());
+				EXPECT_NE(condAnim, nullptr);
+				auto& cond = condAnim->getCondition();
+				auto& comparison = std::get<ComparisonPtr>(*cond.get());
+				EXPECT_TRUE(comparison);
+				EXPECT_TRUE(dynamic_cast<GreaterThan*>(comparison.get()));
+				EXPECT_EQ(condAnim->getAnimations().size(), 1);
+				EXPECT_TRUE(dynamic_cast<Wait*>(condAnim->getAnimations()[0].get()));
+			}
+
+			{// animations sequence
+				auto animSequence = dynamic_cast<AnimationSequence*>(anims[1].get());
+				EXPECT_NE(animSequence, nullptr);
+				EXPECT_EQ(animSequence->getAnimations().size(), 2);
+				EXPECT_EQ(animSequence->getProperties().size(), 1);
+			}
+
+			{ //paralel animation 
+				auto animParalel = dynamic_cast<ParalelAnimation*>(anims[2].get());
+				EXPECT_NE(animParalel, nullptr);
+				auto& animations = animParalel->getAnimations();
+				EXPECT_EQ(animations.size(), 2);
+				{ //check first property
+					auto& anim = animations[0];
+					auto* basicAnim = dynamic_cast<Animation*>(anim.get());
+					auto& properties = basicAnim->getProperties();
+					EXPECT_EQ(properties.size(), 1);
+					EXPECT_EQ(properties[0]->getName(), "some_property");
+					EXPECT_EQ(std::get<DecimalValue>(properties[0]->getValue()).getValue(), "20");
+				}
+				{ //check second property
+					auto& anim = animations[1];
+					auto* basicAnim = dynamic_cast<Animation*>(anim.get());
+					auto& properties = basicAnim->getProperties();
+					EXPECT_EQ(properties.size(), 1);
+					EXPECT_EQ(properties[0]->getName(), "duration");
+					EXPECT_EQ(std::get<TimeDeclaration>(properties[0]->getValue()).getValue(), "30");
+					EXPECT_EQ(std::get<TimeDeclaration>(properties[0]->getValue()).getTimeSpecifier(), TimeDeclaration::TimeSpecifier::second);
+				}
+			}
+			{ //Wait animation
+				auto wait = dynamic_cast<Wait*>(anims[3].get());
+				EXPECT_NE(wait, nullptr);
+				auto& props = wait->getProperties();
+				EXPECT_EQ(props.size(), 1);
+				auto& waitProperty0 = props[0];
+				EXPECT_EQ(waitProperty0->getName(), "duration");
+				auto& waitTime = std::get<TimeDeclaration>(waitProperty0->getValue());
+				waitTime.getValue();
+				EXPECT_EQ(waitTime.getValue(), "40");
+				EXPECT_EQ(waitTime.getTimeSpecifier(), TimeDeclaration::TimeSpecifier::minute);
+			}
+
+			{ //check properties
+				auto& properties = animDecl->getProperties();
+				EXPECT_EQ(properties.size(), 2);
+				{ //check first property
+					auto& property = properties[0];
+					EXPECT_EQ(property->getName(), "loops");
+					auto& propertyValue = property->getValue();
+					auto& propertyIdent = std::get<ConstantIdentifier>(propertyValue);
+					EXPECT_EQ(propertyIdent.hasNext(), true);
+					EXPECT_EQ(propertyIdent.getValue(), "Animation");
+					auto* propetyNext = propertyIdent.getNext();
+					EXPECT_EQ(propetyNext->hasNext(), false);
+					EXPECT_EQ(propetyNext->getValue(), "INFINITE");
+				}
+				{ //check second property
+					auto& property = properties[1];
+					EXPECT_EQ(property->getName(), "duration");
+					auto& propertyValue = property->getValue();
+					auto& propertyIdent = std::get<TernaryExpressionPtr>(propertyValue);
+					auto& ifTrue = propertyIdent->getTrueExpression();
+					auto& timeDecl1 = std::get<TimeDeclaration>(ifTrue);
+
+					auto& ifFalse = propertyIdent->getTrueExpression();
+					auto& timeDecl2 = std::get<TimeDeclaration>(ifFalse);
+				}
+			}
+		}
+		else
+			FAIL() << "AnimationDeclaration should be built";
+	}
+}
+

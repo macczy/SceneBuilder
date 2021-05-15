@@ -8,6 +8,7 @@ class Animation
 public:
 	Animation(const Position& pos, Properties& properties) : pos(pos), properties(std::move(properties)) {}
 	virtual ~Animation() {}
+	const Properties& getProperties() const { return properties; }
 protected:
 	Position pos;
 	Properties properties;
@@ -28,6 +29,7 @@ public:
 	AnimationSequence(const Position& pos, Properties& properties, std::vector<AnimationPtr>& animations)
 		: Animation(pos, properties), animations(std::move(animations)) {}
 	virtual ~AnimationSequence() {}
+	const std::vector<AnimationPtr>& getAnimations() { return animations;  }
 private:
 	std::vector<AnimationPtr> animations;
 };
@@ -38,6 +40,8 @@ public:
 	ConditionalAnimation(const Position& pos, Properties& properties, std::vector<AnimationPtr>& animations, LogicalSubExpressionPtr& condition)
 		: Animation(pos, properties), animations(std::move(animations)), condition(std::move(condition)) {}
 	virtual ~ConditionalAnimation() {}
+	const LogicalSubExpressionPtr& getCondition() { return condition; }
+	const std::vector<AnimationPtr>& getAnimations() { return animations; }
 private:
 	std::vector<AnimationPtr> animations;
 	LogicalSubExpressionPtr condition;
@@ -49,6 +53,7 @@ public:
 	ParalelAnimation(const Position& pos, Properties& properties, std::vector<AnimationPtr>& animations)
 		: Animation(pos, properties), animations(std::move(animations)) {}
 	virtual ~ParalelAnimation() {}
+	std::vector<AnimationPtr>& getAnimations() { return animations; }
 private:
 	std::vector<AnimationPtr> animations;
 };

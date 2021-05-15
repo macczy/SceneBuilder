@@ -11,6 +11,7 @@ public:
 	const Position& getPosition() { return pos; }
 	const std::string& getName() { return name; }
 	std::vector<Identifier>& getArgs() { return args; }
+	Properties& getProperties() { return properties; }
 	std::vector<AnimationPtr>& getAnimations() { return animations; }
 private:
 	Position pos;

@@ -37,6 +37,6 @@ public:
 
 namespace AdditionFactory
 {
-	bool isAdditionOperator(const Token::TokenType& oper);
-	std::unique_ptr<Addition> getAddition(const Position& position, Expression& expr1, Expression& expr2, const Token::TokenType& oper);
+	bool isAdditionOperator(const TokenType& oper);
+	std::unique_ptr<Addition> getAddition(const Position& position, Expression& expr1, Expression& expr2, const TokenType& oper);
 };
