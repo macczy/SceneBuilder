@@ -235,7 +235,9 @@
   <ItemGroup>
     <ClInclude Include="Objects\Addition.h" />
     <ClInclude Include="Objects\Animation.h" />
+    <ClInclude Include="Objects\AnimationCall.h" />
     <ClInclude Include="Objects\AnimationDeclaration.h" />
+    <ClInclude Include="Objects\AnimationProperty.h" />
     <ClInclude Include="Objects\BasicObject.h" />
     <ClInclude Include="Objects\Color.h" />
     <ClInclude Include="Objects\Comparison.h" />

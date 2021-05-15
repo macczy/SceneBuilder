@@ -10,6 +10,7 @@
 #include "TimeDeclaration.h"
 #include "ConstantIdentifier.h"
 
+class AnimationProperty;
 class Addition;
 using AdditionPtr = std::unique_ptr<Addition>;
 
@@ -18,8 +19,8 @@ using MultiplicationPtr = std::unique_ptr<Multiplication>;
 class TernaryExpression;
 using TernaryExpressionPtr = std::unique_ptr<TernaryExpression>;
 
-using Expression = std::variant<DecimalValue, HexValue, Color, Point, Identifier, ConstantIdentifier, TimeDeclaration, PointArray, TernaryExpressionPtr, MultiplicationPtr, AdditionPtr>;
-
+using Expression = std::variant<DecimalValue, HexValue, Color, Point, Identifier, ConstantIdentifier, AnimationProperty, TimeDeclaration, PointArray, TernaryExpressionPtr, MultiplicationPtr, AdditionPtr>;
+using ExpressionPtr = std::unique_ptr<Expression>;
 class Comparison;
 using ComparisonPtr = std::unique_ptr<Comparison>;
 class LogicalExpression;
@@ -29,6 +30,7 @@ using LogicalSubExpressionPtr = std::unique_ptr<LogicalSubExpression>;
 
 const Position& getExpressionPosition(const Expression& val);
 
+#include "AnimationProperty.h"
 #include "Addition.h"
 #include "Multiplication.h"
 #include "Comparison.h"

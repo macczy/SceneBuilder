@@ -51,6 +51,5 @@ private:
 	Position pos; 
 	Properties properties;
 	Objects objects;
-	//Animations animations;
 };
 using ComplexObjectDeclarationPtr = std::unique_ptr<ComplexObjectDeclaration>;

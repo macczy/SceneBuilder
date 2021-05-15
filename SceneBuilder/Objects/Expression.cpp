@@ -8,6 +8,7 @@ struct ExpressionPositionVisitor {
 	const Position& operator()(const PointArray& value) { return value.getPosition(); }
 	const Position& operator()(const Identifier& value) { return value.getPosition(); }
 	const Position& operator()(const ConstantIdentifier& value) { return value.getPosition(); }
+	const Position& operator()(const AnimationProperty& value) { return value.getPosition(); }
 	const Position& operator()(const TimeDeclaration& value) { return value.getPosition(); }
 	const Position& operator()(const TernaryExpressionPtr& value) { return value->getPosition(); }
 	const Position& operator()(const MultiplicationPtr& value) { return value->getPosition(); }

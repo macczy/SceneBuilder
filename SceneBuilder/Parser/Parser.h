@@ -13,9 +13,9 @@ class Parser
 {
 public:
 	Parser(Scanner& scanner);
-
+	[[nodiscard]] Arguments tryBuildArguments();
+	[[nodiscard]] Argument tryBuildArgument();
 	[[nodiscard]] std::unique_ptr<SceneRoot> parse();
-
 	[[nodiscard]] AnimationPtr tryBuildAnimation();
 	[[nodiscard]] AnimationPtr tryBuildWait();
 	[[nodiscard]] AnimationPtr tryBuildComplexAnimation();
@@ -23,10 +23,10 @@ public:
 	[[nodiscard]] AnimationPtr tryBuildBasicAnimation();
 	[[nodiscard]] AnimationDeclarationPtr tryBuildAnimationDeclaration(const Token& identifierToken);
 	[[nodiscard]] ScenePtr tryBuildScene();
-
 	[[nodiscard]] std::optional<TimeDeclaration> tryBuildTimeDeclaration();
 	[[nodiscard]] ComplexObjectDeclarationPtr tryBuildNewComplexObject(const Token& identifierToken);
-
+	[[nodiscard]] std::optional<Expression> tryBuildArrayType();
+	[[nodiscard]] AnimationCallPtr tryBuildAnimationCall();
 	//tested
 	[[nodiscard]] PropertyPtr tryBuildProperty(Identifier& ident);
 	[[nodiscard]] BasicObjectPtr tryBuildBasicObject();
@@ -36,7 +36,8 @@ public:
 	[[nodiscard]] std::optional<DecimalValue> tryBuildDecimalValue();
 	[[nodiscard]] std::optional<Identifier> tryBuildIdentifier();
 	[[nodiscard]] std::optional<ConstantIdentifier> tryBuildConstantIdentifier();
-	[[nodiscard]] std::optional<PointArray> tryBuildPointArray();
+	[[nodiscard]] std::optional<PointArray> tryBuildPointArray(const Position& pos);
+	[[nodiscard]] std::optional<AnimationProperty> tryBuildAnimationProperty(const Position& pos);
 	[[nodiscard]] std::optional<Expression> tryBuildValue();
 	[[nodiscard]] std::optional<Expression> tryBuildExpression();
 	[[nodiscard]] std::optional<Expression> tryBuildBrackets();
@@ -62,6 +63,7 @@ private:
 	bool isKnownType(const std::string& value);
 	bool isKnownAnimation(const std::string& value);
 
-	[[noreturn]] inline void throwSyntaxError(const std::string& got, const std::string& expected, Token& token );
+	[[noreturn]] inline void throwSyntaxError(const std::string& got, const std::string& expected, Token& token);
+	[[noreturn]] inline void throwSyntaxError(const std::string& got, Token& token);
 };
 

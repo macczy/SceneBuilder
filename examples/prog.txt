@@ -18,6 +18,7 @@ House = {
 		height: 10
 		color: Color(#CC, #C34324C12, #CC)
 	}
+	animations: [ CustomAnimation(mainBuilding), AnotherAnimation(rec) ]
 }
 
 CustomAnimation = AnimationSequence(first, second) {
