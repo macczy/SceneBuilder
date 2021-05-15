@@ -65,7 +65,7 @@ Scene {
 		x: 0.1
 		y: 0.2
 		z: 0.5
-		width: 10
+		width: parent.width/10
 		height: 10
 		color: Color(#CC, #CC, #CC)
 	}

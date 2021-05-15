@@ -31,21 +31,7 @@ private:
 	std::deque<Token> tokens;
 	Token _currentToken;
 };
-//Ignoring position part of tokens for these tests, as this does not concern us here
-
-TEST(ParserUnitTests, ConstructorTest) {
-	try {
-		ScannerMock scanner({ Token(TokenType::UNDEFINED, "") });
-		Parser parser(scanner);
-		std::unique_ptr<SceneRoot> root = parser.parse();
-	}
-	catch (const SyntaxError& err) {
-		std::cout << err.what();
-	}
-	catch (const std::runtime_error& err) {
-		std::cout << err.what();
-	}
-}
+//Position is ignored for the tests
 
 TEST(ParserUnitTests, CreateColor) {
 	{
@@ -950,6 +936,111 @@ TEST(ParserUnitTests, AnimationDeclarationBuilding) {
 				Token(TokenType::VARIABLE_IDENTIFIER, "s"),
 				Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
 				Token(TokenType::CLOSING_BRACKET, ")"),
+			Token(TokenType::CLOSING_BRACE, "}"),
+			Token(TokenType::TYPE_IDENTIFIER, "AnimationSequence"),
+			Token(TokenType::OPENING_BRACKET, "("),
+				Token(TokenType::VARIABLE_IDENTIFIER, "object"),
+				Token(TokenType::COMMA, ","),
+				Token(TokenType::VARIABLE_IDENTIFIER, "otherObject"),
+				Token(TokenType::COMMA, ","),
+				Token(TokenType::VARIABLE_IDENTIFIER, "thirdObject"),
+			Token(TokenType::CLOSING_BRACKET, ")"),
+			Token(TokenType::OPENING_BRACE, "{"),
+				Token(TokenType::VARIABLE_IDENTIFIER, "loops"),
+				Token(TokenType::COLON, ":"),
+				Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+				Token(TokenType::DOT, "."),
+				Token(TokenType::TYPE_IDENTIFIER, "INFINITE"),
+				//embeded conditional animation
+				Token(TokenType::TYPE_IDENTIFIER, "ConditionalAnimation"),
+				Token(TokenType::OPENING_BRACE, "{"),
+					Token(TokenType::VARIABLE_IDENTIFIER, "condition"),
+					Token(TokenType::COLON, ":"),
+					Token(TokenType::VARIABLE_IDENTIFIER, "object"),
+					Token(TokenType::DOT, "."),
+					Token(TokenType::VARIABLE_IDENTIFIER, "width"),
+					Token(TokenType::GREATER_THAN, ">"),
+					Token(TokenType::VARIABLE_IDENTIFIER, "otherObject"),
+					Token(TokenType::DOT, "."),
+					Token(TokenType::VARIABLE_IDENTIFIER, "width"),
+					//embeded basic animation
+					Token(TokenType::TYPE_IDENTIFIER, "Wait"),
+					Token(TokenType::OPENING_BRACE, "{"),
+					Token(TokenType::CLOSING_BRACE, "}"),
+				Token(TokenType::CLOSING_BRACE, "}"),
+				//embeded animation sequence
+				Token(TokenType::TYPE_IDENTIFIER, "AnimationSequence"),
+				Token(TokenType::OPENING_BRACE, "{"),
+					Token(TokenType::VARIABLE_IDENTIFIER, "duration"),
+					Token(TokenType::COLON, ":"),
+					Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+					Token(TokenType::DECIMAL_CONST, "10"),
+					Token(TokenType::VARIABLE_IDENTIFIER, "s"),
+					Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),					
+					//embeded basic animation
+					Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+					Token(TokenType::OPENING_BRACE, "{"),
+					Token(TokenType::CLOSING_BRACE, "}"),
+					//embeded basic animation
+					Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+					Token(TokenType::OPENING_BRACE, "{"),
+					Token(TokenType::CLOSING_BRACE, "}"),
+				Token(TokenType::CLOSING_BRACE, "}"),
+				//embeded paralel animation
+				Token(TokenType::TYPE_IDENTIFIER, "ParalelAnimation"),
+				Token(TokenType::OPENING_BRACE, "{"),
+					//embeded basic animation
+					Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+					Token(TokenType::OPENING_BRACE, "{"),
+						Token(TokenType::VARIABLE_IDENTIFIER, "some_property"),
+						Token(TokenType::COLON, ":"),
+						Token(TokenType::DECIMAL_CONST, "20"),
+					Token(TokenType::CLOSING_BRACE, "}"),
+					//embeded basic animation
+					Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+					Token(TokenType::OPENING_BRACE, "{"),
+						Token(TokenType::VARIABLE_IDENTIFIER, "duration"),
+						Token(TokenType::COLON, ":"),
+						Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+						Token(TokenType::DECIMAL_CONST, "30"),
+						Token(TokenType::VARIABLE_IDENTIFIER, "s"),
+						Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+					Token(TokenType::CLOSING_BRACE, "}"),
+				Token(TokenType::CLOSING_BRACE, "}"),
+				//embeded wait
+				Token(TokenType::TYPE_IDENTIFIER, "Wait"),
+				Token(TokenType::OPENING_BRACE, "{"),
+					Token(TokenType::VARIABLE_IDENTIFIER, "duration"),
+					Token(TokenType::COLON, ":"),
+					Token(TokenType::OPENING_BRACKET, "("),
+					Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+					Token(TokenType::DECIMAL_CONST, "40"),
+					Token(TokenType::VARIABLE_IDENTIFIER, "m"),
+					Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+					Token(TokenType::CLOSING_BRACKET, ")"),
+				Token(TokenType::CLOSING_BRACE, "}"),
+				//other properties
+				Token(TokenType::VARIABLE_IDENTIFIER, "duration"),
+				Token(TokenType::COLON, ":"),
+				Token(TokenType::OPENING_BRACKET, "("),
+				Token(TokenType::VARIABLE_IDENTIFIER, "object"),
+				Token(TokenType::DOT, "."),
+				Token(TokenType::VARIABLE_IDENTIFIER, "width"),
+				Token(TokenType::GREATER_THAN, ">"),
+				Token(TokenType::VARIABLE_IDENTIFIER, "otherObject"),
+				Token(TokenType::DOT, "."),
+				Token(TokenType::VARIABLE_IDENTIFIER, "width"),
+				Token(TokenType::QUESTION_MARK, "?"),
+				Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+				Token(TokenType::DECIMAL_CONST, "}"),
+				Token(TokenType::VARIABLE_IDENTIFIER, "ms"),
+				Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+				Token(TokenType::COLON, ":"),
+				Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+				Token(TokenType::DECIMAL_CONST, "12"),
+				Token(TokenType::VARIABLE_IDENTIFIER, "s"),
+				Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
+				Token(TokenType::CLOSING_BRACKET, ")"),
 			Token(TokenType::CLOSING_BRACE, "}")
 			});
 		Parser parser(scanner); 
@@ -1051,3 +1142,64 @@ TEST(ParserUnitTests, AnimationDeclarationBuilding) {
 	}
 }
 
+
+TEST(ParserUnitTests, CreateScene) {
+	ScannerMock scanner({ Token(TokenType::TYPE_IDENTIFIER, "Scene"),
+	Token(TokenType::OPENING_BRACE, "{"),
+		Token(TokenType::VARIABLE_IDENTIFIER, "width"),
+		Token(TokenType::COLON, ":"),
+		Token(TokenType::TYPE_IDENTIFIER, "height"),
+		//complex object
+		Token(TokenType::VARIABLE_IDENTIFIER, "house"),
+		Token(TokenType::EQUAL_SIGN, "="),
+		Token(TokenType::TYPE_IDENTIFIER, "House"),
+		Token(TokenType::OPENING_BRACE, "{"),
+			Token(TokenType::VARIABLE_IDENTIFIER, "width"),
+			Token(TokenType::COLON, ":"),
+			Token(TokenType::VARIABLE_IDENTIFIER, "parent"),
+			Token(TokenType::DOT, "."),
+			Token(TokenType::VARIABLE_IDENTIFIER, "height"),
+		Token(TokenType::CLOSING_BRACE, "}"),			
+		//simple object
+		Token(TokenType::VARIABLE_IDENTIFIER, "chimney"),
+		Token(TokenType::EQUAL_SIGN, "="),
+		Token(TokenType::TYPE_IDENTIFIER, "Circle"),
+		Token(TokenType::OPENING_BRACE, "{"),
+			Token(TokenType::VARIABLE_IDENTIFIER, "width"),
+			Token(TokenType::COLON, ":"),
+			Token(TokenType::VARIABLE_IDENTIFIER, "parent"),
+			Token(TokenType::DOT, "."),
+			Token(TokenType::VARIABLE_IDENTIFIER, "height"),
+		Token(TokenType::CLOSING_BRACE, "}"),
+		//animations
+		Token(TokenType::VARIABLE_IDENTIFIER, "animations"),
+		Token(TokenType::COLON, ":"),
+		Token(TokenType::OPENING_SQUARE_BRACE, "["),
+			Token(TokenType::TYPE_IDENTIFIER, "MyAnimation"),
+			Token(TokenType::OPENING_BRACKET, "("),
+				Token(TokenType::VARIABLE_IDENTIFIER, "house"),
+				Token(TokenType::DOT, "."),
+				Token(TokenType::VARIABLE_IDENTIFIER, "roof"),
+				Token(TokenType::COMMA, ","),
+				Token(TokenType::VARIABLE_IDENTIFIER, "chimney"),
+				Token(TokenType::COMMA, ","),
+				Token(TokenType::OPENING_SQUARE_BRACE, "["),
+					Token(TokenType::VARIABLE_IDENTIFIER, "roof"),
+					Token(TokenType::COMMA, ","),
+					Token(TokenType::VARIABLE_IDENTIFIER, "chimney"),
+				Token(TokenType::CLOSING_SQUARE_BRACE, "]"),
+			Token(TokenType::CLOSING_BRACKET, ")"),
+			Token(TokenType::COMMA, ","),
+			Token(TokenType::TYPE_IDENTIFIER, "MyOtherAnimation"),
+			Token(TokenType::OPENING_BRACKET, "("),
+				Token(TokenType::VARIABLE_IDENTIFIER, "chimney"),
+			Token(TokenType::CLOSING_BRACKET, ")"),
+		Token(TokenType::CLOSING_SQUARE_BRACE, "]"),
+	Token(TokenType::CLOSING_BRACE, "}") });
+	Parser parser(scanner);
+	if (auto scene = parser.tryBuildScene(); scene) {
+		EXPECT_TRUE(true);
+	}
+	else
+		FAIL() << "Expected scene built";
+}

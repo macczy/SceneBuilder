@@ -680,7 +680,11 @@ BasicObjectPtr Parser::tryBuildBasicObject() {
 ComplexObjectPtr Parser::tryBuildComplexObject()
 {
     if (BasicObjectFactory::isBasicObjectNameToken(currentToken)) return nullptr;
-    if (!isKnownType(currentToken.getValue())) return nullptr;
+
+    //this check should be done in Semantic Analyzer
+    //if (!isKnownType(currentToken.getValue())) throw SyntaxError("Unknown complex object: " + currentToken.getValue() +
+    //    std::string(" ", 1) + currentToken.getPosition().toString() + scanner.getLineError(currentToken.getPosition()));
+
     auto startingToken = currentToken;
     Properties properties;
     getNextToken();
