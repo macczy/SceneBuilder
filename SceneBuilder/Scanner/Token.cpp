@@ -1,7 +1,7 @@
 #include "Token.h"
 #include <string>
 
-std::map<TokenType, std::string> TokenTypeToStringMap {
+std::map<TokenType, std::string> Token::TokenTypeToStringMap {
 		{ TokenType::UNDEFINED, "UNDEFINED"},
 		{ TokenType::OPENING_BRACKET, "OPENING_BRACKET"},
 		{ TokenType::CLOSING_BRACKET, "CLOSING_BRACKET"},
@@ -30,7 +30,18 @@ std::map<TokenType, std::string> TokenTypeToStringMap {
 		{ TokenType::OR, "OR"},
 		{ TokenType::AND, "AND"},
 		{ TokenType::NOT_EQUAL, "NOT_EQUAL"},
-		{ TokenType::DOUBLE_QUOTE_CHARACTER, "DOUBLE_QUOTE_CHARACTER"}
+		{ TokenType::DOUBLE_QUOTE_CHARACTER, "DOUBLE_QUOTE_CHARACTER"},
+		{ TokenType::WAIT_KEYWORD, "WAIT"},
+		{ TokenType::ANIMATION_KEYWORD, "ANIMATION"},
+		{ TokenType::ANIMATION_SEQUENCE_KEYWORD, "ANIMATION_SEQUENCE_KEYWORD"},
+		{ TokenType::PARALEL_ANIMATION_KEYWORD, "PARALEL_ANIMATION_KEYWORD"},
+		{ TokenType::CONDITIONAL_ANIMATION_KEYWORD, "CONDITIONAL_ANIMATION_KEYWORD"},
+		{ TokenType::LINE_KEYWORD, "LINE_KEYWORD"},
+		{ TokenType::CIRCLE_KEYWORD, "CIRCLE_KEYWORD"},
+		{ TokenType::RECTANGLE_KEYWORD, "RECTANGLE_KEYWORD"},
+		{ TokenType::POLYGON_KEYWORD, "POLYGON_KEYWORD"},
+		{ TokenType::SCENE_KEYWORD, "SCENE_KEYWORD"},
+		{ TokenType::CONDITION_KEYWORD, "CONDITION_KEYWORD"}
 };
 
 
@@ -44,7 +55,7 @@ std::ostream& operator<< (std::ostream& stream, const Token& token) {
 }
 
 std::ostream& operator<< (std::ostream& stream, const TokenType& tokenType) {
-	const auto& str = TokenTypeToStringMap.at(tokenType);
+	const auto& str = Token::TokenTypeToStringMap.at(tokenType);
 	stream << str;
 	return stream;
 }

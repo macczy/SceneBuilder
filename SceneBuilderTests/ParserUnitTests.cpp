@@ -9,7 +9,6 @@
 #include "../SceneBuilder/Objects/LogicalExpression.cpp"
 #include "../SceneBuilder/Objects/BasicObject.cpp"
 #include "../SceneBuilder/Objects/AnimationDeclaration.h"
-#include "../SceneBuilder/Objects/Animation.cpp"
 
 class ScannerMock : public Scanner {
 public:
@@ -739,7 +738,7 @@ TEST(ParserUnitTests, CreateComparison) {
 TEST(ParserUnitTests, CreateBasicObject) {
 	{
 		ScannerMock scanner({
-			Token(TokenType::TYPE_IDENTIFIER, "Circle"),
+			Token(TokenType::CIRCLE_KEYWORD, "Circle"),
 			Token(TokenType::OPENING_BRACE, "{"),
 			Token(TokenType::VARIABLE_IDENTIFIER, "width"),
 			Token(TokenType::COLON, ":"),
@@ -769,7 +768,7 @@ TEST(ParserUnitTests, CreateBasicObject) {
 	}
 	{
 		ScannerMock scanner({
-		Token(TokenType::TYPE_IDENTIFIER, "Rectangle"),
+		Token(TokenType::RECTANGLE_KEYWORD, "Rectangle"),
 		Token(TokenType::OPENING_BRACE, "{"),
 		Token(TokenType::CLOSING_BRACE, "}")
 			});
@@ -785,7 +784,7 @@ TEST(ParserUnitTests, CreateBasicObject) {
 	}
 	{
 		ScannerMock scanner({
-		Token(TokenType::TYPE_IDENTIFIER, "Line"),
+		Token(TokenType::LINE_KEYWORD, "Line"),
 		Token(TokenType::OPENING_BRACE, "{"),
 		Token(TokenType::CLOSING_BRACE, "}")
 			});
@@ -801,7 +800,7 @@ TEST(ParserUnitTests, CreateBasicObject) {
 	}
 	{
 		ScannerMock scanner({
-		Token(TokenType::TYPE_IDENTIFIER, "Polygon"),
+		Token(TokenType::POLYGON_KEYWORD, "Polygon"),
 		Token(TokenType::OPENING_BRACE, "{"),
 		Token(TokenType::CLOSING_BRACE, "}")
 			});
@@ -832,7 +831,7 @@ TEST(ParserUnitTests, CreateBasicObject) {
 TEST(ParserUnitTests, AnimationDeclarationBuilding) {
 	{
 		ScannerMock scanner({
-			Token(TokenType::TYPE_IDENTIFIER, "AnimationSequence"),
+			Token(TokenType::ANIMATION_SEQUENCE_KEYWORD, "AnimationSequence"),
 			Token(TokenType::OPENING_BRACKET, "("),
 				Token(TokenType::VARIABLE_IDENTIFIER, "object"),
 				Token(TokenType::COMMA, ","),
@@ -847,9 +846,9 @@ TEST(ParserUnitTests, AnimationDeclarationBuilding) {
 				Token(TokenType::DOT, "."),
 				Token(TokenType::TYPE_IDENTIFIER, "INFINITE"),
 				//embeded conditional animation
-				Token(TokenType::TYPE_IDENTIFIER, "ConditionalAnimation"),
+				Token(TokenType::CONDITIONAL_ANIMATION_KEYWORD, "ConditionalAnimation"),
 				Token(TokenType::OPENING_BRACE, "{"),
-					Token(TokenType::VARIABLE_IDENTIFIER, "condition"),
+					Token(TokenType::CONDITION_KEYWORD, "condition"),
 					Token(TokenType::COLON, ":"),
 					Token(TokenType::VARIABLE_IDENTIFIER, "object"),
 					Token(TokenType::DOT, "."),
@@ -859,12 +858,12 @@ TEST(ParserUnitTests, AnimationDeclarationBuilding) {
 					Token(TokenType::DOT, "."),
 					Token(TokenType::VARIABLE_IDENTIFIER, "width"),
 					//embeded basic animation
-					Token(TokenType::TYPE_IDENTIFIER, "Wait"),
+					Token(TokenType::WAIT_KEYWORD, "Wait"),
 					Token(TokenType::OPENING_BRACE, "{"),
 					Token(TokenType::CLOSING_BRACE, "}"),
 				Token(TokenType::CLOSING_BRACE, "}"),
 				//embeded animation sequence
-				Token(TokenType::TYPE_IDENTIFIER, "AnimationSequence"),
+				Token(TokenType::ANIMATION_SEQUENCE_KEYWORD, "AnimationSequence"),
 				Token(TokenType::OPENING_BRACE, "{"),
 					Token(TokenType::VARIABLE_IDENTIFIER, "duration"),
 					Token(TokenType::COLON, ":"),
@@ -873,26 +872,26 @@ TEST(ParserUnitTests, AnimationDeclarationBuilding) {
 					Token(TokenType::VARIABLE_IDENTIFIER, "s"),
 					Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),					
 					//embeded basic animation
-					Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+					Token(TokenType::ANIMATION_KEYWORD, "Animation"),
 					Token(TokenType::OPENING_BRACE, "{"),
 					Token(TokenType::CLOSING_BRACE, "}"),
 					//embeded basic animation
-					Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+					Token(TokenType::ANIMATION_KEYWORD, "Animation"),
 					Token(TokenType::OPENING_BRACE, "{"),
 					Token(TokenType::CLOSING_BRACE, "}"),
 				Token(TokenType::CLOSING_BRACE, "}"),
 				//embeded paralel animation
-				Token(TokenType::TYPE_IDENTIFIER, "ParalelAnimation"),
+				Token(TokenType::PARALEL_ANIMATION_KEYWORD, "ParalelAnimation"),
 				Token(TokenType::OPENING_BRACE, "{"),
 					//embeded basic animation
-					Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+					Token(TokenType::ANIMATION_KEYWORD, "Animation"),
 					Token(TokenType::OPENING_BRACE, "{"),
 						Token(TokenType::VARIABLE_IDENTIFIER, "some_property"),
 						Token(TokenType::COLON, ":"),
 						Token(TokenType::DECIMAL_CONST, "20"),
 					Token(TokenType::CLOSING_BRACE, "}"),
 					//embeded basic animation
-					Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+					Token(TokenType::ANIMATION_KEYWORD, "Animation"),
 					Token(TokenType::OPENING_BRACE, "{"),
 						Token(TokenType::VARIABLE_IDENTIFIER, "duration"),
 						Token(TokenType::COLON, ":"),
@@ -903,7 +902,7 @@ TEST(ParserUnitTests, AnimationDeclarationBuilding) {
 					Token(TokenType::CLOSING_BRACE, "}"),
 				Token(TokenType::CLOSING_BRACE, "}"),
 				//embeded wait
-				Token(TokenType::TYPE_IDENTIFIER, "Wait"),
+				Token(TokenType::WAIT_KEYWORD, "Wait"),
 				Token(TokenType::OPENING_BRACE, "{"),
 					Token(TokenType::VARIABLE_IDENTIFIER, "duration"),
 					Token(TokenType::COLON, ":"),
@@ -937,7 +936,7 @@ TEST(ParserUnitTests, AnimationDeclarationBuilding) {
 				Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),
 				Token(TokenType::CLOSING_BRACKET, ")"),
 			Token(TokenType::CLOSING_BRACE, "}"),
-			Token(TokenType::TYPE_IDENTIFIER, "AnimationSequence"),
+			Token(TokenType::ANIMATION_SEQUENCE_KEYWORD, "AnimationSequence"),
 			Token(TokenType::OPENING_BRACKET, "("),
 				Token(TokenType::VARIABLE_IDENTIFIER, "object"),
 				Token(TokenType::COMMA, ","),
@@ -948,13 +947,13 @@ TEST(ParserUnitTests, AnimationDeclarationBuilding) {
 			Token(TokenType::OPENING_BRACE, "{"),
 				Token(TokenType::VARIABLE_IDENTIFIER, "loops"),
 				Token(TokenType::COLON, ":"),
-				Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+				Token(TokenType::TYPE_IDENTIFIER, "AnimationConstants"),
 				Token(TokenType::DOT, "."),
 				Token(TokenType::TYPE_IDENTIFIER, "INFINITE"),
 				//embeded conditional animation
-				Token(TokenType::TYPE_IDENTIFIER, "ConditionalAnimation"),
+				Token(TokenType::CONDITIONAL_ANIMATION_KEYWORD, "ConditionalAnimation"),
 				Token(TokenType::OPENING_BRACE, "{"),
-					Token(TokenType::VARIABLE_IDENTIFIER, "condition"),
+					Token(TokenType::CONDITION_KEYWORD, "condition"),
 					Token(TokenType::COLON, ":"),
 					Token(TokenType::VARIABLE_IDENTIFIER, "object"),
 					Token(TokenType::DOT, "."),
@@ -964,12 +963,12 @@ TEST(ParserUnitTests, AnimationDeclarationBuilding) {
 					Token(TokenType::DOT, "."),
 					Token(TokenType::VARIABLE_IDENTIFIER, "width"),
 					//embeded basic animation
-					Token(TokenType::TYPE_IDENTIFIER, "Wait"),
+					Token(TokenType::WAIT_KEYWORD, "Wait"),
 					Token(TokenType::OPENING_BRACE, "{"),
 					Token(TokenType::CLOSING_BRACE, "}"),
 				Token(TokenType::CLOSING_BRACE, "}"),
 				//embeded animation sequence
-				Token(TokenType::TYPE_IDENTIFIER, "AnimationSequence"),
+				Token(TokenType::ANIMATION_SEQUENCE_KEYWORD, "AnimationSequence"),
 				Token(TokenType::OPENING_BRACE, "{"),
 					Token(TokenType::VARIABLE_IDENTIFIER, "duration"),
 					Token(TokenType::COLON, ":"),
@@ -978,26 +977,26 @@ TEST(ParserUnitTests, AnimationDeclarationBuilding) {
 					Token(TokenType::VARIABLE_IDENTIFIER, "s"),
 					Token(TokenType::DOUBLE_QUOTE_CHARACTER, "\""),					
 					//embeded basic animation
-					Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+					Token(TokenType::ANIMATION_KEYWORD, "Animation"),
 					Token(TokenType::OPENING_BRACE, "{"),
 					Token(TokenType::CLOSING_BRACE, "}"),
 					//embeded basic animation
-					Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+					Token(TokenType::ANIMATION_KEYWORD, "Animation"),
 					Token(TokenType::OPENING_BRACE, "{"),
 					Token(TokenType::CLOSING_BRACE, "}"),
 				Token(TokenType::CLOSING_BRACE, "}"),
 				//embeded paralel animation
-				Token(TokenType::TYPE_IDENTIFIER, "ParalelAnimation"),
+				Token(TokenType::PARALEL_ANIMATION_KEYWORD, "ParalelAnimation"),
 				Token(TokenType::OPENING_BRACE, "{"),
 					//embeded basic animation
-					Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+					Token(TokenType::ANIMATION_KEYWORD, "Animation"),
 					Token(TokenType::OPENING_BRACE, "{"),
 						Token(TokenType::VARIABLE_IDENTIFIER, "some_property"),
 						Token(TokenType::COLON, ":"),
 						Token(TokenType::DECIMAL_CONST, "20"),
 					Token(TokenType::CLOSING_BRACE, "}"),
 					//embeded basic animation
-					Token(TokenType::TYPE_IDENTIFIER, "Animation"),
+					Token(TokenType::ANIMATION_KEYWORD, "Animation"),
 					Token(TokenType::OPENING_BRACE, "{"),
 						Token(TokenType::VARIABLE_IDENTIFIER, "duration"),
 						Token(TokenType::COLON, ":"),
@@ -1008,7 +1007,7 @@ TEST(ParserUnitTests, AnimationDeclarationBuilding) {
 					Token(TokenType::CLOSING_BRACE, "}"),
 				Token(TokenType::CLOSING_BRACE, "}"),
 				//embeded wait
-				Token(TokenType::TYPE_IDENTIFIER, "Wait"),
+				Token(TokenType::WAIT_KEYWORD, "Wait"),
 				Token(TokenType::OPENING_BRACE, "{"),
 					Token(TokenType::VARIABLE_IDENTIFIER, "duration"),
 					Token(TokenType::COLON, ":"),
@@ -1163,7 +1162,7 @@ TEST(ParserUnitTests, CreateScene) {
 		//simple object
 		Token(TokenType::VARIABLE_IDENTIFIER, "chimney"),
 		Token(TokenType::EQUAL_SIGN, "="),
-		Token(TokenType::TYPE_IDENTIFIER, "Circle"),
+		Token(TokenType::CIRCLE_KEYWORD, "Circle"),
 		Token(TokenType::OPENING_BRACE, "{"),
 			Token(TokenType::VARIABLE_IDENTIFIER, "width"),
 			Token(TokenType::COLON, ":"),

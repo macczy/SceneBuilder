@@ -12,6 +12,7 @@
 class Parser
 {
 public:
+	bool tryBuildMainObject();
 	Parser(Scanner& scanner);
 	[[nodiscard]] Arguments tryBuildArguments();
 	[[nodiscard]] Argument tryBuildArgument();
@@ -27,7 +28,6 @@ public:
 	[[nodiscard]] ComplexObjectDeclarationPtr tryBuildNewComplexObject(const Token& identifierToken);
 	[[nodiscard]] std::optional<Expression> tryBuildArrayType();
 	[[nodiscard]] AnimationCallPtr tryBuildAnimationCall();
-	//tested
 	[[nodiscard]] PropertyPtr tryBuildProperty(Identifier& ident);
 	[[nodiscard]] BasicObjectPtr tryBuildBasicObject();
 	[[nodiscard]] ComplexObjectPtr tryBuildComplexObject();
@@ -41,7 +41,6 @@ public:
 	[[nodiscard]] std::optional<Expression> tryBuildValue();
 	[[nodiscard]] std::optional<Expression> tryBuildExpression();
 	[[nodiscard]] std::optional<Expression> tryBuildBrackets();
-
 	//builds all Expressions except Comparison, LogicalExpression and TernaryExpression - unless it's in brackets
 	[[nodiscard]] std::optional<Expression> tryBuildSimpleExpression();
 	[[nodiscard]] ComparisonPtr tryBuildComparison(Expression& firstValue);
@@ -59,6 +58,9 @@ private:
 	std::unique_ptr<Scene> scene;
 	std::vector<ComplexObjectDeclarationPtr> knownTypes;
 	std::vector<AnimationDeclarationPtr> knownAnimations;
+	//check current token type, consume if matches, otherwise throwSyntaxError
+	void consumeToken(TokenType expected);
+	bool isNotCurrentToken(TokenType expected) noexcept;
 	const Token& getNextToken();
 	bool isKnownType(const std::string& value);
 	bool isKnownAnimation(const std::string& value);

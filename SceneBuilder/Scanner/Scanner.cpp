@@ -68,6 +68,19 @@ SceneBuilderScanner::SceneBuilderScanner(std::istream& input) : input(input), li
 				currentToken = Token(TokenType::UNDEFINED, "!", tokenStartPosition);
 			}}
 	};
+	keyWords = {
+		{ "WAIT", TokenType::WAIT_KEYWORD},
+		{ "ANIMATION", TokenType::ANIMATION_KEYWORD},
+		{ "ANIMATION_SEQUENCE_KEYWORD", TokenType::ANIMATION_SEQUENCE_KEYWORD},
+		{ "PARALEL_ANIMATION_KEYWORD", TokenType::PARALEL_ANIMATION_KEYWORD},
+		{ "CONDITIONAL_ANIMATION_KEYWORD",TokenType::CONDITIONAL_ANIMATION_KEYWORD},
+		{ "LINE_KEYWORD",TokenType::LINE_KEYWORD},
+		{ "CIRCLE_KEYWORD",TokenType::CIRCLE_KEYWORD},
+		{ "RECTANGLE_KEYWORD",TokenType::RECTANGLE_KEYWORD},
+		{ "POLYGON_KEYWORD",TokenType::POLYGON_KEYWORD},
+		{ "SCENE_KEYWORD",TokenType::SCENE_KEYWORD},
+		{ "CONDITION_KEYWORD", TokenType::CONDITION_KEYWORD}
+	};
 	getNextChar();
 	next();
 }
@@ -119,7 +132,11 @@ bool SceneBuilderScanner::isVariableIdentifier(Position tokenStartPosition) {
 			tokenValue += character;
 			checkIfTokenMaxLengthReached(MAX_NAME_LENGTH, tokenStartPosition, "Variable name exceeded maximum length ", tokenValue.size());
 		}
-		currentToken = Token(TokenType::VARIABLE_IDENTIFIER, tokenValue, tokenStartPosition);
+		auto keyword = keyWords.find(tokenValue);
+		if (keyword != keyWords.end())
+			currentToken = Token(keyword->second, tokenValue, tokenStartPosition);
+		else
+			currentToken = Token(TokenType::VARIABLE_IDENTIFIER, tokenValue, tokenStartPosition);
 		return true;
 	}
 	return false;
@@ -131,7 +148,11 @@ bool SceneBuilderScanner::isTypeIdentifier(Position tokenStartPosition) {
 		while (isVariableCharacter(getNextChar())) {
 			tokenValue += character;
 			checkIfTokenMaxLengthReached(MAX_NAME_LENGTH, tokenStartPosition, "Type name exceeded maximum length ", tokenValue.size());
-		}
+		}		
+		auto keyword = keyWords.find(tokenValue);
+		if (keyword != keyWords.end())
+			currentToken = Token(keyword->second, tokenValue, tokenStartPosition);
+		else
 		currentToken = Token(TokenType::TYPE_IDENTIFIER, tokenValue, tokenStartPosition);
 		return true;
 	}

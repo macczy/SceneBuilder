@@ -57,9 +57,3 @@ public:
 private:
 	std::vector<AnimationPtr> animations;
 };
-
-class AnimationFactory {
-	static std::array<std::string, 5> names;
-public:
-	static bool isAnimationType(const std::string& name);
-};

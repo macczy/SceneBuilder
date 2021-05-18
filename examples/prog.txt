@@ -12,6 +12,12 @@ House = {
 		color: Color(#CC, #CC, #CC)
 	}
 	
+	koko = Circle {
+		radius: 10
+		vertex: Point(0.1, 0.2, 0.3)
+		color: Color(#DD, #DD, #DD)
+	}
+			
 	mainBuilding = Rectangle {
 		vertex: Point(0.1, 0.2, 0.3)
 		width: 10
@@ -22,7 +28,7 @@ House = {
 }
 
 CustomAnimation = AnimationSequence(first, second) {
-			loops: Animation.SingleLoop 
+			loops: AnimationConstants.SingleLoop 
 			
 			Wait {
 				time: "10s"
@@ -30,13 +36,13 @@ CustomAnimation = AnimationSequence(first, second) {
 			ParalelAnimation {
 				Animation {
 					object: first
-					type: Animation.Rotation
-					axis: Animation.XAxis
+					type: AnimationConstants.Rotation
+					axis: AnimationConstants.XAxis
 					duration: "5s"
 				}
 				Animation {
 				object: second
-					type: Animation.Movement
+					type: AnimationConstants.Movement
 					vector: Point(0., 0.2, 0.1)
 					duration: "5s"
 				}
@@ -83,10 +89,4 @@ Scene {
 	
 	animations: [ CustomAnimation(my_house.doorHandle, my_house.roof, [my_house.doorHandle, my_house.roof]), AnotherAnimation(rec) ]
 	
-}
-
-Circle {
-	radius: 10
-	vertex: Point(0.1, 0.2, 0.3)
-	color: Color(#DD, #DD, #DD)
 }

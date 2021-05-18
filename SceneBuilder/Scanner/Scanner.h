@@ -22,6 +22,7 @@ private:
 	Token currentToken;
 
 	std::map<char, TokenType> singleCharTokens;
+	std::map<std::string, TokenType> keyWords;
 	std::map<char, std::function<void(Position&)>> lambdaGeneratedTokens;
 
 	int line;

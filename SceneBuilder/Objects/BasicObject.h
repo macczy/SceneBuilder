@@ -59,8 +59,8 @@ public:
 };
 
 class BasicObjectFactory {
-	static std::map<std::string, std::function<BasicObjectPtr(const Position& pos, Properties& properties)>> generator;
-	static std::array<std::string, 4> basicObjectsNames;
+	static std::map<TokenType, std::function<BasicObjectPtr(const Position& pos, Properties& properties)>> generator;
+	static std::array<TokenType, 4> basicObjectsNames;
 public:
 	static BasicObjectPtr getBasicObject(const Position& pos, Properties& properties, const Token& nameToken);
 	static bool isBasicObjectNameToken(const Token& nameToken);
