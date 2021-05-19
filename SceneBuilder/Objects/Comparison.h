@@ -6,8 +6,7 @@
 #include "../Scanner/Token.h"
 #include "Expression.h"
 
-class Comparison
-{
+class Comparison {
 public:
 	Comparison(const Position& position, Expression& expr1, Expression& expr2) :
 		expr1(std::move(expr1)), expr2(std::move(expr2)), position(position) {};
@@ -22,48 +21,42 @@ private:
 	Position position;
 };
 
-class LessThan : public Comparison
-{
+class LessThan : public Comparison {
 public:
 	LessThan(const Position& position, Expression& expr1, Expression& expr2) :
 		Comparison(position, expr1, expr2) {};
 	virtual ~LessThan() {}
 };
 
-class LessOrEqual : public Comparison
-{
+class LessOrEqual : public Comparison {
 public:
 	LessOrEqual(const Position& position, Expression& expr1, Expression& expr2) :
 		Comparison(position, expr1, expr2) {};
 	virtual ~LessOrEqual() {}
 };
 
-class GreaterThan : public Comparison
-{
+class GreaterThan : public Comparison {
 public:
 	GreaterThan(const Position& position, Expression& expr1, Expression& expr2) :
 		Comparison(position, expr1, expr2) {};
 	virtual ~GreaterThan() {}
 };
 
-class GreaterOrEqual : public Comparison
-{
+class GreaterOrEqual : public Comparison {
 public:
 	GreaterOrEqual(const Position& position, Expression& expr1, Expression& expr2) :
 		Comparison(position, expr1, expr2) {};
 	virtual ~GreaterOrEqual() {}
 };
 
-class Equal : public Comparison
-{
+class Equal : public Comparison {
 public:
 	Equal(const Position& position, Expression& expr1, Expression& expr2) :
 		Comparison(position, expr1, expr2) {};
 	virtual ~Equal() {}
 };
 
-class NotEqual : public Comparison
-{
+class NotEqual : public Comparison {
 public:
 	NotEqual(const Position& position, Expression& expr1, Expression& expr2) :
 		Comparison(position, expr1, expr2) {};

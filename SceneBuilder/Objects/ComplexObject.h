@@ -36,8 +36,7 @@ public:
 	~ObjectIdentifierPair() {}
 };
 
-class ComplexObjectDeclaration
-{
+class ComplexObjectDeclaration {
 public:
 	ComplexObjectDeclaration(const std::string& name, const Position& pos, Properties& properties, Objects& objects)
 		: name(name), pos(pos), properties(std::move(properties)), objects(std::move(objects)) {};

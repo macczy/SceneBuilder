@@ -1143,7 +1143,7 @@ TEST(ParserUnitTests, AnimationDeclarationBuilding) {
 
 
 TEST(ParserUnitTests, CreateScene) {
-	ScannerMock scanner({ Token(TokenType::TYPE_IDENTIFIER, "Scene"),
+	ScannerMock scanner({ Token(TokenType::SCENE_KEYWORD, "Scene"),
 	Token(TokenType::OPENING_BRACE, "{"),
 		Token(TokenType::VARIABLE_IDENTIFIER, "width"),
 		Token(TokenType::COLON, ":"),

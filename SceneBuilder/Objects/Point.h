@@ -6,8 +6,7 @@
 
 using triplePointValues = std::tuple<DecimalValue, DecimalValue, DecimalValue>;
 
-class Point
-{
+class Point {
 public:
 	Point(const Position& position, const DecimalValue& x, const DecimalValue& y, const DecimalValue& z) : values(x, y, z), position(position) {};
 	Point(const Position& position, const DecimalValue& x, const DecimalValue& y) : Point(position, x, y, DecimalValue(y.getPosition(), "0")) {};

@@ -54,8 +54,7 @@ enum class TokenType {
 	CONDITION_KEYWORD
 };
 
-class Token
-{
+class Token {
 public:
 	static std::map<TokenType, std::string> TokenTypeToStringMap;
 

@@ -2,8 +2,7 @@
 #include <string>
 #include "../Scanner/Token.h"
 
-class DecimalValue
-{
+class DecimalValue {
 public:
 	DecimalValue(const Position& position, const std::string& value) : value(value), position(position) {};
 	const std::string& getValue() const { return value; }

@@ -16,8 +16,7 @@ private:
 	Position position;
 };
 
-class Multiplication_ : public Multiplication
-{
+class Multiplication_ : public Multiplication {
 public:
 	Multiplication_(const Position& position, Expression& expr1, Expression&  expr2) :
 		Multiplication(position, expr1, expr2) {};
@@ -25,16 +24,14 @@ public:
 	virtual ~Multiplication_() {};
 };
 
-class Division : public Multiplication
-{
+class Division : public Multiplication {
 public:
 	Division(const Position& position, Expression& expr1, Expression& expr2) :
 		Multiplication(position, expr1, expr2) {};
 	virtual ~Division() {};
 };
 
-namespace MultiplicationFactory
-{
+namespace MultiplicationFactory {
 	bool isMultiplicationOperator(const TokenType& oper);
 	std::unique_ptr<Multiplication> getMultiplication(const Position& position, Expression& expr1, Expression& expr2, const TokenType& oper);
 };

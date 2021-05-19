@@ -69,17 +69,17 @@ SceneBuilderScanner::SceneBuilderScanner(std::istream& input) : input(input), li
 			}}
 	};
 	keyWords = {
-		{ "WAIT", TokenType::WAIT_KEYWORD},
-		{ "ANIMATION", TokenType::ANIMATION_KEYWORD},
-		{ "ANIMATION_SEQUENCE_KEYWORD", TokenType::ANIMATION_SEQUENCE_KEYWORD},
-		{ "PARALEL_ANIMATION_KEYWORD", TokenType::PARALEL_ANIMATION_KEYWORD},
-		{ "CONDITIONAL_ANIMATION_KEYWORD",TokenType::CONDITIONAL_ANIMATION_KEYWORD},
-		{ "LINE_KEYWORD",TokenType::LINE_KEYWORD},
-		{ "CIRCLE_KEYWORD",TokenType::CIRCLE_KEYWORD},
-		{ "RECTANGLE_KEYWORD",TokenType::RECTANGLE_KEYWORD},
-		{ "POLYGON_KEYWORD",TokenType::POLYGON_KEYWORD},
-		{ "SCENE_KEYWORD",TokenType::SCENE_KEYWORD},
-		{ "CONDITION_KEYWORD", TokenType::CONDITION_KEYWORD}
+		{ "Wait", TokenType::WAIT_KEYWORD},
+		{ "Animation", TokenType::ANIMATION_KEYWORD},
+		{ "AnimationSequence", TokenType::ANIMATION_SEQUENCE_KEYWORD},
+		{ "ParalelAnimation", TokenType::PARALEL_ANIMATION_KEYWORD},
+		{ "ConditionalAnimation",TokenType::CONDITIONAL_ANIMATION_KEYWORD},
+		{ "Line",TokenType::LINE_KEYWORD},
+		{ "Circle",TokenType::CIRCLE_KEYWORD},
+		{ "Rectangle",TokenType::RECTANGLE_KEYWORD},
+		{ "Polygon",TokenType::POLYGON_KEYWORD},
+		{ "Scene",TokenType::SCENE_KEYWORD},
+		{ "condition", TokenType::CONDITION_KEYWORD}
 	};
 	getNextChar();
 	next();

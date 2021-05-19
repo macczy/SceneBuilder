@@ -3,10 +3,9 @@
 #include "../Scanner/Token.h"
 
 class ConstantIdentifier;
-
 using ConstantIdentifierPtr = std::unique_ptr<ConstantIdentifier>;
-class ConstantIdentifier
-{
+
+class ConstantIdentifier {
 public:
 	ConstantIdentifier(const Position& position, const std::string& value, ConstantIdentifierPtr& next) :
 		position(position), value(value), next(std::move(next)) {};

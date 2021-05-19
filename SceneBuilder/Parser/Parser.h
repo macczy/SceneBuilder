@@ -9,8 +9,7 @@
 #include "../Scanner/Scanner.h"
 #include "../Scanner/Token.h"
 
-class Parser
-{
+class Parser {
 public:
 	bool tryBuildMainObject();
 	Parser(Scanner& scanner);
@@ -52,6 +51,8 @@ public:
     [[nodiscard]] TernaryExpressionPtr tryBuildTernaryExpression(LogicalSubExpressionPtr& condition);
 	[[nodiscard]] LogicalExpressionPtr getLogicalSubExpression(const Token& operatorToken,
 		LogicalSubExpressionPtr& comparison, LogicalSubExpressionPtr& firstValue);
+	[[nodiscard]] LogicalSubExpressionPtr tryBuildCondition();
+	[[nodiscard]] bool tryBuildAnimationPropertyOrCondition(Animations& animations, Properties& properties, LogicalSubExpressionPtr& condition);
 private:
 	Scanner& scanner;
 	Token currentToken;
@@ -60,7 +61,10 @@ private:
 	std::vector<AnimationDeclarationPtr> knownAnimations;
 	//check current token type, consume if matches, otherwise throwSyntaxError
 	void consumeToken(TokenType expected);
-	bool isNotCurrentToken(TokenType expected) noexcept;
+	[[nodiscard]] bool isNotCurrentToken(TokenType expected) noexcept;
+	[[nodiscard]] bool tryBuildProperty(Properties& properties);
+	[[nodiscard]] bool tryBuildObjectOrProperty(Properties& properties, Objects& objects);
+	[[nodiscard]] bool tryBuildAnimationOrProperty(Properties& properties, Animations& animations);
 	const Token& getNextToken();
 	bool isKnownType(const std::string& value);
 	bool isKnownAnimation(const std::string& value);

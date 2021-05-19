@@ -2,8 +2,7 @@
 #include <vector>
 #include "Expression.h"
 
-class PointArray
-{
+class PointArray {
 public:
 	PointArray(const Position& pos, std::vector<Point>& value) : pos(pos), value(std::move(value)) {}
 	const Position& getPosition() const { return pos; }

@@ -14,8 +14,7 @@ public:
 	virtual std::string getLineError(Position position) { return ""; }
 };
 
-class SceneBuilderScanner : public Scanner
-{
+class SceneBuilderScanner : public Scanner {
 private:
 	char character;
 	std::istream& input;

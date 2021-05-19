@@ -88,5 +88,4 @@ Scene {
 	}
 	
 	animations: [ CustomAnimation(my_house.doorHandle, my_house.roof, [my_house.doorHandle, my_house.roof]), AnotherAnimation(rec) ]
-	
 }

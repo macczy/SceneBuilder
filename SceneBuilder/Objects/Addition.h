@@ -18,8 +18,7 @@ private:
 	Position position;
 };
 
-class Sum : public Addition
-{
+class Sum : public Addition {
 public:
 	Sum(const Position& position, Expression& expr1, Expression&  expr2) :
 		Addition(position, expr1, expr2) {};
@@ -27,16 +26,14 @@ public:
 	virtual ~Sum() {};
 };
 
-class Substraction : public Addition
-{
+class Substraction : public Addition {
 public:
 	Substraction(const Position& position, Expression& expr1, Expression& expr2) :
 		Addition(position, expr1, expr2) {};
 	virtual ~Substraction() {};
 };
 
-namespace AdditionFactory
-{
+namespace AdditionFactory {
 	bool isAdditionOperator(const TokenType& oper);
 	std::unique_ptr<Addition> getAddition(const Position& position, Expression& expr1, Expression& expr2, const TokenType& oper);
 };

@@ -2,8 +2,7 @@
 #include <string>
 #include "../Scanner/Token.h"
 
-class HexValue
-{
+class HexValue {
 public:
 	HexValue(const Position& position, const std::string& value) : value(value), position(position) {};
 	const std::string& getValue() { return value; }

@@ -3,8 +3,7 @@
 #include "../Scanner/Token.h"
 #include "Comparison.h"
 
-class LogicalExpression
-{
+class LogicalExpression {
 protected:
 	LogicalExpression(const Position& position, LogicalSubExpressionPtr& value1, LogicalSubExpressionPtr& value2) :
 		value1(std::move(value1)), value2(std::move(value2)), position(position) {};
@@ -20,16 +19,14 @@ private:
 	Position position;
 };
 
-class DisjunctionExpression : public LogicalExpression
-{
+class DisjunctionExpression : public LogicalExpression {
 public:
 	DisjunctionExpression(const Position& position, LogicalSubExpressionPtr& value1, LogicalSubExpressionPtr& value2) :
 		LogicalExpression(position, value1, value2) {};
 	virtual ~DisjunctionExpression() {}
 };
 
-class ConjuctionExpression : public LogicalExpression
-{
+class ConjuctionExpression : public LogicalExpression {
 public:
 	ConjuctionExpression(const Position& position, LogicalSubExpressionPtr& value1, LogicalSubExpressionPtr& value2) :
 		LogicalExpression(position, value1, value2) {};

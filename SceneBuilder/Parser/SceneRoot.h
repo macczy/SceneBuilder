@@ -5,8 +5,7 @@
 #include <map>
 #include <string>
 
-class SceneRoot
-{
+class SceneRoot {
 public:
 	SceneRoot(ScenePtr& scene, std::vector<ComplexObjectDeclarationPtr>& knownObjects,
 		std::vector<AnimationDeclarationPtr>& knownAnimations) : scene(std::move(scene)), knownObjects(std::move(knownObjects)), knownAnimations(std::move(knownAnimations)) {};
