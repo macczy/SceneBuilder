@@ -5,6 +5,7 @@
 #include <array>
 #include <map>
 #include <functional>
+#include "../Util/ReturnType.h"
 #include "Expression.h"
 #include "Property.h"
 
@@ -17,6 +18,7 @@ public:
 	Position& getPosition() { return pos; }
 	Properties& getProperties() { return properties; }
 	virtual ~Object() {}
+	virtual std::map<std::string, ReturnType> buildInProperties() = 0;
 protected:
 	Position pos;
 	Properties properties;
@@ -31,24 +33,28 @@ public:
 class Circle : public BasicObject {
 public:
 	Circle(const Position& pos, Properties& properties) : BasicObject(pos, properties) {};
+	virtual std::map<std::string, ReturnType> buildInProperties();
 	virtual ~Circle() {}
 };
 
 class Polygon : public BasicObject {
 public:
 	Polygon(const Position& pos, Properties& properties) : BasicObject(pos, properties) {};
+	virtual std::map<std::string, ReturnType> buildInProperties();
 	virtual ~Polygon() {}
 };
 
 class Rectangle : public BasicObject {
 public:
 	Rectangle(const Position& pos, Properties& properties) : BasicObject(pos, properties) {};
+	virtual std::map<std::string, ReturnType> buildInProperties();
 	virtual ~Rectangle() {}
 };
 
 class Line : public BasicObject {
 public:
 	Line(const Position& pos, Properties& properties) : BasicObject(pos, properties) {};
+	virtual std::map<std::string, ReturnType> buildInProperties();
 	virtual ~Line() {}
 };
 

@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "../Scanner/Token.h"
+#include "../Util/Token.h"
 #include "AnimationCall.h"
 
 class AnimationProperty {

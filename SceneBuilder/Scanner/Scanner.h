@@ -3,7 +3,7 @@
 #include <iostream>
 #include <map>
 #include <functional>
-#include "Token.h"
+#include "..\Util\Token.h"
 
 class Scanner {
 public:

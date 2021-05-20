@@ -211,9 +211,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Analizer\Analizer.cpp" />
     <ClCompile Include="Objects\Addition.cpp" />
     <ClCompile Include="Objects\BasicObject.cpp" />
     <ClCompile Include="Objects\Comparison.cpp" />
+    <ClCompile Include="Objects\ComplexObject.cpp" />
     <ClCompile Include="Objects\LogicalExpression.cpp" />
     <ClCompile Include="Objects\Expression.cpp" />
     <ClCompile Include="Objects\Multiplication.cpp" />
@@ -221,7 +223,7 @@
     <ClCompile Include="Parser\Scene.cpp" />
     <ClCompile Include="Parser\SceneRoot.cpp" />
     <ClCompile Include="Scanner\Scanner.cpp" />
-    <ClCompile Include="Scanner\Token.cpp" />
+    <ClCompile Include="Util\Token.cpp" />
     <ClCompile Include="SceneBuilder.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug UnitTests|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug UnitTests|x64'">true</ExcludedFromBuild>
@@ -232,6 +234,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Analizer\Analizer.h" />
+    <ClInclude Include="Exceptions\NotDefined.h" />
+    <ClInclude Include="Exceptions\Redefinition.h" />
+    <ClInclude Include="Exceptions\SceneBuilderException.h" />
+    <ClInclude Include="Exceptions\TokenTooLong.h" />
+    <ClInclude Include="Exceptions\TypeMismatchException.h" />
     <ClInclude Include="Objects\Addition.h" />
     <ClInclude Include="Objects\Animation.h" />
     <ClInclude Include="Objects\AnimationCall.h" />
@@ -246,7 +254,6 @@
     <ClInclude Include="Objects\Property.h" />
     <ClInclude Include="Objects\TernaryExpression.h" />
     <ClInclude Include="Objects\DecimalValue.h" />
-    <ClInclude Include="Objects\HexValue.h" />
     <ClInclude Include="Objects\Identifier.h" />
     <ClInclude Include="Objects\LogicalExpression.h" />
     <ClInclude Include="Objects\Multiplication.h" />
@@ -258,8 +265,9 @@
     <ClInclude Include="Parser\Scene.h" />
     <ClInclude Include="Parser\SceneRoot.h" />
     <ClInclude Include="Scanner\Scanner.h" />
-    <ClInclude Include="Scanner\Token.h" />
-    <ClInclude Include="SyntaxError.h" />
+    <ClInclude Include="Util\Token.h" />
+    <ClInclude Include="Exceptions\SyntaxError.h" />
+    <ClInclude Include="Util\ReturnType.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

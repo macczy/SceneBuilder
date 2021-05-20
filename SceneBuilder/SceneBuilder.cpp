@@ -2,11 +2,13 @@
 #include <fstream>
 #include <sstream>
 #include "Scanner/Scanner.h"
-#include "SyntaxError.h"
+#include "Exceptions/SyntaxError.h"
 #include "Parser/Parser.h"
+#include "Analizer/Analizer.h"
 
 
 int main(int argc, char* argv[]) {
+
     try {
         if (argc < 2)
             return -1;
@@ -19,19 +21,31 @@ int main(int argc, char* argv[]) {
                 throw std::runtime_error("File " + std::string(argv[2]) + "could not be opened");
             }
             SceneBuilderScanner scanner(infile);
-            Parser parser(scanner);
-            auto result = parser.parse();
-            infile.close();
+            try {
+                Parser parser(scanner);
+                auto result = parser.parse();
+                if (!result) {
+                    std::cout << "Empty source file." << std::endl;
+                    return 0;
+                }
+                Analizer analizer(result);
+                infile.close();
+            }
+            catch (const SceneBuilderException& er) {
+                std::cout << "Syntax Eror " << er.what([&scanner](const Position& pos) {
+                    return scanner.getLineError(pos);
+                    }) << std::endl;
+            }
+
         }
-    }
-    catch (const SyntaxError& er) {
-        std::cout << er.what() << std::endl;
+
     }
     catch (const std::runtime_error& er) {
-        std::cout << er.what() << std::endl;
+        std::cout << "error" << er.what() << std::endl;
     }
     catch (...) {
         std::cout << "Undefined error" << std::endl;
         throw;
     }
+    return 0;
 }

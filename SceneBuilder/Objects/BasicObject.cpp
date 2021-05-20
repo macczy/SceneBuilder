@@ -33,3 +33,24 @@ bool BasicObjectFactory::isBasicObjectNameToken(const Token& nameToken) {
 	auto res = std::find(basicObjectsNames.begin(), basicObjectsNames.end(), nameToken.getType());
 	return res != basicObjectsNames.end();
 }
+
+
+
+std::map<std::string, ReturnType> Rectangle::buildInProperties() {
+	return {};
+}
+
+
+std::map<std::string, ReturnType> Circle::buildInProperties() {
+	return {};
+}
+
+
+std::map<std::string, ReturnType> Line::buildInProperties() {
+	return {};
+}
+
+
+std::map<std::string, ReturnType> Polygon::buildInProperties() {
+	return {};
+}

@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "../Scanner/Token.h"
+#include "../Util/Token.h"
 
 class DecimalValue {
 public:

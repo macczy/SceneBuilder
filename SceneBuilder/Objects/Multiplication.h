@@ -1,5 +1,6 @@
 #pragma once
-#include "../Scanner/Token.h"
+#include "../Util/Token.h"
+#include "../Util/ReturnType.h"
 #include "Expression.h"
 
 class Multiplication {
@@ -10,6 +11,9 @@ public:
 	Expression& getSecondExpression() { return expr2; }
 	const Position& getPosition() const { return position; }
 	virtual ~Multiplication() {};
+	ReturnType getReturnType(ReturnType first, ReturnType second);
+protected:
+	virtual std::map<std::pair<ReturnType, ReturnType>, ReturnType>& getMultiplicationResult() = 0;
 private:
 	Expression expr1;
 	Expression expr2;
@@ -20,8 +24,11 @@ class Multiplication_ : public Multiplication {
 public:
 	Multiplication_(const Position& position, Expression& expr1, Expression&  expr2) :
 		Multiplication(position, expr1, expr2) {};
-
 	virtual ~Multiplication_() {};
+protected:
+	virtual std::map<std::pair<ReturnType, ReturnType>, ReturnType>& getMultiplicationResult();
+private:
+	static std::map<std::pair<ReturnType, ReturnType>, ReturnType> multiplicationResult;
 };
 
 class Division : public Multiplication {
@@ -29,6 +36,10 @@ public:
 	Division(const Position& position, Expression& expr1, Expression& expr2) :
 		Multiplication(position, expr1, expr2) {};
 	virtual ~Division() {};
+protected:
+	virtual std::map<std::pair<ReturnType, ReturnType>, ReturnType>& getMultiplicationResult();
+private:
+	static std::map<std::pair<ReturnType, ReturnType>, ReturnType> divisionResult;
 };
 
 namespace MultiplicationFactory {

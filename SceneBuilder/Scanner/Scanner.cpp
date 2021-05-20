@@ -1,7 +1,8 @@
 #include <string>  
 #include <algorithm>
 #include "Scanner.h"
-#include "../SyntaxError.h"
+#include "../Exceptions/TokenTooLong.h"
+#include "../Exceptions/SyntaxError.h"
 
 SceneBuilderScanner::SceneBuilderScanner(std::istream& input) : input(input), line(1), column(0) {
 	singleCharTokens = { 
@@ -30,8 +31,7 @@ SceneBuilderScanner::SceneBuilderScanner(std::istream& input) : input(input), li
 			}
 			else {
 				tokenStartPosition.columnNumber++;
-				std::string errorMessage = "Expected | but got '" + std::string(1, character) + "' " + tokenStartPosition.toString();
-				throw SyntaxError(errorMessage);
+				throw SyntaxError("|", std::string(1, character), tokenStartPosition);
 				}}},
 		{'&', [=](Position tokenStartPosition) {
 			if (getNextChar() == '&') {
@@ -40,8 +40,7 @@ SceneBuilderScanner::SceneBuilderScanner(std::istream& input) : input(input), li
 			}
 			else {
 				tokenStartPosition.columnNumber++;
-				std::string errorMessage = "Expected & but got '" + std::string(1, character) + "' " + tokenStartPosition.toString();
-				throw SyntaxError(errorMessage);
+				throw SyntaxError("&", std::string(1, character), tokenStartPosition);
 			}}},
 		{'<', [=](Position tokenStartPosition) {
 			if (getNextChar() == '=') {
@@ -121,7 +120,7 @@ char SceneBuilderScanner::getNextChar() {
 
 inline void SceneBuilderScanner::checkIfTokenMaxLengthReached(const unsigned int limit, const Position& tokenStartPosition, const std::string& errorMessage, const size_t length) const {
 	if (length > limit) {
-		throw SyntaxError(errorMessage + tokenStartPosition.toString());
+		throw TokenTooLong(errorMessage, tokenStartPosition);
 	}
 }
 
@@ -130,7 +129,7 @@ bool SceneBuilderScanner::isVariableIdentifier(Position tokenStartPosition) {
 		std::string tokenValue(1, character);
 		while (isVariableCharacter(getNextChar())) {
 			tokenValue += character;
-			checkIfTokenMaxLengthReached(MAX_NAME_LENGTH, tokenStartPosition, "Variable name exceeded maximum length ", tokenValue.size());
+			checkIfTokenMaxLengthReached(MAX_NAME_LENGTH, tokenStartPosition, "Variable name", tokenValue.size());
 		}
 		auto keyword = keyWords.find(tokenValue);
 		if (keyword != keyWords.end())
@@ -147,7 +146,7 @@ bool SceneBuilderScanner::isTypeIdentifier(Position tokenStartPosition) {
 		std::string tokenValue(1, character);
 		while (isVariableCharacter(getNextChar())) {
 			tokenValue += character;
-			checkIfTokenMaxLengthReached(MAX_NAME_LENGTH, tokenStartPosition, "Type name exceeded maximum length ", tokenValue.size());
+			checkIfTokenMaxLengthReached(MAX_NAME_LENGTH, tokenStartPosition, "Type name", tokenValue.size());
 		}		
 		auto keyword = keyWords.find(tokenValue);
 		if (keyword != keyWords.end())
@@ -164,13 +163,11 @@ bool SceneBuilderScanner::isHexConst(Position tokenStartPosition) {
 		std::string tokenValue(1, character);
 		while (isHex(getNextChar())) {
 			tokenValue += character;
-			checkIfTokenMaxLengthReached(MAX_HEX_VALUE_LENGTH, tokenStartPosition, "Hexadecimal value exceeded maximum length ", tokenValue.size());
+			checkIfTokenMaxLengthReached(MAX_HEX_VALUE_LENGTH, tokenStartPosition, "Hexadecimal value", tokenValue.size());
 		}
 		if (tokenValue.size() == 1) {
 			tokenStartPosition.columnNumber++;
-			std::string errorMessage = "Expected hexadecimal const value, but got '" + std::string(1, character) + "' " 
-				+ tokenStartPosition.toString() + getLineError(tokenStartPosition);
-			throw SyntaxError(errorMessage);
+			throw SyntaxError("hexadecimal const value", std::string(1, character), tokenStartPosition);
 		}
 		currentToken = Token(TokenType::HEX_CONST, tokenValue.replace(0, 1, "0x"), tokenStartPosition);
 		return true;
@@ -199,7 +196,7 @@ bool SceneBuilderScanner::isDecimalConst(Position tokenStartPosition) {
 				tokenValue += character;
 				while (isDigit(getNextChar())) {
 					tokenValue += character;
-					checkIfTokenMaxLengthReached(MAX_DECIMAL_VALUE_LENGTH, tokenStartPosition, "Decimal value exceeded maximum length ", tokenValue.size());
+					checkIfTokenMaxLengthReached(MAX_DECIMAL_VALUE_LENGTH, tokenStartPosition, "Decimal value", tokenValue.size());
 				}
 			}
 			else {
@@ -210,13 +207,13 @@ bool SceneBuilderScanner::isDecimalConst(Position tokenStartPosition) {
 		else {
 			while (isDigit(getNextChar())) {
 				tokenValue += character;
-				checkIfTokenMaxLengthReached(MAX_DECIMAL_VALUE_LENGTH, tokenStartPosition, "Decimal value exceeded maximum length ", tokenValue.size());
+				checkIfTokenMaxLengthReached(MAX_DECIMAL_VALUE_LENGTH, tokenStartPosition, "Decimal value", tokenValue.size());
 			}
 			if (character == '.') {
 				tokenValue += character;
 				while (isDigit(getNextChar())) {
 					tokenValue += character;
-					checkIfTokenMaxLengthReached(MAX_DECIMAL_VALUE_LENGTH, tokenStartPosition, "Decimal value exceeded maximum length ", tokenValue.size());
+					checkIfTokenMaxLengthReached(MAX_DECIMAL_VALUE_LENGTH, tokenStartPosition, "Decimal value", tokenValue.size());
 				}
 			}
 			currentToken = Token(TokenType::DECIMAL_CONST, tokenValue, tokenStartPosition);
@@ -236,7 +233,7 @@ void SceneBuilderScanner::next() {
 		unsigned long currentCharacterCountNumber = 0;
 		while (isspace(character)) {
 			checkIfTokenMaxLengthReached(MAX_EMPTY_SPACE_LENGTH, tokenStartPosition,
-				"Expected token, got " + std::to_string(currentCharacterCountNumber) + " blank characters ", ++currentCharacterCountNumber);
+				"Blank characters", ++currentCharacterCountNumber);
 			getNextChar();
 		}
 		tokenStartPosition = Position{ line, column, input.tellg() };

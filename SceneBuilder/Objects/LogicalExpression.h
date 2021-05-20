@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include "../Scanner/Token.h"
+#include "../Util/Token.h"
 #include "Comparison.h"
 
 class LogicalExpression {

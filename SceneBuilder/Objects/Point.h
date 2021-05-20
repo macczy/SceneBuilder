@@ -2,7 +2,7 @@
 #include <tuple>
 #include <string>
 #include "DecimalValue.h"
-#include "../Scanner/Token.h"
+#include "../Util/Token.h"
 
 using triplePointValues = std::tuple<DecimalValue, DecimalValue, DecimalValue>;
 

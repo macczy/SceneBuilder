@@ -3,7 +3,7 @@
 #include <functional>
 #include <map>
 #include <array>
-#include "../Scanner/Token.h"
+#include "../Util/Token.h"
 #include "Expression.h"
 
 class Comparison {

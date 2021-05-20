@@ -1,6 +1,6 @@
 
 #include "pch.h"
-#include "../SceneBuilder/Scanner/Token.cpp"
+#include "../SceneBuilder/Util/Token.cpp"
 
 TEST(TokenUnitTests, defaultConstructorTest) {
 	Token token;

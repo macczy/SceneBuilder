@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "../Scanner/Token.h"
+#include "../Util/Token.h"
 #include "LogicalExpression.h"
 #include "Expression.h"
 

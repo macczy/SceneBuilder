@@ -1,6 +1,5 @@
 #pragma once
 #include <memory>
-#include "../Scanner/Token.h"
 #include "Property.h"
 
 class Animation {

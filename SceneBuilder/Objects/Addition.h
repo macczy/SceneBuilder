@@ -1,7 +1,8 @@
 #pragma once
 #include <variant>
 #include <memory>
-#include "../Scanner/Token.h"
+#include "../Util/Token.h"
+#include "../Util/ReturnType.h"
 #include "Expression.h"
 
 class Addition {
@@ -12,6 +13,8 @@ public:
 	Expression& getSecondExpression() { return expr2; }
 	const Position& getPosition() const { return position; }
 	virtual ~Addition() {};
+	ReturnType getReturnType(ReturnType first, ReturnType second);
+	virtual std::map<std::pair<ReturnType, ReturnType>, ReturnType>& getAdditionResult() = 0;
 private:
 	Expression expr1;
 	Expression expr2;
@@ -23,14 +26,20 @@ public:
 	Sum(const Position& position, Expression& expr1, Expression&  expr2) :
 		Addition(position, expr1, expr2) {};
 
+	virtual std::map<std::pair<ReturnType, ReturnType>, ReturnType>& getAdditionResult();
 	virtual ~Sum() {};
+private:
+	static std::map<std::pair<ReturnType, ReturnType>, ReturnType> sumResult;
 };
 
 class Substraction : public Addition {
 public:
 	Substraction(const Position& position, Expression& expr1, Expression& expr2) :
 		Addition(position, expr1, expr2) {};
+	virtual std::map<std::pair<ReturnType, ReturnType>, ReturnType>& getAdditionResult();
 	virtual ~Substraction() {};
+private:
+	static std::map<std::pair<ReturnType, ReturnType>, ReturnType> substractionResult;
 };
 
 namespace AdditionFactory {

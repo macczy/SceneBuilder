@@ -1,6 +1,6 @@
 #include "pch.h"
 #include <sstream>
-#include "../SceneBuilder/SyntaxError.h"
+#include "../SceneBuilder/Exceptions/TokenTooLong.h"
 #include "../SceneBuilder/Scanner/Scanner.cpp"
 
 TEST(ScannerUnitTest, EmptySourceTest) {
@@ -145,8 +145,8 @@ TEST(ScannerUnitTest, CreateOrToken) {
 		FAIL() << "Expected SyntaxError";
 	 }
 	 catch (const SyntaxError& err) {
-		 std::string error_message = "Expected | but got 's' " + Position{ 1, 2, 0 }.toString();
-		 EXPECT_EQ(err.what(), error_message);
+		 EXPECT_EQ(err.expected, "|");
+		 EXPECT_EQ(err.got, "s");
 	 }
 	 catch (...) {
 		 FAIL() << "Expected SyntaxError";
@@ -165,8 +165,8 @@ TEST(ScannerUnitTest, CreateAndToken) {
 		FAIL() << "Expected SyntaxError";
 	}
 	catch (const SyntaxError& err) {
-		std::string error_message = "Expected & but got 's' " + Position{ 1, 2, 0 }.toString();
-		EXPECT_EQ(err.what(), error_message);
+		EXPECT_EQ(err.expected, "&");
+		EXPECT_EQ(err.got, "s");
 	}
 	catch (...) {
 		FAIL() << "Expected SyntaxError";
@@ -230,8 +230,8 @@ TEST(ScannerUnitTest, IncorrectHexTokenThrow) {
 		FAIL() << "Expected SyntaxError";
 	}
 	catch (const SyntaxError& err) {
-		std::string error_message = "Expected hexadecimal const value, but got 'z' " + Position{ 1, 2, 0 }.toString() + "\n#zzasd\n ^";
-		EXPECT_EQ(err.what(), error_message);
+		EXPECT_EQ(err.got, "z");
+		EXPECT_EQ(err.expected, "hexadecimal const value");
 	}
 	catch (...) {
 		FAIL() << "Expected SyntaxError";
@@ -244,15 +244,14 @@ TEST(ScannerUnitTest, TooLongHexValueThrow) {
 	std::stringstream stream(buffer.c_str());
 	try {
 		SceneBuilderScanner scanner(stream);
-		FAIL() << "Expected runtime_error";
+		FAIL() << "Expected TokenTooLong";
 	}
-	catch (const SyntaxError& err) {
-		std::string error_message = "Hexadecimal value exceeded maximum length " + Position{ 1, 1, 0 }.toString();
-		EXPECT_EQ(err.what(), error_message);
+	catch (const TokenTooLong& err) {
+		EXPECT_EQ(err.got, "Hexadecimal value");
 		EXPECT_EQ(buffer.size(), SceneBuilderScanner::MAX_HEX_VALUE_LENGTH + 1);
 	}
 	catch (...) {
-		FAIL() << "Expected SyntaxError";
+		FAIL() << "Expected TokenTooLong";
 	}
 }
 
@@ -262,14 +261,13 @@ TEST(ScannerUnitTest, TooLongDecimalValueThrow) {
 	std::stringstream stream(buffer.c_str());
 	try {
 		SceneBuilderScanner scanner(stream);
-		FAIL() << "Expected runtime_error";
+		FAIL() << "Expected TokenTooLong";
 	}
-	catch (const SyntaxError& err) {
-		std::string error_message = "Decimal value exceeded maximum length " + Position{ 1, 1, 0 }.toString();
-		EXPECT_EQ(err.what(), error_message);
+	catch (const TokenTooLong& err) {
+		EXPECT_EQ(err.got, "Decimal value");
 	}
 	catch (...) {
-		FAIL() << "Expected SyntaxError";
+		FAIL() << "Expected TokenTooLong";
 	}
 
 	//same but with a dot
@@ -277,15 +275,14 @@ TEST(ScannerUnitTest, TooLongDecimalValueThrow) {
 	std::stringstream stream2(buffer.c_str());
 	try {
 		SceneBuilderScanner scanner(stream2);
-		FAIL() << "Expected runtime_error";
+		FAIL() << "Expected TokenTooLong";
 	}
-	catch (const SyntaxError& err) {
-		std::string error_message = "Decimal value exceeded maximum length " + Position{ 1, 1, 0 }.toString();
-		EXPECT_EQ(err.what(), error_message);
+	catch (const TokenTooLong& err) {
+		EXPECT_EQ(err.got, "Decimal value");
 		EXPECT_EQ(buffer.size(), SceneBuilderScanner::MAX_DECIMAL_VALUE_LENGTH + 1);
 	}
 	catch (...) {
-		FAIL() << "Expected SyntaxError";
+		FAIL() << "Expected TokenTooLong";
 	}
 }
 
@@ -295,14 +292,13 @@ TEST(ScannerUnitTest, TooLongVariableNameThrow) {
 	std::stringstream stream(buffer.c_str());
 	try {
 		SceneBuilderScanner scanner(stream);
-		FAIL() << "Expected runtime_error";
+		FAIL() << "Expected TokenTooLong";
 	}
-	catch (const SyntaxError& err) {
-		std::string error_message = "Variable name exceeded maximum length " + Position{ 1, 1, 0 }.toString();
-		EXPECT_EQ(err.what(), error_message);
+	catch (const TokenTooLong& err) {
+		EXPECT_EQ(err.got, "Variable name");
 	}
 	catch (...) {
-		FAIL() << "Expected SyntaxError";
+		FAIL() << "Expected TokenTooLong";
 	}
 }
 
@@ -312,14 +308,13 @@ TEST(ScannerUnitTest, TooLongTypeNameThrow) {
 	std::stringstream stream(buffer.c_str());
 	try {
 		SceneBuilderScanner scanner(stream);
-		FAIL() << "Expected runtime_error";
+		FAIL() << "Expected TokenTooLong";
 	}
-	catch (const SyntaxError& err) {
-		std::string error_message = "Type name exceeded maximum length " + Position{ 1, 1, 0 }.toString();
-		EXPECT_EQ(err.what(), error_message);
+	catch (const TokenTooLong& err) {
+		EXPECT_EQ(err.got, "Type name");
 	}
 	catch (...) {
-		FAIL() << "Expected SyntaxError";
+		FAIL() << "Expected TokenTooLong";
 	}
 }
 
@@ -329,13 +324,12 @@ TEST(ScannerUnitTest, TooLongSpaceThrow) {
 	std::stringstream stream(buffer.c_str());
 	try {
 		SceneBuilderScanner scanner(stream);
-		FAIL() << "Expected runtime_error";
+		FAIL() << "Expected TokenTooLong";
 	}
-	catch (const SyntaxError& err) {
-		std::string error_message = "Expected token, got " + std::to_string(SceneBuilderScanner::MAX_EMPTY_SPACE_LENGTH + 1) + " blank characters " + Position{ 1, 1, 0 }.toString();
-		EXPECT_EQ(err.what(), error_message);
+	catch (const TokenTooLong& err) {
+		EXPECT_EQ(err.got, "Blank characters");
 	}
 	catch (...) {
-		FAIL() << "Expected SyntaxError";
+		FAIL() << "Expected TokenTooLong";
 	}
 }

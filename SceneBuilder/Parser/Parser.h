@@ -7,7 +7,7 @@
 #include "../Objects/ComplexObject.h"
 #include "../Objects/AnimationDeclaration.h"
 #include "../Scanner/Scanner.h"
-#include "../Scanner/Token.h"
+#include "../Util/Token.h"
 
 class Parser {
 public:
@@ -59,7 +59,7 @@ private:
 	std::unique_ptr<Scene> scene;
 	std::vector<ComplexObjectDeclarationPtr> knownTypes;
 	std::vector<AnimationDeclarationPtr> knownAnimations;
-	//check current token type, consume if matches, otherwise throwSyntaxError
+	//check current token type, consume if matches, otherwise throw SyntaxError
 	void consumeToken(TokenType expected);
 	[[nodiscard]] bool isNotCurrentToken(TokenType expected) noexcept;
 	[[nodiscard]] bool tryBuildProperty(Properties& properties);
@@ -68,8 +68,5 @@ private:
 	const Token& getNextToken();
 	bool isKnownType(const std::string& value);
 	bool isKnownAnimation(const std::string& value);
-
-	[[noreturn]] inline void throwSyntaxError(const std::string& got, const std::string& expected, Token& token);
-	[[noreturn]] inline void throwSyntaxError(const std::string& got, Token& token);
 };
 

@@ -3,7 +3,7 @@ House = {
 		color: Color(#CC, #CC, #CC)
 		vertexes: [  
 			Point(0.1, 0.2, 0.3),
-			Point(0.2, 0.3, 0.4),
+			Point(0.2, 0.3),
 			Point(0.4)
 		]
 	}

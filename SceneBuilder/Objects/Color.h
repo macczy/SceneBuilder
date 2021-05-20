@@ -2,7 +2,7 @@
 #include <tuple>
 #include <string>
 
-#include "../Scanner/Token.h"
+#include "../Util/Token.h"
 
 using tripleHexValues = std::tuple<std::string, std::string, std::string>;
 

@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include "../Scanner/Token.h"
+#include "../Util/Token.h"
 
 class ConstantIdentifier;
 using ConstantIdentifierPtr = std::unique_ptr<ConstantIdentifier>;

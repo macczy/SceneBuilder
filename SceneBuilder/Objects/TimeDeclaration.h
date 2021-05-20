@@ -1,5 +1,5 @@
 #pragma once
-#include "../Scanner/Token.h"
+#include "../Util/Token.h"
 
 class TimeDeclaration {
 public:

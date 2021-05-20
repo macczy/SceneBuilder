@@ -1,5 +1,7 @@
 #include "Parser.h"
-#include "../SyntaxError.h"
+#include "../Exceptions/SyntaxError.h"
+#include "../Exceptions/Redefinition.h"
+#include "../Exceptions/NotDefined.h"
 #include <optional>
 #include <functional>
 
@@ -25,7 +27,7 @@ void Parser::consumeToken(TokenType expected) {
     if (currentToken.getType() == expected)
         getNextToken();
     else
-        throwSyntaxError(Token::TokenTypeToStringMap.at(expected), currentToken);
+        throw SyntaxError(Token::TokenTypeToStringMap.at(expected), currentToken);
 }
 
 bool Parser::tryBuildObjectOrProperty(Properties& properties, Objects& objects) {
@@ -44,7 +46,7 @@ bool Parser::tryBuildObjectOrProperty(Properties& properties, Objects& objects) 
         objects.push_back(std::make_unique<ObjectIdentifierPair>(*ident, obj));
         return true;
     }
-    throwSyntaxError("object declaration", currentToken);
+    throw SyntaxError("object declaration", currentToken);
 }
 
 ComplexObjectDeclarationPtr Parser::tryBuildNewComplexObject(const Token& identifierToken) {//'Identifier =' should already be found by more general function, this only checks what's after
@@ -53,7 +55,7 @@ ComplexObjectDeclarationPtr Parser::tryBuildNewComplexObject(const Token& identi
     Objects objects;
     Properties properties;
     while (tryBuildObjectOrProperty(properties, objects));
-    if (currentToken.getType() != TokenType::CLOSING_BRACE) throwSyntaxError("closing bracket or identifier", currentToken);
+    if (currentToken.getType() != TokenType::CLOSING_BRACE) throw SyntaxError("closing bracket or identifier", currentToken);
     getNextToken();
     return std::make_unique<ComplexObjectDeclaration>(identifierToken.getValue(), identifierToken.getPosition(), properties, objects);
 }
@@ -81,7 +83,7 @@ bool Parser::tryBuildAnimationOrProperty(Properties& properties, Animations& ani
         properties.push_back(std::move(property));
         return true;
     }
-    throwSyntaxError("property declaration", currentToken);
+    throw SyntaxError("property declaration", currentToken);
 }
 
 AnimationDeclarationPtr Parser::tryBuildAnimationDeclaration(const Token& identifierToken) {
@@ -159,7 +161,7 @@ LogicalSubExpressionPtr Parser::tryBuildCondition() {
             return std::move(inBrackets);
     }
     auto exp = tryBuildValue();
-    if (!exp) throwSyntaxError("logical expression", currentToken);
+    if (!exp) throw SyntaxError("logical expression", currentToken);
     if (auto comparison = tryBuildComparison(*exp); comparison) {
         auto subExpr = std::make_unique<LogicalSubExpression>(std::move(comparison));
         if (auto subExpr1 = tryBuildLogicalExpression(subExpr); subExpr1)
@@ -167,7 +169,7 @@ LogicalSubExpressionPtr Parser::tryBuildCondition() {
         else
             return std::move(subExpr);
     }
-    throwSyntaxError("logical expression", currentToken);
+    throw SyntaxError("logical expression", currentToken);
 }
 
 bool Parser::tryBuildAnimationPropertyOrCondition(Animations& animations, Properties& properties, LogicalSubExpressionPtr& condition) {
@@ -182,11 +184,10 @@ bool Parser::tryBuildAnimationPropertyOrCondition(Animations& animations, Proper
             properties.push_back(std::move(property));
             return true;
         }
-        else throwSyntaxError("property", currentToken);
+        else throw SyntaxError("property", currentToken);
     }
     if (auto cond = tryBuildCondition(); cond) {
-        if(condition) throw SyntaxError("Redefinition of condition property " +
-            currentToken.getPosition().toString() + "\n" + scanner.getLineError(currentToken.getPosition()));
+        if (condition) throw Redefinition("condition property", currentToken.getPosition());
         condition = std::move(cond);
         return true;
     }
@@ -223,22 +224,22 @@ std::optional<Color> Parser::tryBuildColor() {
         return std::nullopt;
     Position startingColorPosition = currentToken.getPosition();
     if (getNextToken().getType() != TokenType::OPENING_BRACKET) 
-        throwSyntaxError("'('", currentToken);
+        throw SyntaxError("'('", currentToken);
     if (getNextToken().getType() != TokenType::HEX_CONST) 
-        throwSyntaxError("hexadecimal value", currentToken);
+        throw SyntaxError("hexadecimal value", currentToken);
     auto firstHexValue = currentToken.getValue();
     if (getNextToken().getType() != TokenType::COMMA) 
-        throwSyntaxError("','", currentToken);
+        throw SyntaxError("','", currentToken);
     if (getNextToken().getType() != TokenType::HEX_CONST) 
-        throwSyntaxError("hexadecimal value", currentToken);
+        throw SyntaxError("hexadecimal value", currentToken);
     auto secondHexValue = currentToken.getValue();
     if (getNextToken().getType() != TokenType::COMMA) 
-        throwSyntaxError("','", currentToken);
+        throw SyntaxError("','", currentToken);
     if (getNextToken().getType() != TokenType::HEX_CONST) 
-        throwSyntaxError("hexadecimal value", currentToken);
+        throw SyntaxError("hexadecimal value", currentToken);
     auto thirdHexValue = currentToken.getValue();
     if (getNextToken().getType() != TokenType::CLOSING_BRACKET) 
-        throwSyntaxError("')'", currentToken);
+        throw SyntaxError("')'", currentToken);
     getNextToken();
     return Color(startingColorPosition, firstHexValue, secondHexValue, thirdHexValue);
 }
@@ -247,7 +248,7 @@ std::optional<DecimalValue> Parser::tryBuildDecimalValue() {
     Position pos = currentToken.getPosition();
     if (currentToken.getType() == TokenType::MINUS) {
         if (getNextToken().getType() != TokenType::DECIMAL_CONST) 
-            throwSyntaxError("decimal value", currentToken);
+            throw SyntaxError("decimal value", currentToken);
         auto value = currentToken.getValue();
         getNextToken();
         return DecimalValue(pos, "-"+value);
@@ -260,19 +261,6 @@ std::optional<DecimalValue> Parser::tryBuildDecimalValue() {
     return std::nullopt;
 }
 
-void Parser::throwSyntaxError(const std::string& expected, const std::string& got, Token& token) {
-    throw SyntaxError(expected, got, token.getPosition(), [=](const Position& pos) {
-        return scanner.getLineError(pos);
-        });
-}
-
-void Parser::throwSyntaxError(const std::string& expected, Token& token) {
-    throw SyntaxError(expected, token.getValue(), token.getPosition(), [=](const Position& pos) {
-        return scanner.getLineError(pos);
-        });
-}
-
-
 std::optional<Identifier> Parser::tryBuildIdentifier() {
     if (currentToken.getType() != TokenType::VARIABLE_IDENTIFIER)
         return std::nullopt;
@@ -281,7 +269,7 @@ std::optional<Identifier> Parser::tryBuildIdentifier() {
     identifiers.push_back(std::make_pair(currentToken.getPosition(), currentToken.getValue()));
     while (getNextToken().getType() == TokenType::DOT) {
         if (getNextToken().getType() != TokenType::VARIABLE_IDENTIFIER)
-            throwSyntaxError("variable identifier after '.'", currentToken);
+            throw SyntaxError("variable identifier after '.'", currentToken);
         identifiers.push_back(std::make_pair(currentToken.getPosition(), currentToken.getValue()));
     }
     if(identifiers.size() == 1)
@@ -301,27 +289,27 @@ std::optional<Point> Parser::tryBuildPoint() {
         return std::nullopt;
     Position startingPointPosition = currentToken.getPosition();
     if (getNextToken().getType() != TokenType::OPENING_BRACKET)
-        throwSyntaxError("'('", currentToken);
+        throw SyntaxError("'('", currentToken);
     if (getNextToken().getType() == TokenType::CLOSING_BRACKET) {
         getNextToken();
         return Point(startingPointPosition);
     }
     auto firstDecimalValue = tryBuildDecimalValue();
     if (!firstDecimalValue) 
-        throwSyntaxError("')' or decimal value", currentToken);
+        throw SyntaxError("')' or decimal value", currentToken);
     if (isNotCurrentToken(TokenType::COMMA)) {
         consumeToken(TokenType::CLOSING_BRACKET);
         return Point(startingPointPosition, *firstDecimalValue);
     }
     auto secondDecimalValue = tryBuildDecimalValue();
     if (!secondDecimalValue)
-        throwSyntaxError("decimal value", currentToken);
+        throw SyntaxError("decimal value", currentToken);
     if (isNotCurrentToken(TokenType::COMMA)) {
         consumeToken(TokenType::CLOSING_BRACKET);
         return Point(startingPointPosition, *firstDecimalValue, *secondDecimalValue);
     }
     auto thirdDecimalValue = tryBuildDecimalValue();
-    if (!thirdDecimalValue) throwSyntaxError("decimal value", currentToken);
+    if (!thirdDecimalValue) throw SyntaxError("decimal value", currentToken);
     consumeToken(TokenType::CLOSING_BRACKET);
     return Point(startingPointPosition, *firstDecimalValue, *secondDecimalValue, *thirdDecimalValue);
 }
@@ -333,7 +321,7 @@ std::optional<TimeDeclaration> Parser::tryBuildTimeDeclaration() {
     consumeToken(TokenType::DECIMAL_CONST);  
     auto timeSpecifier = currentToken.getValue();
     consumeToken(TokenType::VARIABLE_IDENTIFIER);
-    if(!TimeDeclaration::isCorrectTimeSpecifier(timeSpecifier)) throwSyntaxError("time specifier", currentToken);
+    if(!TimeDeclaration::isCorrectTimeSpecifier(timeSpecifier)) throw SyntaxError("time specifier", currentToken);
     consumeToken(TokenType::DOUBLE_QUOTE_CHARACTER);
     return TimeDeclaration(pos, decValue, timeSpecifier);
 }
@@ -385,7 +373,7 @@ std::optional<PointArray> Parser::tryBuildPointArray(const Position& pos) { //op
     if (!firstPoint) return std::nullopt;
     while (!isNotCurrentToken(TokenType::COMMA)) {
         auto point = tryBuildPoint();
-        if(!point) throwSyntaxError("vertex declaration", currentToken);
+        if(!point) throw SyntaxError("vertex declaration", currentToken);
     }
     consumeToken(TokenType::CLOSING_SQUARE_BRACE);
     return PointArray(pos, points);
@@ -400,7 +388,7 @@ Argument Parser::tryBuildArgument() {
         if (auto expr = tryBuildExpression(); expr) {
             arg.push_back(std::move(*expr));
         }
-        else throwSyntaxError("expression", currentToken);
+        else throw SyntaxError("expression", currentToken);
     }
     consumeToken(TokenType::CLOSING_SQUARE_BRACE);
     return std::move(arg);
@@ -418,9 +406,9 @@ Arguments Parser::tryBuildArguments() {
             arg.push_back(std::move(*expr));
             args.push_back(std::move(arg));
         }
-        else if (!args.empty()) throwSyntaxError("expression", currentToken);
+        else if (!args.empty()) throw SyntaxError("expression", currentToken);
     } while (currentToken.getType() == TokenType::COMMA);
-    if (currentToken.getType() != TokenType::CLOSING_BRACKET) throwSyntaxError("closing bracket", currentToken);
+    if (currentToken.getType() != TokenType::CLOSING_BRACKET) throw SyntaxError("closing bracket", currentToken);
     getNextToken();
     return std::move(args);
 }
@@ -428,7 +416,7 @@ Arguments Parser::tryBuildArguments() {
 AnimationCallPtr Parser::tryBuildAnimationCall() {
     if (currentToken.getType() != TokenType::TYPE_IDENTIFIER) return nullptr;
     auto startToken = currentToken;
-    if (getNextToken().getType() != TokenType::OPENING_BRACKET) throwSyntaxError("opening bracket", currentToken);
+    if (getNextToken().getType() != TokenType::OPENING_BRACKET) throw SyntaxError("opening bracket", currentToken);
     getNextToken();
     Arguments args = tryBuildArguments();
     return std::make_unique<AnimationCall>(startToken.getPosition(), startToken.getValue(), args);
@@ -442,11 +430,11 @@ std::optional<AnimationProperty> Parser::tryBuildAnimationProperty(const Positio
             animationCalls.push_back(std::move(anim));
         else {
             if (animationCalls.empty()) return std::nullopt;
-            throwSyntaxError("animation call declaration", currentToken);
+            throw SyntaxError("animation call declaration", currentToken);
         }
     } while (currentToken.getType() == TokenType::COMMA);
 
-    if (currentToken.getType() != TokenType::CLOSING_SQUARE_BRACE) throwSyntaxError("closing square brace", currentToken);
+    if (currentToken.getType() != TokenType::CLOSING_SQUARE_BRACE) throw SyntaxError("closing square brace", currentToken);
     getNextToken();
     return AnimationProperty(pos, animationCalls);
 }
@@ -455,14 +443,14 @@ std::optional<Expression> Parser::tryBuildArrayType() {
     if (currentToken.getType() != TokenType::OPENING_SQUARE_BRACE) return std::nullopt;
     const Position& pos = currentToken.getPosition();
     getNextToken();
-    if (currentToken.getType() == TokenType::CLOSING_SQUARE_BRACE) throw SyntaxError("array cannot be empty " + currentToken.getPosition().toString() + scanner.getLineError(currentToken.getPosition()));
+    if (currentToken.getType() == TokenType::CLOSING_SQUARE_BRACE) throw SyntaxError("array content", currentToken);
     if (auto points = tryBuildPointArray(pos); points) {
         return points;
     }
     if (auto anim = tryBuildAnimationProperty(pos); anim) {
         return anim;
     }
-    throwSyntaxError("array", currentToken);
+    throw SyntaxError("array", currentToken);
 }
 
 std::optional<Expression> Parser::tryBuildBrackets() {
@@ -474,9 +462,9 @@ std::optional<Expression> Parser::tryBuildBrackets() {
                 getNextToken();
                 return subExpr;
             }
-            throwSyntaxError("expression", "empty brackets", openingToken);
+            throw SyntaxError("expression", "empty brackets", openingToken.getPosition());
         }
-        throwSyntaxError("closing bracket", currentToken.getValue(), openingToken);
+        throw SyntaxError("closing bracket", currentToken.getValue(), openingToken.getPosition());
     }
     return std::nullopt;
 }
@@ -489,11 +477,11 @@ std::optional<Expression> Parser::tryBuildExpression() {
                 LogicalSubExpressionPtr logicSubExpr = std::make_unique<LogicalSubExpression>(std::move(logicalExpr));
                 if (auto ternary = tryBuildTernaryExpression(logicSubExpr); ternary)
                     return ternary;
-                throwSyntaxError("question mark", currentToken);
+                throw SyntaxError("question mark", currentToken);
             }
             if (auto ternary = tryBuildTernaryExpression(subExpr); ternary)
                 return ternary;
-            throwSyntaxError("question mark", currentToken);
+            throw SyntaxError("question mark", currentToken);
         }
         return expr;
     }
@@ -536,14 +524,14 @@ TernaryExpressionPtr Parser::tryBuildTernaryExpression(LogicalSubExpressionPtr &
     getNextToken();
     if (auto ifTrue = tryBuildExpression(); ifTrue) {
         if (currentToken.getType() != TokenType::COLON)
-            throwSyntaxError("colon", currentToken);
+            throw SyntaxError("colon", currentToken);
         getNextToken();
         if (auto ifFalse = tryBuildExpression(); ifFalse) {
             return std::make_unique<TernaryExpression>(getLogicalSubExpressionPosition(*condition), condition, *ifTrue, *ifFalse);
         }
-        throwSyntaxError("expression", currentToken);
+        throw SyntaxError("expression", currentToken);
     }
-    throwSyntaxError("expression", currentToken);
+    throw SyntaxError("expression", currentToken);
 }
 
 MultiplicationPtr Parser::tryBuildMultiplication(Expression& firstValue) {
@@ -555,7 +543,7 @@ MultiplicationPtr Parser::tryBuildMultiplication(Expression& firstValue) {
         return MultiplicationFactory::getMultiplication(getExpressionPosition(firstValue),
             firstValue, *secondValue, operatorToken.getType());
     }
-    throwSyntaxError("value after " + operatorToken.getValue(), currentToken.getValue(), currentToken);
+    throw SyntaxError("value after " + operatorToken.getValue(), currentToken);
 }
 
 AdditionPtr Parser::tryBuildAddition( Expression& firstValue) {
@@ -567,7 +555,7 @@ AdditionPtr Parser::tryBuildAddition( Expression& firstValue) {
          return AdditionFactory::getAddition(getExpressionPosition(firstValue),
             firstValue, *secondValue, operatorToken.getType());
     }
-    throwSyntaxError("value after " + operatorToken.getValue(), currentToken.getValue(), currentToken);
+    throw SyntaxError("value after " + operatorToken.getValue(), currentToken);
 }
 
 LogicalSubExpressionPtr Parser::tryBuildLogicalExpressionInBrackets() {
@@ -582,13 +570,13 @@ LogicalSubExpressionPtr Parser::tryBuildLogicalExpressionInBrackets() {
                         getNextToken();
                         return std::make_unique<LogicalSubExpression>(std::move(subExpr1));
                     }
-                    throwSyntaxError("closing bracket", currentToken);
+                    throw SyntaxError("closing bracket", currentToken);
                 }
                 if (currentToken.getType() == TokenType::CLOSING_BRACKET) {
                     getNextToken();
                     return subExpr;
                 }
-                throwSyntaxError("closing bracket", currentToken);
+                throw SyntaxError("closing bracket", currentToken);
             }        
             if (currentToken.getType() == TokenType::CLOSING_BRACKET) {
                 getNextToken();
@@ -600,13 +588,13 @@ LogicalSubExpressionPtr Parser::tryBuildLogicalExpressionInBrackets() {
                         }
                         return subExpr;
                     }
-                    throwSyntaxError("logical expression or comparison", "expression", openingToken);
+                    throw SyntaxError("logical expression or comparison", "expression", openingToken.getPosition());
                 }
-                throwSyntaxError("logical expression or comparison", "expression", openingToken);
+                throw SyntaxError("logical expression or comparison", "expression", openingToken.getPosition());
             }
-            throwSyntaxError("expression", "empty brackets", openingToken);
+            throw SyntaxError("expression", "empty brackets", openingToken.getPosition());
         }
-        throwSyntaxError("logical expression or comparison", "empty brackets", openingToken);
+        throw SyntaxError("logical expression or comparison", "empty brackets", openingToken.getPosition());
     }
     return nullptr;
 }
@@ -617,7 +605,7 @@ PropertyPtr Parser::tryBuildProperty(Identifier& ident) {
     if (auto expr = tryBuildExpression(); expr) {
         return std::make_unique<Property>(ident.getPosition(), ident, *expr);
     }
-    throwSyntaxError("expression", currentToken);
+    throw SyntaxError("expression", currentToken);
 }
 
 
@@ -631,7 +619,7 @@ BasicObjectPtr Parser::tryBuildBasicObject() {
         if (auto property = tryBuildProperty(*ident); property) {
             properties.push_back(std::move(property));
         }
-        else throwSyntaxError("expression", currentToken);
+        else throw SyntaxError("expression", currentToken);
     }
     consumeToken(TokenType::CLOSING_BRACE);
     return BasicObjectFactory::getBasicObject(startingToken.getPosition(), properties, startingToken);
@@ -648,7 +636,7 @@ ComplexObjectPtr Parser::tryBuildComplexObject() {
             properties.push_back(std::move(property));
         }
         else
-            throwSyntaxError("property declaration", currentToken);
+            throw SyntaxError("property declaration", currentToken);
     }
     consumeToken(TokenType::CLOSING_BRACE);
     return std::make_unique<ComplexObject>(startingToken.getValue(), startingToken.getPosition(), properties);
@@ -668,7 +656,7 @@ LogicalExpressionPtr Parser::tryBuildLogicalExpression(LogicalSubExpressionPtr &
             return getLogicalSubExpression(operatorToken, subExpr, firstValue);
         }
     }
-    throwSyntaxError("value", currentToken.getValue(), operatorToken);
+    throw SyntaxError("expression", currentToken);
 }
 LogicalExpressionPtr Parser::getLogicalSubExpression(const Token& operatorToken, LogicalSubExpressionPtr& comparison, LogicalSubExpressionPtr& firstValue){
     if (operatorToken.getType() == TokenType::OR) {//DisjunctionExpression
@@ -698,7 +686,7 @@ std::unique_ptr<Comparison> Parser::tryBuildComparison(Expression& firstValue) {
         return ComparisonFactory::getComparison(getExpressionPosition(firstValue), firstValue, 
             *secondValue, comparisonToken.getType());
     }
-    throwSyntaxError("value after " + comparisonToken.getValue(), nextToken.getValue(), nextToken);
+    throw SyntaxError("value after " + comparisonToken.getValue(), nextToken);
 }
 
 
@@ -719,7 +707,7 @@ ScenePtr Parser::tryBuildScene() {
             }
             else if (auto obj = tryBuildComplexObject(); obj) {
                 objects.push_back(std::make_unique<ObjectIdentifierPair>(*ident, obj));
-            } else throwSyntaxError("object declaration", currentToken);
+            } else throw SyntaxError("object declaration", currentToken);
         }
     }
     consumeToken(TokenType::CLOSING_BRACE);
@@ -735,14 +723,12 @@ bool Parser::tryBuildMainObject() {
     if (isNotCurrentToken(TokenType::TYPE_IDENTIFIER)) return false;
     consumeToken(TokenType::EQUAL_SIGN);
     if (auto anim = tryBuildAnimationDeclaration(ident); anim) {
-        if (isKnownAnimation(ident.getValue())) throw SyntaxError("Redefinition of " + ident.getValue() +
-            std::string(" ", 1) + ident.getPosition().toString() + scanner.getLineError(ident.getPosition()));
+        if (isKnownAnimation(ident.getValue())) throw Redefinition(ident.getValue(), ident.getPosition());
         knownAnimations.push_back(std::move(anim));
         return true;
     }
     if (auto obj = tryBuildNewComplexObject(ident); obj) {
-        if (isKnownType(ident.getValue())) throw SyntaxError("Redefinition of " + ident.getValue() +
-            std::string(" ", 1) + ident.getPosition().toString() + scanner.getLineError(ident.getPosition()));
+        if (isKnownType(ident.getValue())) throw Redefinition(ident.getValue(), ident.getPosition());
         knownTypes.push_back(std::move(obj));
         return true;
     }
@@ -752,8 +738,8 @@ bool Parser::tryBuildMainObject() {
 std::unique_ptr<SceneRoot> Parser::parse() {
     while (tryBuildMainObject());
     if(currentToken.getType() != TokenType::END_OF_FILE)
-        throwSyntaxError("animation, complex object, or scene declaration", currentToken);
+        throw SyntaxError("animation, complex object, or scene declaration", currentToken);
     if (!scene)
-        throw SyntaxError("Scene not defined");
+        throw NotDefined("Scene");
 	return std::make_unique<SceneRoot>(scene, knownTypes, knownAnimations);
 }

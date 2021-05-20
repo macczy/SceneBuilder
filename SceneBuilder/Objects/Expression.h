@@ -1,9 +1,9 @@
 #pragma once
 #include <variant>
 #include <any>
+#include "../Util/Token.h"
 #include "Color.h"
 #include "DecimalValue.h"
-#include "HexValue.h"
 #include "Point.h"
 #include "Identifier.h"
 #include "PointArray.h"
@@ -19,7 +19,7 @@ using MultiplicationPtr = std::unique_ptr<Multiplication>;
 class TernaryExpression;
 using TernaryExpressionPtr = std::unique_ptr<TernaryExpression>;
 
-using Expression = std::variant<DecimalValue, HexValue, Color, Point, Identifier, ConstantIdentifier, AnimationProperty, TimeDeclaration, PointArray, TernaryExpressionPtr, MultiplicationPtr, AdditionPtr>;
+using Expression = std::variant<DecimalValue, Color, Point, Identifier, ConstantIdentifier, AnimationProperty, TimeDeclaration, PointArray, TernaryExpressionPtr, MultiplicationPtr, AdditionPtr>;
 using ExpressionPtr = std::unique_ptr<Expression>;
 class Comparison;
 using ComparisonPtr = std::unique_ptr<Comparison>;

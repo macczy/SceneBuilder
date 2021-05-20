@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
 #include <vector>
-#include "../Scanner/Token.h"
 #include "Animation.h"
 
 class AnimationDeclaration {

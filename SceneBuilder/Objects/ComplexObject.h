@@ -18,6 +18,7 @@ public:
 	ComplexObject(const std::string& typeIdentifier, const Position& pos, Properties& properties)
 		: Object(pos, properties), typeIdentifier(typeIdentifier) {}
 	virtual ~ComplexObject() {}
+	virtual std::map<std::string, ReturnType> buildInProperties();
 	const std::string& getTypeIdentifier() { return typeIdentifier; }
 protected:
 	const std::string typeIdentifier;

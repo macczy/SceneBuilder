@@ -15,3 +15,4 @@ private:
 	std::vector<AnimationDeclarationPtr> knownAnimations;
 };
 
+using SceneRootPtr = std::unique_ptr<SceneRoot>;
