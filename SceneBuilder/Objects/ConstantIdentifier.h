@@ -25,6 +25,7 @@ public:
 		return next.get();
 	}
 private:
+	std::vector<std::string> knownConstants;
 	std::string value;
 	Position position;
 	ConstantIdentifierPtr next;
