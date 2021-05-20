@@ -223,6 +223,7 @@
     <ClCompile Include="Parser\Scene.cpp" />
     <ClCompile Include="Parser\SceneRoot.cpp" />
     <ClCompile Include="Scanner\Scanner.cpp" />
+    <ClCompile Include="Util\ReturnType.cpp" />
     <ClCompile Include="Util\Token.cpp" />
     <ClCompile Include="SceneBuilder.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug UnitTests|Win32'">true</ExcludedFromBuild>
@@ -239,7 +240,7 @@
     <ClInclude Include="Exceptions\Redefinition.h" />
     <ClInclude Include="Exceptions\SceneBuilderException.h" />
     <ClInclude Include="Exceptions\TokenTooLong.h" />
-    <ClInclude Include="Exceptions\TypeMismatchException.h" />
+    <ClInclude Include="Exceptions\TypeMismatch.h" />
     <ClInclude Include="Objects\Addition.h" />
     <ClInclude Include="Objects\Animation.h" />
     <ClInclude Include="Objects\AnimationCall.h" />

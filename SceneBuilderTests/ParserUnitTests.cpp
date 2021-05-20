@@ -1,14 +1,4 @@
 #include "pch.h"
-#include <deque>
-#include <exception>
-#include "../SceneBuilder/Parser/Parser.cpp"
-#include "../SceneBuilder/Objects/Expression.cpp"
-#include "../SceneBuilder/Objects/Comparison.cpp"
-#include "../SceneBuilder/Objects/Addition.cpp"
-#include "../SceneBuilder/Objects/Multiplication.cpp"
-#include "../SceneBuilder/Objects/LogicalExpression.cpp"
-#include "../SceneBuilder/Objects/BasicObject.cpp"
-#include "../SceneBuilder/Objects/AnimationDeclaration.h"
 
 class ScannerMock : public Scanner {
 public:
@@ -64,6 +54,7 @@ TEST(ParserUnitTests, CreateColor) {
 			Token(TokenType::CLOSING_BRACE, ")")
 			});
 		Parser parser(scanner);
+
 		EXPECT_THROW({
 			if (auto color = parser.tryBuildColor(); color) {
 				FAIL() << "Color building should fail";

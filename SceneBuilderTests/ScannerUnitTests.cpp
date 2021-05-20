@@ -1,7 +1,4 @@
 #include "pch.h"
-#include <sstream>
-#include "../SceneBuilder/Exceptions/TokenTooLong.h"
-#include "../SceneBuilder/Scanner/Scanner.cpp"
 
 TEST(ScannerUnitTest, EmptySourceTest) {
 	std::stringstream stream("");
