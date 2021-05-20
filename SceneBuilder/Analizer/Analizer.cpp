@@ -81,6 +81,5 @@ struct Analizer::ExpressionEvaluationVisitor {
 };
 
 ReturnType Analizer::evaluateExpression(Object& context, Expression& expression) {
-	auto s = true ? 0 : "fwe";
 	return std::visit(ExpressionEvaluationVisitor(), expression);
 } 
