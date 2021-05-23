@@ -3,11 +3,12 @@
 #include <memory>
 #include "Object.hpp"
 
-class Complex : public Object {
+class ComplexObject : public Object {
 public:
-	void addChild(std::unique_ptr<Object>& child) {
-		children.push_back(std::move(child));
+	ComplexObject(std::vector<ObjectPtr>& children) : children(std::move(children)) {
+		
 	}
+
 	void draw(int shaderId) override {
 		for (auto& o : children) {
 			o->draw(shaderId);

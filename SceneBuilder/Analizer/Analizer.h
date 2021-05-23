@@ -31,4 +31,5 @@ private:
 		ReturnType operator()(const AdditionPtr & value);
 	};
 	SceneRootPtr root;
+	std::map<std::string, ReturnType> buildInPropertiesTypes;
 };

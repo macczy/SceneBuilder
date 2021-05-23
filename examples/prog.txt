@@ -8,7 +8,7 @@ House = {
 		]
 	}
 	doorHandle = Line {
-		points: [Point(0.1, 0.2, 0.3), Point(0.5, 0.4, 0.5)]
+		vertexes: [Point(0.1, 0.2, 0.3), Point(0.5, 0.4, 0.5)]
 		color: Color(#CC, #CC, #CC)
 	}
 	

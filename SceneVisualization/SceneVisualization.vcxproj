@@ -159,12 +159,11 @@
     <ClCompile Include="shader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\color.frag" />
-    <None Include="shaders\color.vert" />
+    <None Include="shaders\shader.frag" />
+    <None Include="shaders\shader.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader.h" />
-    <ClInclude Include="BasicObjectFactory.h" />
     <ClInclude Include="BasicObject.hpp" />
     <ClInclude Include="ComplexObject.hpp" />
     <ClInclude Include="Object.hpp" />
