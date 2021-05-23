@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneBuilder", "SceneBuilde
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneBuilderTests", "SceneBuilderTests\SceneBuilderTests.vcxproj", "{CEF60FBE-101F-4374-80D1-219388727F85}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneVisualization", "SceneVisualization\SceneVisualization.vcxproj", "{750EC526-52DA-4897-B0F0-3F7497B0721B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{CEF60FBE-101F-4374-80D1-219388727F85}.Release|x64.Build.0 = Release|x64
 		{CEF60FBE-101F-4374-80D1-219388727F85}.Release|x86.ActiveCfg = Release|Win32
 		{CEF60FBE-101F-4374-80D1-219388727F85}.Release|x86.Build.0 = Release|Win32
+		{750EC526-52DA-4897-B0F0-3F7497B0721B}.Debug|x64.ActiveCfg = Debug|x64
+		{750EC526-52DA-4897-B0F0-3F7497B0721B}.Debug|x64.Build.0 = Debug|x64
+		{750EC526-52DA-4897-B0F0-3F7497B0721B}.Debug|x86.ActiveCfg = Debug|Win32
+		{750EC526-52DA-4897-B0F0-3F7497B0721B}.Debug|x86.Build.0 = Debug|Win32
+		{750EC526-52DA-4897-B0F0-3F7497B0721B}.Release|x64.ActiveCfg = Release|x64
+		{750EC526-52DA-4897-B0F0-3F7497B0721B}.Release|x64.Build.0 = Release|x64
+		{750EC526-52DA-4897-B0F0-3F7497B0721B}.Release|x86.ActiveCfg = Release|Win32
+		{750EC526-52DA-4897-B0F0-3F7497B0721B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
