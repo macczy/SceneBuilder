@@ -212,6 +212,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Analizer\Analizer.cpp" />
+    <ClCompile Include="Generator\Generator.cpp" />
     <ClCompile Include="Objects\Addition.cpp" />
     <ClCompile Include="Objects\BasicObject.cpp" />
     <ClCompile Include="Objects\Comparison.cpp" />
@@ -241,6 +242,7 @@
     <ClInclude Include="Exceptions\SceneBuilderException.h" />
     <ClInclude Include="Exceptions\TokenTooLong.h" />
     <ClInclude Include="Exceptions\TypeMismatch.h" />
+    <ClInclude Include="Generator\Generator.h" />
     <ClInclude Include="Objects\Addition.h" />
     <ClInclude Include="Objects\Animation.h" />
     <ClInclude Include="Objects\AnimationCall.h" />

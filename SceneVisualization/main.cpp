@@ -1,7 +1,7 @@
 #include "CommonHeader.h"
 #include "shader.h"
-#include "ComplexObject.hpp"
-#include "BasicObject.hpp"
+#include "ComplexObject.h"
+#include "BasicObject.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -13,8 +13,8 @@
 void processInput(GLFWwindow* window);
 
 // settings
-constexpr unsigned int SCR_WIDTH = 800;
-constexpr unsigned int SCR_HEIGHT = 800;
+constexpr GLfloat SCR_WIDTH = 800.0f;
+constexpr GLfloat SCR_HEIGHT = 500.0f;
 
 using namespace std;
 int main()
@@ -28,7 +28,7 @@ int main()
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Scene", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow((GLuint)SCR_WIDTH, (GLuint)SCR_HEIGHT, "Scene", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -41,7 +41,7 @@ int main()
     if (glewInit() != GLEW_OK) {
         throw runtime_error("GLEW Initialization failed");
     }
-    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+    glViewport(0, 0, (GLuint)SCR_WIDTH, (GLuint)SCR_HEIGHT);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -50,7 +50,7 @@ int main()
     std::vector<ObjectPtr> objects;
 
     {//init objects
-        objects.push_back(std::make_unique<Circle>(glm::vec3{ 1.0f, 1.0f, 0.0 }, glm::vec3{ .0f, .0f, 0.5f }, .5f));
+        objects.push_back(std::make_unique<Circle>(glm::vec3{ 1.0f, 1.0f, 0.0 }, glm::vec3{ .0f, .0f, 0.0f }, 50.5f));
         objects.push_back(std::make_unique<Rectangle>(glm::vec3{ 1.0f, 0.0f, 0.0 }, glm::vec3{ .0f, 1.0f, 0.5f }, .5f, 0.5f));
 
         std::vector<glm::vec3> points{ glm::vec3{ .0f, .0f, 0.4f }, glm::vec3{ -0.5f, 1.0f, 1.0f } };
@@ -64,10 +64,26 @@ int main()
         objects.push_back(std::make_unique<Polygon>(points2, glm::vec3{ 0.5f, 0.5f, 0.5f }));
     }
 
+
+    shader.use();
+    {
+        glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+        glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+        glm::vec3 direction = glm::normalize(cameraPos - cameraTarget);
+        glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+        glm::vec3 cameraRight = glm::normalize(glm::cross(up, direction));
+        glm::vec3 cameraUp = glm::cross(direction, cameraRight);
+        glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
+            glm::vec3(0.0f, 0.0f, 0.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 projection = glm::ortho(-SCR_WIDTH/2, SCR_WIDTH/2, -SCR_HEIGHT/2, SCR_HEIGHT/2, 0.0f, 500.0f);
+        shader.setMat4("view", view);
+        shader.setMat4("projection", projection);
+    }
+
     double deltaTime = 0.0f;	// Time between current frame and last frame
     double lastFrame = 0.0f; // Time of last frame
 
-    shader.use();
     while (!glfwWindowShouldClose(window))
     {
         double currentFrame = glfwGetTime();

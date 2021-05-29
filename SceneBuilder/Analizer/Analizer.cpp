@@ -1,7 +1,7 @@
 #include "Analizer.h"
 #include "../Exceptions/TypeMismatch.h"
 
-Analizer::Analizer(SceneRootPtr& root) : root(std::move(root)) {
+Analizer::Analizer(SceneRoot* root) : root(root) {
 	buildInPropertiesTypes = {
 		{ "width", ReturnType::DECIMAL_VALUE },
 		{ "height", ReturnType::DECIMAL_VALUE },
@@ -15,6 +15,12 @@ Analizer::Analizer(SceneRootPtr& root) : root(std::move(root)) {
 		{ "vertex", ReturnType::POINT },
 
 	};
+}
+
+//TODO
+bool Analizer::isValid()
+{
+	return true;
 }
 
 Analizer::LogicalExpressionEvaluationVisitor::LogicalExpressionEvaluationVisitor(Object& context) : context(context) {}

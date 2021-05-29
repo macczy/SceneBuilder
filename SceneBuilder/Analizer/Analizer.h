@@ -5,7 +5,10 @@
 class Analizer
 {
 public:
-	Analizer(SceneRootPtr& root);
+	Analizer(SceneRoot* root);
+
+	bool isValid();
+
 	ReturnType evaluateExpression(Object& context, Expression& expression);
 
 private:
@@ -30,6 +33,6 @@ private:
 		ReturnType operator()(const MultiplicationPtr & value);
 		ReturnType operator()(const AdditionPtr & value);
 	};
-	SceneRootPtr root;
+	SceneRoot* root;
 	std::map<std::string, ReturnType> buildInPropertiesTypes;
 };

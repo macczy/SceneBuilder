@@ -1,13 +1,15 @@
 #pragma once
 #include <vector>
 #include <memory>
-#include "Object.hpp"
+#include "Object.h"
 
 class ComplexObject : public Object {
 public:
 	ComplexObject(std::vector<ObjectPtr>& children) : children(std::move(children)) {
 		
 	}
+
+	ComplexObject() {}
 
 	void draw(int shaderId) override {
 		for (auto& o : children) {

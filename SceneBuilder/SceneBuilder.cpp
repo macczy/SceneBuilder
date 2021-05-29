@@ -5,6 +5,7 @@
 #include "Exceptions/SyntaxError.h"
 #include "Parser/Parser.h"
 #include "Analizer/Analizer.h"
+#include "Generator/Generator.h"
 
 
 int main(int argc, char* argv[]) {
@@ -28,7 +29,15 @@ int main(int argc, char* argv[]) {
                     std::cout << "Empty source file." << std::endl;
                     return 0;
                 }
-                Analizer analizer(result);
+                Analizer analizer(result.get());
+                if (analizer.isValid())
+                {
+                    Generator generator(std::move(result));
+                    if (generator.generate("App.exe")) 
+                    { //run program if files sucessfuly generated
+                        generator.run();
+                    }
+                }
                 infile.close();
             }
             catch (const SceneBuilderException& er) {

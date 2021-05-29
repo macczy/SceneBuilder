@@ -1,7 +1,7 @@
 #pragma once
 #include <GLFW/glfw3.h>
 #include <string>
-#include "Object.hpp"
+#include "Object.h"
 #include <SOIL.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -235,4 +235,5 @@ public:
 		indices = autoCalculateIndices(vertices);
 		init();
 	}
+	const vector<GLfloat>& getVertices() { return vertices; }
 };

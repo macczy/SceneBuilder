@@ -1,4 +1,14 @@
+Door = {
+
+
+}
+
 House = {
+
+	door = Door {
+	
+	}
+	
 	roof = Polygon {
 		color: Color(#CC, #CC, #CC)
 		vertexes: [  
@@ -12,7 +22,7 @@ House = {
 		color: Color(#CC, #CC, #CC)
 	}
 	
-	koko = Circle {
+	myCircle = Circle {
 		radius: 10
 		vertex: Point(0.1, 0.2, 0.3)
 		color: Color(#DD, #DD, #DD)

@@ -164,11 +164,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader.h" />
-    <ClInclude Include="BasicObject.hpp" />
-    <ClInclude Include="ComplexObject.hpp" />
-    <ClInclude Include="Object.hpp" />
+    <ClInclude Include="BasicObject.h" />
+    <ClInclude Include="ComplexObject.h" />
+    <ClInclude Include="Object.h" />
     <ClInclude Include="CommonHeader.h" />
-    <ClInclude Include="shape.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
