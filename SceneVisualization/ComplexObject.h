@@ -11,6 +11,12 @@ public:
 
 	ComplexObject() {}
 
+	virtual void init() override {
+		for (auto& o : children) {
+			o->init();
+		}
+	}
+
 	void draw(int shaderId) override {
 		for (auto& o : children) {
 			o->draw(shaderId);

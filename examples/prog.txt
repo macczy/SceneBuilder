@@ -26,7 +26,7 @@ House = {
 	myCircle = Circle {
 		radius: 100
 		vertex: Point(20.5, 21.5, 0.3)
-		color: Color(#DD, #DD, #DD)
+		color: Color(#0, #FF, #FF)
 	}
 			
 	mainBuilding = Rectangle {
@@ -82,16 +82,16 @@ CustomAnimation = AnimationSequence(first, second) {
 		}
 
 Scene {
-	width: 200
-	height: 200
+	width: 1000
+	height: 800
 	
 	rec = Rectangle {
-		x: 0.1
-		y: 0.2
-		z: 0.5
-		width: width/10
-		height: 10
-		color: Color(#CC, #CC, #CC)
+		x: -200
+		y: -200
+		z: 0
+		width: 200
+		height: 200
+		color: Color(#FF, #0, #0)
 	}
 	
 	my_house = House {

@@ -31,11 +31,8 @@ public:
 		this->color = color;
 	}
 
-	BasicObject() : model(glm::mat4(1.0f)), scaling(glm::mat4(1.0f)), color(glm::vec3())
+	BasicObject() : model(glm::mat4(1.0f)), scaling(glm::mat4(1.0f)), VAO(0), VBO(0), EBO(0), color(glm::vec3())
 	{
-		glGenVertexArrays(1, &VAO);
-		glGenBuffers(1, &VBO);
-		glGenBuffers(1, &EBO);
 		bVerticesChanged = false;
 	}
 
@@ -60,7 +57,6 @@ public:
 		glUniform3fv(glGetUniformLocation(shaderId, "color"), 1, &color[0]);
 
 		if (bVerticesChanged) {
-			bVerticesChanged = false;
 			reinitVertices();
 		}
 
@@ -103,8 +99,12 @@ public:
 		model = glm::rotate(glm::mat4(1.0f), glm::radians(vector.z), glm::vec3(0.0f, 0.0f, 1.0f)) * model;
 	}
 
-protected:
-	void init() {
+	virtual void init() {
+		bVerticesChanged = false;
+		glGenVertexArrays(1, &VAO);
+		glGenBuffers(1, &VBO);
+		glGenBuffers(1, &EBO);
+
 		glBindVertexArray(VAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -122,6 +122,7 @@ protected:
 		glBindVertexArray(0);
 	}
 
+protected:
 	static std::vector<GLuint> autoCalculateIndices(const std::vector<GLfloat>& vertices) {
 		std::vector<GLuint> indices;
 		GLuint next_start = 0;
@@ -143,8 +144,12 @@ protected:
 		return indices;
 	}
 	void reinitVertices() {
+		bVerticesChanged = false;
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(vertices[0]), &vertices[0]);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices[0]), &indices[0], GL_STATIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 };
@@ -155,7 +160,6 @@ public:
 		recalculateVertices();
 		move(leftTopCorner);
 		indices = { 0,1,2, 0,2,3 };
-		init();
 	}
 	GLfloat getwidth() { return width; }
 	void setwidth(GLfloat newWidth) { width = newWidth; recalculateVertices(); }
@@ -178,6 +182,7 @@ class Line : public BasicObject {
 public:
 	Line(const std::vector<glm::vec3>& points = {}, glm::vec3 color = { 0,0,0 }, GLfloat width = 0) : BasicObject(color) {
 		DRAW_MODE = GL_LINES;
+		if (points.size() < 1) return;
 		for (auto& point : points) {
 			vertices.push_back(point[0]);
 			vertices.push_back(point[1]);
@@ -188,7 +193,6 @@ public:
 			indices.push_back(i);
 			indices.push_back(i + 1);
 		}
-		init();
 	}
 
 	vector<glm::vec3> getvertexes() {
@@ -227,7 +231,6 @@ public:
 
 		if (bVerticesChanged) {
 			reinitVertices();
-			bVerticesChanged = false;
 		}
 
 		glBindVertexArray(VAO);
@@ -243,7 +246,6 @@ public:
 		recalculateVertices();
 		move(leftTopCorner);
 		indices = autoCalculateIndices(vertices);
-		init();
 	}
 	GLfloat getradius() { return radius; }
 	void setradius(GLfloat newRadius) { radius = newRadius; recalculateVertices(); }
@@ -267,30 +269,22 @@ class Polygon : public BasicObject {
 public:
 	virtual ~Polygon() {}
 	Polygon() : BasicObject() {}
-	//Polygon(const std::vector<glm::vec3>& points, glm::vec3 color = { 0,0,0 }) : BasicObject(color) {
-	//	assert(points.size() >= 3);
-	//	for (const auto& point : points) {
-	//		vertices.push_back(point[0]);
-	//		vertices.push_back(point[1]);
-	//		vertices.push_back(point[2]);
-	//	}
-	//	indices = autoCalculateIndices(vertices);
-	//	init();
-	//}
-	vector<glm::vec3> getvertexes() {
-		std::vector<glm::vec3> vertexes;
-		for (int i = 2; i < points.size();i+=3) {
-			vertexes.push_back({
-				points[i-2], 
-				points[i-1], 
-				points[i], 
-			});
+	Polygon(const std::vector<glm::vec3>& points, glm::vec3 color = { 0,0,0 }) : BasicObject(color) {
+		if (points.size() < 3) return;
+		for (const auto& point : points) {
+			vertices.push_back(point[0]);
+			vertices.push_back(point[1]);
+			vertices.push_back(point[2]);
 		}
-		return vertexes;
+		indices = autoCalculateIndices(vertices);
+	}
+	vector<glm::vec3> getvertexes() {
+		return points;
 	}
 
 	void setvertexes(const std::vector<glm::vec3>& points)
 	{
+		if (points.size() < 3) return;
 		for (const auto& point : points) {
 			vertices.push_back(point[0]);
 			vertices.push_back(point[1]);

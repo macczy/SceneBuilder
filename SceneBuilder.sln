@@ -7,7 +7,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneBuilder", "SceneBuilde
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneBuilderTests", "SceneBuilderTests\SceneBuilderTests.vcxproj", "{CEF60FBE-101F-4374-80D1-219388727F85}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneVisualization", "SceneVisualization\SceneVisualization.vcxproj", "{750EC526-52DA-4897-B0F0-3F7497B0721B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SceneVisualization", "SceneVisualization", "{B8EE7F9C-9C44-4B9C-AB44-5470977DBD19}"
+	ProjectSection(SolutionItems) = preProject
+		SceneVisualization\BasicObject.h = SceneVisualization\BasicObject.h
+		SceneVisualization\CommonHeader.h = SceneVisualization\CommonHeader.h
+		SceneVisualization\ComplexObject.h = SceneVisualization\ComplexObject.h
+		SceneVisualization\main.cpp = SceneVisualization\main.cpp
+		SceneVisualization\Object.h = SceneVisualization\Object.h
+		SceneVisualization\Scene.h = SceneVisualization\Scene.h
+		SceneVisualization\shader.cpp = SceneVisualization\shader.cpp
+		SceneVisualization\shader.h = SceneVisualization\shader.h
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,14 +43,6 @@ Global
 		{CEF60FBE-101F-4374-80D1-219388727F85}.Release|x64.Build.0 = Release|x64
 		{CEF60FBE-101F-4374-80D1-219388727F85}.Release|x86.ActiveCfg = Release|Win32
 		{CEF60FBE-101F-4374-80D1-219388727F85}.Release|x86.Build.0 = Release|Win32
-		{750EC526-52DA-4897-B0F0-3F7497B0721B}.Debug|x64.ActiveCfg = Debug|x64
-		{750EC526-52DA-4897-B0F0-3F7497B0721B}.Debug|x64.Build.0 = Debug|x64
-		{750EC526-52DA-4897-B0F0-3F7497B0721B}.Debug|x86.ActiveCfg = Debug|Win32
-		{750EC526-52DA-4897-B0F0-3F7497B0721B}.Debug|x86.Build.0 = Debug|Win32
-		{750EC526-52DA-4897-B0F0-3F7497B0721B}.Release|x64.ActiveCfg = Release|x64
-		{750EC526-52DA-4897-B0F0-3F7497B0721B}.Release|x64.Build.0 = Release|x64
-		{750EC526-52DA-4897-B0F0-3F7497B0721B}.Release|x86.ActiveCfg = Release|Win32
-		{750EC526-52DA-4897-B0F0-3F7497B0721B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

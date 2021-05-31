@@ -246,7 +246,7 @@ std::string Generator::generateSceneClass(Scene* scene)
 	returnStream << "public: \n";
 
 	//constructor
-	returnStream << "\t Scene() {\n";
+	returnStream << "\t MyScene() : Scene() {\n";
 	for (auto& prop : scene->getProperties())
 	{
 		if (prop->getName() == "animations") continue;
