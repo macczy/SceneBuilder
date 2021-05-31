@@ -1,41 +1,69 @@
 Door = {
-
-
+	door = Rectangle {
+		width: 100
+		height: 200
+		color: Color(#FF, #0, #0)
+	}
+	
+	doorHandle = Line {
+		z: 0.3
+		vertexes: [Point(50, -50), Point(60, -50), Point(60, -55)]
+		color: Color(#FF, #FF, #FF)
+	}
 }
 
 House = {
-
+	mainBuilding = Rectangle {
+		width: 400
+		height: mainBuilding.width*1.2
+		color: Color(#0, #0, #FF)
+	}
 	
 	door = Door {
-	
+		x: 100
+		y: mainBuilding.y - mainBuilding.height - door.door.height
+		z: 0.2
 	}
 	
 	roof = Polygon {
-		color: Color(#CC, #CC, #CC)
+		y: mainBuilding.y
+		z: 0.2
+		color: Color(#FF, #0, #0)
 		vertexes: [  
-			Point(0.1, 0.2, 0.3),
-			Point(0.2, 0.3),
-			Point(0.4)
+			Point(0, 0),
+			Point(400, 0),
+			Point(200, 50)
 		]
 	}
-	doorHandle = Line {
-		vertexes: [Point(0.1, 0.2, 0.3), Point(0.5, 0.4, 0.5)]
-		color: Color(#CC, #CC, #CC)
+			
+
+	animations: [ CustomAnimation(mainBuilding), AnotherAnimation(rec) ]
+}
+
+Scene {
+	width: 1000
+	height: 800
+	
+	sun = Circle {
+		radius: 50
+		x: width-sun.radius
+		y: height-sun.radius
+		color: Color(#FF, #FF, #0)
 	}
 	
-	myCircle = Circle {
-		radius: 100
-		vertex: Point(20.5, 21.5, 0.3)
-		color: Color(#0, #FF, #FF)
+	my_house = House {
+		x: my_house.mainBuilding.width/2
+		y: my_house.mainBuilding.height + 100
 	}
-			
-	mainBuilding = Rectangle {
-		vertex: Point(0.1, 0.2, 0.3)
-		width: 10
-		height: myCircle.radius*2+mainBuilding.width > 18 || roof.vertexes = doorHandle.vertexes ? 100 : 200
-		color: Color(#CC, #C34324C12, #CC)
+	
+	grass = Rectangle {
+		y: 200
+		height: height
+		width: width
+		color: Color(#0, #FF, #0)
 	}
-	animations: [ CustomAnimation(mainBuilding), AnotherAnimation(rec) ]
+	
+	animations: [ CustomAnimation(my_house.doorHandle, my_house.roof, [my_house.doorHandle, my_house.roof]), AnotherAnimation(rec) ]
 }
 
 CustomAnimation = AnimationSequence(first, second) {
@@ -80,23 +108,3 @@ CustomAnimation = AnimationSequence(first, second) {
 				
 			}
 		}
-
-Scene {
-	width: 1000
-	height: 800
-	
-	rec = Rectangle {
-		x: -200
-		y: -200
-		z: 0
-		width: 200
-		height: 200
-		color: Color(#FF, #0, #0)
-	}
-	
-	my_house = House {
-		
-	}
-	
-	animations: [ CustomAnimation(my_house.doorHandle, my_house.roof, [my_house.doorHandle, my_house.roof]), AnotherAnimation(rec) ]
-}

@@ -43,7 +43,8 @@ public:
                 glm::vec3(0.0f, 0.0f, 3.0f), //eye
                 glm::vec3(0.0f, 0.0f, 0.0f), //center
                 glm::vec3(0.0f, 1.0f, 0.0f)); //up
-            glm::mat4 projection = glm::ortho(-width / 2, width / 2, -height / 2, height / 2, 0.0f, 500.0f);
+            //glm::mat4 projection = glm::ortho(-width / 2, width / 2, -height / 2, height / 2, 0.0f, 500.0f);
+            glm::mat4 projection = glm::ortho(0.0f, width, 0.0f, height, 0.0f, 500.0f);
             shader.setMat4("view", view);
             shader.setMat4("projection", projection);
         }
