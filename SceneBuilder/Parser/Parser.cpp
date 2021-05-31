@@ -371,9 +371,11 @@ std::optional<PointArray> Parser::tryBuildPointArray(const Position& pos) { //op
     std::vector<Point> points;
     auto firstPoint = tryBuildPoint();
     if (!firstPoint) return std::nullopt;
+    points.push_back(*firstPoint);
     while (!isNotCurrentToken(TokenType::COMMA)) {
         auto point = tryBuildPoint();
         if(!point) throw SyntaxError("vertex declaration", currentToken);
+        points.push_back(*point);
     }
     consumeToken(TokenType::CLOSING_SQUARE_BRACE);
     return PointArray(pos, points);

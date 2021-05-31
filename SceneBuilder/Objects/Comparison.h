@@ -15,6 +15,7 @@ public:
 	Expression& getSecondExpression() { return expr2; }
 	const Position& getPosition() const { return position; }
 	virtual ~Comparison() {}
+	virtual std::string getOperator() const = 0;
 private:
 	Expression expr1;
 	Expression expr2;
@@ -26,6 +27,7 @@ public:
 	LessThan(const Position& position, Expression& expr1, Expression& expr2) :
 		Comparison(position, expr1, expr2) {};
 	virtual ~LessThan() {}
+	virtual std::string getOperator() const { return " < "; }
 };
 
 class LessOrEqual : public Comparison {
@@ -33,6 +35,7 @@ public:
 	LessOrEqual(const Position& position, Expression& expr1, Expression& expr2) :
 		Comparison(position, expr1, expr2) {};
 	virtual ~LessOrEqual() {}
+	virtual std::string getOperator() const { return " <= "; }
 };
 
 class GreaterThan : public Comparison {
@@ -40,6 +43,7 @@ public:
 	GreaterThan(const Position& position, Expression& expr1, Expression& expr2) :
 		Comparison(position, expr1, expr2) {};
 	virtual ~GreaterThan() {}
+	virtual std::string getOperator() const { return " > "; }
 };
 
 class GreaterOrEqual : public Comparison {
@@ -47,6 +51,7 @@ public:
 	GreaterOrEqual(const Position& position, Expression& expr1, Expression& expr2) :
 		Comparison(position, expr1, expr2) {};
 	virtual ~GreaterOrEqual() {}
+	virtual std::string getOperator() const { return " >= "; }
 };
 
 class Equal : public Comparison {
@@ -54,6 +59,7 @@ public:
 	Equal(const Position& position, Expression& expr1, Expression& expr2) :
 		Comparison(position, expr1, expr2) {};
 	virtual ~Equal() {}
+	virtual std::string getOperator() const { return " == "; }
 };
 
 class NotEqual : public Comparison {
@@ -61,6 +67,7 @@ public:
 	NotEqual(const Position& position, Expression& expr1, Expression& expr2) :
 		Comparison(position, expr1, expr2) {};
 	virtual ~NotEqual() {}
+	virtual std::string getOperator() const { return " != "; }
 };
 
 class ComparisonFactory {

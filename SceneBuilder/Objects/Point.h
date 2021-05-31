@@ -13,7 +13,7 @@ public:
 	Point(const Position& position, const DecimalValue& x) : Point(position, x, DecimalValue(x.getPosition(), "0")) {};
 	Point(const Position& position) : Point(position, DecimalValue(position, "0"))  {};
 
-	const triplePointValues& getValues() { return values; }
+	const triplePointValues& getValues() const { return values; }
 	const Position& getPosition() const { return position; }
 private:
 	triplePointValues values;

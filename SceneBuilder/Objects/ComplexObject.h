@@ -19,7 +19,8 @@ public:
 		: Object(pos, properties), typeIdentifier(typeIdentifier) {}
 	virtual ~ComplexObject() {}
 	virtual std::map<std::string, ReturnType> buildInProperties();
-	const std::string& getTypeIdentifier() { return typeIdentifier; }
+	const std::string& getTypeIdentifier() const { return typeIdentifier; }
+	virtual std::string getObjectTypeName() const { return getTypeIdentifier(); };
 protected:
 	const std::string typeIdentifier;
 	//Animations animations;

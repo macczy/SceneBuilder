@@ -15,6 +15,7 @@ public:
 	virtual ~Addition() {};
 	ReturnType getReturnType(ReturnType first, ReturnType second);
 	virtual std::map<std::pair<ReturnType, ReturnType>, ReturnType>& getAdditionResult() = 0;
+	virtual std::string getOperator() const = 0;
 private:
 	Expression expr1;
 	Expression expr2;
@@ -28,6 +29,8 @@ public:
 
 	virtual std::map<std::pair<ReturnType, ReturnType>, ReturnType>& getAdditionResult();
 	virtual ~Sum() {};
+
+	virtual std::string getOperator() const { return "+"; }
 private:
 	static std::map<std::pair<ReturnType, ReturnType>, ReturnType> sumResult;
 };
@@ -38,6 +41,7 @@ public:
 		Addition(position, expr1, expr2) {};
 	virtual std::map<std::pair<ReturnType, ReturnType>, ReturnType>& getAdditionResult();
 	virtual ~Substraction() {};
+	virtual std::string getOperator() const { return "-"; }
 private:
 	static std::map<std::pair<ReturnType, ReturnType>, ReturnType> substractionResult;
 };

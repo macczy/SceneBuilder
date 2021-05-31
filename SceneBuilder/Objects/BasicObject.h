@@ -17,6 +17,7 @@ public:
 	Object(const Position& pos, Properties& properties) : pos(pos), properties(std::move(properties)) {};
 	Position& getPosition() { return pos; }
 	Properties& getProperties() { return properties; }
+	virtual std::string getObjectTypeName() const = 0;
 	virtual ~Object() {}
 	virtual std::map<std::string, ReturnType> buildInProperties() = 0;
 protected:
@@ -35,6 +36,8 @@ public:
 	Circle(const Position& pos, Properties& properties) : BasicObject(pos, properties) {};
 	virtual std::map<std::string, ReturnType> buildInProperties();
 	virtual ~Circle() {}
+
+	virtual std::string getObjectTypeName() const { return "Circle"; };
 };
 
 class Polygon : public BasicObject {
@@ -42,6 +45,7 @@ public:
 	Polygon(const Position& pos, Properties& properties) : BasicObject(pos, properties) {};
 	virtual std::map<std::string, ReturnType> buildInProperties();
 	virtual ~Polygon() {}
+	virtual std::string getObjectTypeName() const { return "Polygon"; };
 };
 
 class Rectangle : public BasicObject {
@@ -49,6 +53,7 @@ public:
 	Rectangle(const Position& pos, Properties& properties) : BasicObject(pos, properties) {};
 	virtual std::map<std::string, ReturnType> buildInProperties();
 	virtual ~Rectangle() {}
+	virtual std::string getObjectTypeName() const { return "Rectangle"; };
 };
 
 class Line : public BasicObject {
@@ -56,6 +61,7 @@ public:
 	Line(const Position& pos, Properties& properties) : BasicObject(pos, properties) {};
 	virtual std::map<std::string, ReturnType> buildInProperties();
 	virtual ~Line() {}
+	virtual std::string getObjectTypeName() const { return "Line"; };
 };
 
 class BasicObjectFactory {

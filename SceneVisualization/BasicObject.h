@@ -22,15 +22,27 @@ protected:
 	vector<GLfloat> vertices;
 	vector<GLuint> indices;
 public:
-	glm::vec3 getColor() {
+	glm::vec3 getcolor() {
 		return color;
 	}
 
-	BasicObject(const glm::vec3& color) :
-		model(glm::mat4(1.0f)),
-		scaling(glm::mat4(1.0f)), 
-		color(color) {
-			bVerticesChanged = false;
+	void setcolor(glm::vec3 color)
+	{
+		this->color = color;
+	}
+
+	BasicObject() : model(glm::mat4(1.0f)), scaling(glm::mat4(1.0f)), color(glm::vec3())
+	{
+		glGenVertexArrays(1, &VAO);
+		glGenBuffers(1, &VBO);
+		glGenBuffers(1, &EBO);
+		bVerticesChanged = false;
+	}
+
+	BasicObject(const glm::vec3& color) : BasicObject()
+	{
+		this->color = color;
+		bVerticesChanged = false;
 	}
 
 	virtual ~BasicObject()
@@ -47,8 +59,10 @@ public:
 		glUniformMatrix4fv(glGetUniformLocation(shaderId, "model"), 1, GL_FALSE, &modelTemp[0][0]);
 		glUniform3fv(glGetUniformLocation(shaderId, "color"), 1, &color[0]);
 
-		if(bVerticesChanged)
+		if (bVerticesChanged) {
+			bVerticesChanged = false;
 			reinitVertices();
+		}
 
 		glBindVertexArray(VAO);
 
@@ -91,10 +105,6 @@ public:
 
 protected:
 	void init() {
-		glGenVertexArrays(1, &VAO);
-		glGenBuffers(1, &VBO);
-		glGenBuffers(1, &EBO);
-
 		glBindVertexArray(VAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -147,10 +157,10 @@ public:
 		indices = { 0,1,2, 0,2,3 };
 		init();
 	}
-	GLfloat getWidth() { return width; }
-	void setWidth(GLfloat newWidth) { width = newWidth; recalculateVertices(); }
-	GLfloat getHeight() { return height; }
-	void setHeight(GLfloat newHeight) { height = newHeight; recalculateVertices(); }
+	GLfloat getwidth() { return width; }
+	void setwidth(GLfloat newWidth) { width = newWidth; recalculateVertices(); }
+	GLfloat getheight() { return height; }
+	void setheight(GLfloat newHeight) { height = newHeight; recalculateVertices(); }
 private:
 	void recalculateVertices() {
 		vertices = {
@@ -166,8 +176,7 @@ private:
 
 class Line : public BasicObject {
 public:
-	Line(const std::vector<glm::vec3>& points, glm::vec3 color = { 0,0,0 }, GLfloat width = 0) : BasicObject(color) {
-		assert(points.size() > 1);
+	Line(const std::vector<glm::vec3>& points = {}, glm::vec3 color = { 0,0,0 }, GLfloat width = 0) : BasicObject(color) {
 		DRAW_MODE = GL_LINES;
 		for (auto& point : points) {
 			vertices.push_back(point[0]);
@@ -181,6 +190,34 @@ public:
 		}
 		init();
 	}
+
+	vector<glm::vec3> getvertexes() {
+		std::vector<glm::vec3> vertexes;
+		for (int i = 2; i < vertices.size(); i += 3) {
+			vertexes.push_back({
+				vertices[i - 2],
+				vertices[i - 1],
+				vertices[i]
+			});
+		}
+		return vertexes;
+	}
+
+	void setvertexes(const std::vector<glm::vec3>& points)
+	{
+		for (auto& point : points) {
+			vertices.push_back(point[0]);
+			vertices.push_back(point[1]);
+			vertices.push_back(point[2]);
+		}
+		indices.clear();
+		for (int i = 0; i < points.size() - 1; ++i) {
+			indices.push_back(i);
+			indices.push_back(i + 1);
+		}
+		bVerticesChanged = true;
+	}
+
 	virtual void draw(int shaderId) override
 	{
 		glm::mat4 modelTemp = model * scaling;
@@ -188,8 +225,10 @@ public:
 		glUniformMatrix4fv(glGetUniformLocation(shaderId, "model"), 1, GL_FALSE, &modelTemp[0][0]);
 		glUniform3fv(glGetUniformLocation(shaderId, "color"), 1, &color[0]);
 
-		if (bVerticesChanged)
+		if (bVerticesChanged) {
 			reinitVertices();
+			bVerticesChanged = false;
+		}
 
 		glBindVertexArray(VAO);
 
@@ -206,7 +245,8 @@ public:
 		indices = autoCalculateIndices(vertices);
 		init();
 	}
-	void setRadius(GLfloat newRadius) { radius = newRadius; recalculateVertices(); }
+	GLfloat getradius() { return radius; }
+	void setradius(GLfloat newRadius) { radius = newRadius; recalculateVertices(); }
 	void recalculateVertices() {
 		constexpr GLuint numberOfEdges = 40;
 		constexpr GLfloat factor = 2 * M_PI / numberOfEdges;
@@ -225,15 +265,46 @@ private:
 
 class Polygon : public BasicObject {
 public:
-	Polygon(const std::vector<glm::vec3>& points, glm::vec3 color = { 0,0,0 }) : BasicObject(color) {
-		assert(points.size() >= 3);
+	virtual ~Polygon() {}
+	Polygon() : BasicObject() {}
+	//Polygon(const std::vector<glm::vec3>& points, glm::vec3 color = { 0,0,0 }) : BasicObject(color) {
+	//	assert(points.size() >= 3);
+	//	for (const auto& point : points) {
+	//		vertices.push_back(point[0]);
+	//		vertices.push_back(point[1]);
+	//		vertices.push_back(point[2]);
+	//	}
+	//	indices = autoCalculateIndices(vertices);
+	//	init();
+	//}
+	vector<glm::vec3> getvertexes() {
+		std::vector<glm::vec3> vertexes;
+		for (int i = 2; i < points.size();i+=3) {
+			vertexes.push_back({
+				points[i-2], 
+				points[i-1], 
+				points[i], 
+			});
+		}
+		return vertexes;
+	}
+
+	void setvertexes(const std::vector<glm::vec3>& points)
+	{
 		for (const auto& point : points) {
 			vertices.push_back(point[0]);
 			vertices.push_back(point[1]);
 			vertices.push_back(point[2]);
 		}
 		indices = autoCalculateIndices(vertices);
-		init();
+		bVerticesChanged = true;
 	}
-	const vector<GLfloat>& getVertices() { return vertices; }
+
+	std::vector<glm::vec3> getpoints()
+	{
+		return points;
+	}
+
+private:
+	std::vector<glm::vec3> points;
 };

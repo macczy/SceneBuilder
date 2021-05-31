@@ -10,6 +10,8 @@
 #include <thread>
 #include <vector>
 
+#include "Scene.h"
+
 void processInput(GLFWwindow* window);
 
 // settings
