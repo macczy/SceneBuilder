@@ -10,6 +10,33 @@ Door = {
 		vertexes: [Point(50, -50), Point(60, -50), Point(60, -55)]
 		color: Color(#FF, #FF, #FF)
 	}
+	
+			
+
+	animations: [ MoveUpDown(doorHandle) ]
+}
+
+MoveUpDown = AnimationSequence(obj) {
+	loops: AnimationConstants.Infinite 
+
+	Animation {
+		object: obj
+		property: position
+		changeBy: Point(0, 20, 0)
+		duration: "5s"
+	}
+	
+	Wait {
+		duration: "5s"
+	}
+	
+	Animation {
+		object: obj
+		property: position
+		changeBy: Point(0, -20, 0)
+		duration: "5s"
+	}
+
 }
 
 House = {
@@ -35,9 +62,6 @@ House = {
 			Point(200, 50)
 		]
 	}
-			
-
-	animations: [ CustomAnimation(mainBuilding), AnotherAnimation(rec) ]
 }
 
 Scene {
@@ -62,49 +86,4 @@ Scene {
 		width: width
 		color: Color(#0, #FF, #0)
 	}
-	
-	animations: [ CustomAnimation(my_house.doorHandle, my_house.roof, [my_house.doorHandle, my_house.roof]), AnotherAnimation(rec) ]
 }
-
-CustomAnimation = AnimationSequence(first, second) {
-			loops: AnimationConstants.SingleLoop 
-			
-			Wait {
-				time: "10s"
-			}
-			ParalelAnimation {
-				Animation {
-					object: first
-					type: AnimationConstants.Rotation
-					axis: AnimationConstants.XAxis
-					duration: "5s"
-				}
-				Animation {
-				object: second
-					type: AnimationConstants.Movement
-					vector: Point(0., 0.2, 0.1)
-					duration: "5s"
-				}
-			}
-			ConditionalAnimation {
-				condition: 10 > 8 || 3 < avc
-				AnimationSequence {
-					Animation {
-				
-					}
-					Animation {
-						
-					}
-				}
-			}
-			ConditionalAnimation {
-				condition: first.color = second.color			
-				Animation {
-					
-				}
-			}
-
-			Animation {
-				
-			}
-		}

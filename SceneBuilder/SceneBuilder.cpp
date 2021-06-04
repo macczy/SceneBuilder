@@ -6,7 +6,7 @@
 #include "Parser/Parser.h"
 #include "Analizer/Analizer.h"
 #include "Generator/Generator.h"
-
+#include <algorithm>
 
 int main(int argc, char* argv[]) {
 
@@ -14,8 +14,8 @@ int main(int argc, char* argv[]) {
         if (argc < 2)
             return -1;
 
+        std::ifstream infile;
         if (strcmp(argv[1], "-fin") == 0 && argc >= 3) {
-            std::ifstream infile;
             std::string filename = argv[2];
             infile.open(filename);
             if (!infile.is_open()) {
@@ -41,9 +41,19 @@ int main(int argc, char* argv[]) {
                 infile.close();
             }
             catch (const SceneBuilderException& er) {
-                std::cout << "Syntax Eror " << er.what([&scanner](const Position& pos) {
-                    return scanner.getLineError(pos);
-                    }) << std::endl;
+                std::cout << "Error: " << er.what([&infile](const Position& pos) {
+                    std::string buffer;
+                    auto positionInInput = infile.tellg();
+                    std::streamoff seekedPosition = pos.totalPositionNumber - pos.columnNumber;
+                    infile.clear();
+                    infile.seekg(seekedPosition > 0 ? seekedPosition : 0, std::ios::beg);
+                    std::getline(infile, buffer);
+                    std::replace(buffer.begin(), buffer.end(), '\t', ' ');
+                    auto spaceLength = pos.columnNumber - 1;
+                    buffer = "\n" + buffer + "\n" + std::string(spaceLength > 0 ? spaceLength : 0, ' ') + "^";
+                    infile.seekg(positionInInput, std::ios::beg);
+                    return buffer;
+                }) << std::endl;
             }
 
         }

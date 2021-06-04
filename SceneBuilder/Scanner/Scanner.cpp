@@ -175,19 +175,6 @@ bool SceneBuilderScanner::isHexConst(Position tokenStartPosition) {
 	return false;
 }
 
-std::string SceneBuilderScanner::getLineError(Position position) {
-	std::string buffer;
-	auto positionInInput = input.tellg();
-	std::streamoff seekedPosition = position.totalPositionNumber - position.columnNumber;
-	input.seekg(seekedPosition > 0 ? seekedPosition : 0, std::ios::beg);
-	std::getline(input, buffer);
-	std::replace(buffer.begin(), buffer.end(), '\t', ' ');
-	auto spaceLength = position.columnNumber - 1;
-	buffer = "\n" + buffer + "\n" + std::string(spaceLength > 0 ? spaceLength : 0, ' ') + "^";
-	input.seekg(positionInInput, std::ios::beg);
-	return buffer;
-}
-
 bool SceneBuilderScanner::isDecimalConst(Position tokenStartPosition) {
 	if (isDigit(character)) {
 		std::string tokenValue(1, character);

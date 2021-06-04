@@ -11,14 +11,21 @@ public:
 	void run();
 	std::string generateExpression(const Expression& expr);
 	std::string getMembers(Objects& objects);
+	std::string getMembers(Properties& props);
 	std::string getGetters(Objects& objects);
 	std::string generateSubObjectInitialization(ObjectIdentifierPairPtr& object);
 	std::string getClassDeclaration(ComplexObjectDeclarationPtr& objectDeclaration);
 	std::string getIncludeStatements(Objects& objectDeclaration);
 	std::string generateSceneClass(Scene* scene);
+	std::string generateAnimateSelf(Properties& properties);
+	std::string generateAnimations(std::vector<AnimationDeclarationPtr>& animations);
+	std::string generateSubAnimation(AnimationPtr& animation);
 
-
-
+	std::string generateWaitAnimation(Wait* animation, const std::string& time);
+	std::string generateBasicAnimation(Animation* animation, const std::string& time);
+	std::string generateParalelAnimation(ParalelAnimation* animation, const std::string& time);
+	std::string generateAnimationSequence(AnimationSequence* animation, const std::string& time);
+	std::string generateConditionalAnimation(ConditionalAnimation* animation, const std::string& time);
 
 	struct LogicalExpressionGeneratorVisitor {
 		std::string operator()(const LogicalExpressionPtr& value);
@@ -38,8 +45,6 @@ public:
 		std::string operator()(const MultiplicationPtr& value);
 		std::string operator()(const AdditionPtr& value);
 	};
-
-
 
 private:
 	SceneRootPtr root;

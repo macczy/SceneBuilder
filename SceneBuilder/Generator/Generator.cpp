@@ -4,6 +4,8 @@
 #include <sstream>
 #include <filesystem>
 #include <set>
+#include "../Exceptions/SyntaxError.h"
+#include "../Exceptions/MissingRequiredProperty.h"
 
 namespace fs = std::filesystem;
 
@@ -17,7 +19,7 @@ void Generator::run()
 	fs::path targetDir = fs::current_path();
 	targetDir /= "../SceneBuilderTargetDirectory";
 	std::string command = "\"D:\\apps\\visual studio\\VC\\Auxiliary\\Build\\vcvarsall.bat\" x64 && cd "
-		+ targetDir.string() + " && cl /std:c++17 /MD /EHsc *.cpp /I..\\Include /link -LIBPATH:..\\Lib opengl32.lib glfw3.lib "
+		+ targetDir.string() + " && cl /std:c++latest /MD /EHsc *.cpp /I..\\Include /link -LIBPATH:..\\Lib opengl32.lib glfw3.lib "
 		"SOIL.lib glew64s.lib kernel32.lib user32.lib gdi32.lib winspool.lib "
 		"comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /NODEFAULTLIB:MSVCRTD /NODEFAULTLIB:LIBCMT /out:SceneVisualization.exe "
 		" && SceneVisualization.exe";
@@ -62,14 +64,22 @@ std::string Generator::getGetters(Objects& objects)
 	return returnStream.str();
 }
 
+std::string Generator::getMembers(Properties& props) {
+	std::stringstream returnStream;
+	for (auto& prop : props) {
+		if (prop->getName() == "animations") {
+			auto& animationCalls = std::get<AnimationProperty>(prop->getValue()).getAnimationCalls();
+			for (auto& animationCall : std::get<AnimationProperty>(prop->getValue()).getAnimationCalls()) {
+				returnStream << "\t" << animationCall->getName() << " m_" << animationCall->getName() << ";\n";
+			}
+		}
+	}
+	return returnStream.str();
+}
+
 std::string Generator::getMembers(Objects& objects)
 {
 	std::stringstream returnStream;
-	//auto basicProperites = { "width", "height", "x", "y", "z" };
-	//for (auto property : basicProperites)
-	//{
-	//	returnStream << "\tGLfloat " << property << ";\n";
-	//}
 	for (auto& obj : objects)
 	{
 		if (auto complex = dynamic_cast<ComplexObject*>(obj->object.get()); complex)
@@ -104,6 +114,7 @@ std::string Generator::getIncludeStatements(Objects& objects)
 	std::stringstream returnStream;
 	returnStream << "#include \"ComplexObject.h\"\n";
 	returnStream << "#include \"BasicObject.h\"\n";
+	returnStream << "#include \"Animations.h\"\n";
 	for (auto& obj : objects)
 	{
 		if (auto complex = dynamic_cast<ComplexObject*>(obj->object.get()); complex)
@@ -164,7 +175,15 @@ std::string  Generator::ExpressionGeneratorVisitor::operator()(const PointArray&
 }
 std::string  Generator::ExpressionGeneratorVisitor::operator()(const TimeDeclaration& value)
 {
-	return "";
+	switch (value.getTimeSpecifier()) {
+	case TimeDeclaration::TimeSpecifier::second:
+		return value.getValue();
+	case TimeDeclaration::TimeSpecifier::milisecond:
+		return value.getValue() + "/1000";
+	case TimeDeclaration::TimeSpecifier::minute:
+		return value.getValue() + "*60";
+	}
+	return "0";
 }
 std::string  Generator::ExpressionGeneratorVisitor::operator()(const ConstantIdentifier& value)
 {
@@ -249,10 +268,9 @@ std::string Generator::generateSceneClass(Scene* scene)
 	returnStream << "\t MyScene() : Scene() {\n";
 	for (auto& prop : scene->getProperties())
 	{
-		if (prop->getName() == "animations") continue;
-		//init property
-		returnStream << "\t\t" << prop->getName() << " = " << generateExpression(prop->getValue()) << ";\n";
-
+		if (prop->getName() != "animations") {
+			returnStream << "\t\t" << prop->getName() << " = " << generateExpression(prop->getValue()) << ";\n";
+		}
 	}
 
 	for (auto& object : scene->getObjects())
@@ -263,13 +281,43 @@ std::string Generator::generateSceneClass(Scene* scene)
 	returnStream << "\t}\n";
 	//end constructor
 
-	std::string members = getMembers(scene->getObjects());
-	std::string getters = getGetters(scene->getObjects());
+	returnStream << generateAnimateSelf(scene->getProperties()) << '\n';
 
-	returnStream << "public:\n" << getters;
-	returnStream << "private:\n" << members;
+	returnStream << "public:\n" << getGetters(scene->getObjects());;
+	returnStream << "private:\n" << 
+		getMembers(scene->getObjects()) << '\n' 
+		<< getMembers(scene->getProperties()) << '\n';
 	returnStream << "};\n";
 	return returnStream.str();
+}
+
+
+std::string Generator::generateAnimateSelf(Properties& properties)
+{
+	auto animationsIterator = std::find_if(properties.begin(), properties.end(), [](const PropertyPtr& prop) {
+		return prop->getName() == "animations";
+	});
+	if (animationsIterator == properties.end()) {
+		return "\tvoid animateSelf(float deltaTime) {\n\t}\n";
+	}
+	else {
+		std::stringstream returnStream;
+
+		returnStream << "\tvoid animateSelf(float deltaTime) {\n";
+
+		auto& animationCalls = std::get<AnimationProperty>((*animationsIterator)->getValue()).getAnimationCalls();
+		for (auto& animationCall : animationCalls) {
+			returnStream << "\t\tm_" << animationCall->getName() << ".animate(deltaTime\n";
+			for (auto& arg : animationCall->getArguments()) {
+				//only use first argument for now, until I have an idea how to handle multiple
+				returnStream << "\t\t\t, " << std::visit(ExpressionGeneratorVisitor(), arg[0]) << "\n"; //  arg[0];
+			}
+			returnStream << "\t\t);\n";
+		}
+
+		returnStream << "\t}\n";
+		return returnStream.str();
+	}
 }
 
 std::string Generator::getClassDeclaration(ComplexObjectDeclarationPtr& objectDeclaration)
@@ -287,10 +335,10 @@ std::string Generator::getClassDeclaration(ComplexObjectDeclarationPtr& objectDe
 	returnStream << "\t" << objectDeclaration->getName() << "() {\n";
 	for (auto& prop : objectDeclaration->getProperties())
 	{
-		if (prop->getName() == "animations") continue;
-		//init property
-		returnStream << "\t\t" << prop->getName() << " = " << generateExpression(prop->getValue()) << ";\n";
-
+		if (prop->getName() != "animations") {
+			//init property
+			returnStream << "\t\t" << prop->getName() << " = " << generateExpression(prop->getValue()) << ";\n";
+		}
 	}
 
 	for (auto& object : objectDeclaration->getObjects())
@@ -301,12 +349,162 @@ std::string Generator::getClassDeclaration(ComplexObjectDeclarationPtr& objectDe
 	returnStream << "\t}\n";
 	//end constructor
 
-	std::string members = getMembers(objectDeclaration->getObjects());
-	std::string getters = getGetters(objectDeclaration->getObjects());
+	returnStream << generateAnimateSelf(objectDeclaration->getProperties()) << '\n';
 
-	returnStream << "public:\n" << getters;
-	returnStream << "private:\n" << members;
+	returnStream << "public:\n" << getGetters(objectDeclaration->getObjects());;
+	returnStream << "private:\n" <<
+		getMembers(objectDeclaration->getObjects()) << '\n'
+		<< getMembers(objectDeclaration->getProperties()) << '\n';
 	returnStream << "};\n";
+	return returnStream.str();
+}
+
+std::string Generator::generateWaitAnimation(Wait* animation, const std::string& time)
+{
+	std::stringstream returnStream;
+	returnStream << "\t\t\t//Wait" << time << '\n';
+	returnStream << "\t\t\tif(deltaTime + totalTime < " << time << ") {\n";
+	returnStream << "\t\t\t\ttotalTime += deltaTime;\n";
+	returnStream << "\t\t\t\treturn;\n";
+	returnStream << "\t\t\t}\n";
+	returnStream << "\t\t\tfloat restTime = totalTime + deltaTime - " << time << ";\n";
+	returnStream << "\t\t\ttotalTime = 0;\n";
+	returnStream << "\t\t\t++state;\n";
+	returnStream << "\t\t\tanimate(restTime, obj);\n";
+	returnStream << "\t\t\treturn;\n";
+	return returnStream.str();
+}
+
+std::string Generator::generateBasicAnimation(Animation* animation, const std::string& time)
+{
+	std::stringstream returnStream;
+	
+	auto& properties = animation->getProperties();
+
+	auto objProperty = getPropertyByName(properties, "object");
+	if (!objProperty)
+		throw MissingRequiredProperty("object", "Animation", animation->getPosition());
+
+	auto animatedProperty = getPropertyByName(properties, "property");
+	if (!animatedProperty)
+		throw MissingRequiredProperty("property", "Animation", animation->getPosition());
+
+	auto changeByProperty = getPropertyByName(properties, "changeBy");
+	if (!changeByProperty)
+		throw MissingRequiredProperty("changeBy", "Animation", animation->getPosition());
+
+	//check type here, once I want to distinguish property animation from other types
+	//auto typeProperty = getPropertyByName(properties, "type");
+	//if (!objProperty)
+	//	throw MissingRequiredProperty("type", "Animation", animation->getPosition());
+
+	returnStream << "\t\t\t//BasicAnimation" << time << '\n';
+	returnStream << "\t\t\tif(deltaTime + totalTime < " << time << ") {\n";
+
+	std::string propertyName = std::visit(ExpressionGeneratorVisitor(), animatedProperty->getValue());
+	std::string objectName = std::visit(ExpressionGeneratorVisitor(), objProperty->getValue());
+	std::string valueString = std::visit(ExpressionGeneratorVisitor(), changeByProperty->getValue());
+
+	//DO THE THING USING deltaTime
+	returnStream << "\t\t\t\t(" << objectName << ")->set" << propertyName << "(deltaTime*(\n";
+	returnStream << "\t\t\t\t\t" << valueString << ") + (" << objectName << ")->get" << propertyName << "());\n";
+
+	returnStream << "\t\t\t\ttotalTime += deltaTime;\n";
+	returnStream << "\t\t\t\treturn;\n";
+	returnStream << "\t\t\t}\n";
+	returnStream << "\t\t\tfloat restTime = totalTime + deltaTime - " << time << ";\n";
+
+	//DO THE THING USING deltaTime - restTime
+	returnStream << "\t\t\t\t(" << objectName << ")->set" << propertyName << "((deltaTime - restTime)*(\n";
+	returnStream << "\t\t\t\t\t" << valueString << ") + (" << objectName << ")->get" << propertyName << "());\n";
+
+	returnStream << "\t\t\ttotalTime = 0;\n";
+	returnStream << "\t\t\t++state;\n";
+	returnStream << "\t\t\tanimate(restTime, obj);\n";
+	returnStream << "\t\t\treturn;\n";
+	return returnStream.str();
+}
+std::string Generator::generateParalelAnimation(ParalelAnimation* animation, const std::string& time)
+{
+	return "not implemented yet";
+
+}
+std::string Generator::generateAnimationSequence(AnimationSequence* animation, const std::string& time)
+{
+	return "not implemented yet";
+
+}
+std::string Generator::generateConditionalAnimation(ConditionalAnimation* animation, const std::string& time)
+{
+	return "not implemented yet";
+}
+
+std::string Generator::generateSubAnimation(AnimationPtr& animation) {
+	std::stringstream returnStream;
+
+	auto timeDeclarationIterator = std::find_if(animation->getProperties().begin(), animation->getProperties().end(), [](const PropertyPtr& prop) {return prop->getName() == "duration"; });
+
+	if (timeDeclarationIterator == animation->getProperties().end())
+		throw MissingRequiredProperty("duration", "Animation", animation->getPosition());
+	
+	std::string	time = std::visit(ExpressionGeneratorVisitor(), (*timeDeclarationIterator)->getValue());
+
+	if (auto wait = dynamic_cast<Wait*>(animation.get()))
+	{
+		returnStream << generateWaitAnimation(wait, time);
+	}
+	else if (auto paralelAnimation = dynamic_cast<ParalelAnimation*>(animation.get()))
+	{
+		returnStream << generateParalelAnimation(paralelAnimation, time);
+	}
+	else if (auto animationSequence = dynamic_cast<AnimationSequence*>(animation.get()))
+	{
+		returnStream << generateAnimationSequence(animationSequence, time);
+	}
+	else if (auto conditionalAnimation = dynamic_cast<ConditionalAnimation*>(animation.get()))
+	{
+		returnStream << generateConditionalAnimation(conditionalAnimation, time);
+	}
+	else
+	{
+		returnStream << generateBasicAnimation(animation.get(), time);
+	}
+	return returnStream.str();
+}
+
+
+std::string Generator::generateAnimations(std::vector<AnimationDeclarationPtr>& animations) {
+	std::stringstream returnStream;
+	returnStream << "#pragma once\n";
+	returnStream << "#include \"Animation.h\"\n\n";
+
+	for (auto& animation : animations) {
+		returnStream << "class " << animation->getName() << " : public Animation {\npublic:\n";
+		returnStream << "\t" << animation->getName() << "() : Animation() {}\n";
+
+		returnStream << "\tvoid animate(float deltaTime";
+
+		for (auto& arg : animation->getArgs()) {
+			returnStream << ", auto " << arg.getValue();
+		}
+		returnStream << ") {\n";
+		returnStream << "\t\tif(deltaTime <= 0) return;\n";
+		returnStream << "\t\tif(state > " << animation->getAnimations().size() << ")\n";
+		returnStream << "\t\t\t state = 0;\n";
+		returnStream << "\t\tswitch(state) {\n";
+
+		auto& subAnimations = animation->getAnimations();
+		for (int i = 0; i < subAnimations.size(); ++i) {
+			auto& subAnimation = subAnimations[i];
+			returnStream << "\t\tcase " << i << ": { \n";
+			returnStream << generateSubAnimation(subAnimation) << "\n\t\t}\n";
+		}
+		returnStream << "\t\tdefault: state = 0; return;\n";
+		returnStream << "\t\t}\n";
+		returnStream << "\t\t;//body\n";
+		returnStream << "\t}\n";
+		returnStream << "};\n\n";
+	}
 	return returnStream.str();
 }
 
@@ -321,9 +519,12 @@ bool Generator::generate(const std::string& filename)
 
 	fs::copy(sourceDirectories, targetDir, fs::copy_options::recursive);
 
-	for (auto& animationDeclaration : root->getKnownAnimations())
 	{
-		std::cout << "Would declare animation now: " << animationDeclaration->getName() << std::endl;
+		std::string animations = generateAnimations(root->getKnownAnimations());
+		std::fstream outputAnimationsFile;
+		outputAnimationsFile.open(targetDir / "Animations.h", std::fstream::out);
+		outputAnimationsFile << animations;
+		outputAnimationsFile.close();
 	}
 
 	for (auto& objectDeclaration : root->getKnownObjects())

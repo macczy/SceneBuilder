@@ -2,6 +2,7 @@
 #include <vector>
 #include <memory>
 #include "Object.h"
+#include "Animation.h"
 
 class ComplexObject : public Object {
 public:
@@ -10,6 +11,16 @@ public:
 	}
 
 	ComplexObject() {}
+
+	virtual void animateSelf(float deltaTime) = 0;
+
+	virtual void animate(float deltaTime)
+	{
+		animateSelf(deltaTime);
+		for (auto& o : children) {
+			o->animate(deltaTime);
+		}
+	}
 
 	virtual void init() override {
 		for (auto& o : children) {

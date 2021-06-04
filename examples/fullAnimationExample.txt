@@ -1,0 +1,42 @@
+CustomAnimation = AnimationSequence(first, second) {
+	loops: AnimationConstants.SingleLoop 
+	
+	Wait {
+		time: "10s"
+	}
+	ParalelAnimation {
+		Animation {
+			object: first
+			type: AnimationConstants.Rotation
+			axis: AnimationConstants.XAxis
+			duration: "5s"
+		}
+		Animation {
+		object: second
+			type: AnimationConstants.Movement
+			vector: Point(0., 0.2, 0.1)
+			duration: "5s"
+		}
+	}
+	ConditionalAnimation {
+		condition: 10 > 8 || 3 < avc
+		AnimationSequence {
+			Animation {
+		
+			}
+			Animation {
+				
+			}
+		}
+	}
+	ConditionalAnimation {
+		condition: first.color = second.color			
+		Animation {
+			
+		}
+	}
+
+	Animation {
+		
+	}
+}

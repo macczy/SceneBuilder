@@ -43,7 +43,6 @@ public:
 	virtual ~SceneBuilderScanner() {}
 	virtual Token getToken();
 	virtual void next();
-	virtual std::string getLineError(Position position);
 	static const inline unsigned int MAX_NAME_LENGTH = 1024;
 	static const inline unsigned int MAX_EMPTY_SPACE_LENGTH = 1024;
 	static const inline unsigned int MAX_HEX_VALUE_LENGTH = 32;

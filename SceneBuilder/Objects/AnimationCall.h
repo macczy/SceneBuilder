@@ -10,7 +10,8 @@ class AnimationCall {
 public:
 	AnimationCall(const Position& pos, const std::string& name, Arguments& args) : pos(pos), name(name), args(std::move(args)) {}
 	const Position& getPosition() const { return pos; }
-	std::string getName() { return name; }
+	const std::string getName() const { return name; }
+	const Arguments& getArguments() const { return args; }
 private:
 	Position pos;
 	std::string name;

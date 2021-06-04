@@ -43,17 +43,22 @@ public:
                 glm::vec3(0.0f, 0.0f, 3.0f), //eye
                 glm::vec3(0.0f, 0.0f, 0.0f), //center
                 glm::vec3(0.0f, 1.0f, 0.0f)); //up
-            //glm::mat4 projection = glm::ortho(-width / 2, width / 2, -height / 2, height / 2, 0.0f, 500.0f);
             glm::mat4 projection = glm::ortho(0.0f, width, 0.0f, height, 0.0f, 500.0f);
             shader.setMat4("view", view);
             shader.setMat4("projection", projection);
         }
         init();
+        float deltaTime = 0.0f;	// Time between current frame and last frame
+        float lastFrame = 0.0f;	// Time between current frame and last frame
         while (!glfwWindowShouldClose(window))
         {
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            float currentFrame = glfwGetTime();
+            deltaTime = currentFrame - lastFrame;
+            lastFrame = currentFrame;
 
+            animate(deltaTime);
             draw(shaderId);
 
             glfwSwapBuffers(window);

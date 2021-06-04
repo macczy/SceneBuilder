@@ -220,6 +220,7 @@
     <ClCompile Include="Objects\LogicalExpression.cpp" />
     <ClCompile Include="Objects\Expression.cpp" />
     <ClCompile Include="Objects\Multiplication.cpp" />
+    <ClCompile Include="Objects\Properties.cpp" />
     <ClCompile Include="Parser\Parser.cpp" />
     <ClCompile Include="Parser\Scene.cpp" />
     <ClCompile Include="Parser\SceneRoot.cpp" />
@@ -237,6 +238,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Analizer\Analizer.h" />
+    <ClInclude Include="Exceptions\MissingRequiredProperty.h" />
     <ClInclude Include="Exceptions\NotDefined.h" />
     <ClInclude Include="Exceptions\Redefinition.h" />
     <ClInclude Include="Exceptions\SceneBuilderException.h" />

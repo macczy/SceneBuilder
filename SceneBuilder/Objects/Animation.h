@@ -7,6 +7,7 @@ public:
 	Animation(const Position& pos, Properties& properties) : pos(pos), properties(std::move(properties)) {}
 	virtual ~Animation() {}
 	const Properties& getProperties() const { return properties; }
+	const Position& getPosition() const { return pos; }
 protected:
 	Position pos;
 	Properties properties;

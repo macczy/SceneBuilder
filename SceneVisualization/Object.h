@@ -8,11 +8,8 @@ constexpr GLfloat M_PI = static_cast<GLfloat>(3.14159265358979323846);
 
 class Object {
 public:
-	virtual void animate(float delta) {
-		for (auto& animation : animations)
-			animation(delta);
-	}
 	virtual void init() = 0;
+	virtual void animate(float deltaTime) = 0;
 	virtual void draw(int shaderId) = 0;
 	virtual void move(const glm::vec3& vector) = 0;
 	virtual void move2(const glm::vec3& vector) = 0;
@@ -76,6 +73,5 @@ public:
 	
 protected:
 	glm::vec3 position;
-	std::set<std::function<void(float)>> animations;
 };
 using ObjectPtr = std::unique_ptr<Object>;

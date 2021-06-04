@@ -17,3 +17,5 @@ private:
 using PropertyPtr = std::unique_ptr<Property>;
 
 using Properties = std::vector<PropertyPtr>;
+
+Property* getPropertyByName(const std::vector<PropertyPtr>& properties, const std::string& name);

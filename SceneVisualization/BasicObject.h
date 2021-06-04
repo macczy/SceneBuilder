@@ -26,6 +26,11 @@ public:
 		return color;
 	}
 
+	virtual void animate(float deltaTime) override
+	{
+
+	}
+
 	void setcolor(glm::vec3 color)
 	{
 		this->color = color;
