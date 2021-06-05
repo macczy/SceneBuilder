@@ -11,8 +11,6 @@ Door = {
 		color: Color(#0, #0, #0)
 	}
 	
-			
-
 	animations: [ MoveUpDown(doorHandle) ]
 }
 
@@ -41,8 +39,8 @@ MoveUpDown = AnimationSequence(obj) {
 
 House = {
 	mainBuilding = Rectangle {
-		width: 400
-		height: mainBuilding.width*1.2
+		width: 300
+		height: mainBuilding.width*1.1
 		color: Color(#0, #0, #FF)
 	}
 	
@@ -58,9 +56,86 @@ House = {
 		color: Color(#FF, #0, #0)
 		vertexes: [  
 			Point(0, 0),
-			Point(400, 0),
-			Point(200, 50)
+			Point(300, 0),
+			Point(150, 50)
 		]
+	}
+}
+
+Car = {
+	body = Rectangle {
+		width: 200
+		height: 70
+		y: 50
+	}
+	
+	frontWheel = Circle {
+		y: body.y + 10
+		radius: 30
+		x: frontWheel.radius + 20
+		color: Color(#0, #0, #0)
+	}
+	
+	backWheel = Circle {
+		y: body.y + 10
+		radius: frontWheel.radius
+		x: body.x + body.width - 50
+		color: frontWheel.color
+	}
+}
+
+MoveLeftRightTwoElements = AnimationSequence(first, second) {
+	loops: AnimationConstants.Infinite 
+	ParalelAnimation {
+		duration: "5s"
+	
+		Animation {
+			object: first
+			property: position
+			changeBy: Point(50, 0, 0)
+			duration: "5s"
+		}
+		
+		Animation {
+			object: second
+			property: position
+			changeBy: Point(50, 0, 0)
+			duration: "5s"
+		}
+	}
+	ParalelAnimation {
+		duration: "5s"
+	
+		Animation {
+			object: first
+			property: position
+			changeBy: Point(-100, 0, 0)
+			duration: "5s"
+		}
+		
+		Animation {
+			object: second
+			property: position
+			changeBy: Point(-100, 0, 0)
+			duration: "5s"
+		}
+	}
+	ParalelAnimation {
+		duration: "5s"
+	
+		Animation {
+			object: first
+			property: position
+			changeBy: Point(50, 0, 0)
+			duration: "5s"
+		}
+		
+		Animation {
+			object: second
+			property: position
+			changeBy: Point(50, 0, 0)
+			duration: "5s"
+		}
 	}
 }
 
@@ -80,34 +155,39 @@ Scene {
 		y: my_house.mainBuilding.height + 100
 	}
 	
+	my_car1 = Car {
+		x: my_house.x + my_house.mainBuilding.width + 20
+		y: 200
+	}
+	
+		
+	my_car2 = Car {
+		x: width - 300
+		y: 100
+	}
+	
 	grass = Rectangle {
 		y: 200
 		height: height
 		width: width
 		color: Color(#0, #FF, #0)
 	}
-	animations:[SunColorChanges(sun)]
+	animations:[SunColorChanges(sun), MoveLeftRightTwoElements(my_car1, my_car2)]
 }
 
 SunColorChanges = AnimationSequence(sun) {
 	loops: AnimationConstants.Infinite 
+	Animation {
+		object: sun
+		property: color
+		changeBy: Color(#0, #0, #0) - Color(#0, #5A, #0)
+		duration: "5s"
+	}
 	
-		Animation {
-			object: sun
-			property: color
-			changeBy: Color(#0, #0, #0) - Color(#0, #5A, #0)
-			duration: "5s"
-		}
-		
-		Animation {
-			object: sun
-			property: color
-			changeBy: Color(#0, #5A, #0)
-			duration: "5s"
-		}
-	
-	
-	
-
-
+	Animation {
+		object: sun
+		property: color
+		changeBy: Color(#0, #5A, #0)
+		duration: "5s"
+	}
 }

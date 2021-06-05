@@ -20,6 +20,8 @@ public:
         }
 
         glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+        glfwWindowHint(GLFW_SAMPLES, 4);
+        glEnable(GL_MULTISAMPLE);
         GLFWwindow* window = glfwCreateWindow((GLuint)width, (GLuint)height, "Scene", NULL, NULL);
         if (window == NULL)
         {

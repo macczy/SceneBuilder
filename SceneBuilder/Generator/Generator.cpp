@@ -359,20 +359,24 @@ std::string Generator::getClassDeclaration(ComplexObjectDeclarationPtr& objectDe
 	return returnStream.str();
 }
 
-std::string Generator::generateWaitAnimation(Wait* animation, const std::string& time, const std::string animationArgs)
+std::string Generator::generateWaitAnimation(Wait* animation, const std::string& time, const std::string animationArgs, const std::string& ident)
 {
 	std::stringstream returnStream;
 	returnStream << " [deltaTime, this" << animationArgs << "]() {\t\t//Wait\n";
-	returnStream << "\t\t\t\tif(deltaTime + totalTime < " << time << ") {\n";
-	returnStream << "\t\t\t\t\treturn deltaTime;\n";
-	returnStream << "\t\t\t\t}\n";
-	returnStream << "\t\t\t\tfloat restTime = totalTime + deltaTime - " << time << ";\n";
-	returnStream << "\t\t\t\treturn restTime;\n";
-	returnStream << "\t\t\t}();\n";
+	returnStream << ident << "\tfloat timeToUse = deltaTime;\n";
+	returnStream << ident << "\tif(deltaTime + totalTime > " << time << ") {\n";
+	returnStream << ident << "\t\tfloat restTime = totalTime + deltaTime - " << time << ";\n";
+	returnStream << ident << "\t\ttimeToUse = deltaTime - restTime;\n";
+	returnStream << ident << "\t}\n";
+	returnStream << ident << "\tif(timeToUse <= 0 ) {\n";
+	returnStream << ident << "\t\treturn 0.0f;\n";
+	returnStream << ident << "\t}\n";
+	returnStream << ident << "\treturn timeToUse;\n";
+	returnStream << ident << "}();\n";
 	return returnStream.str();
 }
 
-std::string Generator::generateBasicAnimation(Animation* animation, const std::string& time, const std::string animationArgs)
+std::string Generator::generateBasicAnimation(Animation* animation, const std::string& time, const std::string animationArgs, const std::string& ident)
 {
 	std::stringstream returnStream;
 	
@@ -400,65 +404,67 @@ std::string Generator::generateBasicAnimation(Animation* animation, const std::s
 	std::string valueString = std::visit(ExpressionGeneratorVisitor(), changeByProperty->getValue());
 
 	returnStream << " [deltaTime, this" << animationArgs << "]() {\t\t//BasicAnimation\n";
-	returnStream << "\t\t\t\tif(deltaTime + totalTime < " << time << ") {\n";
-
-	//DO THE THING USING deltaTime
-	returnStream << "\t\t\t\t(" << objectName << ")->set" << propertyName << "((deltaTime/"<< time <<")*(\n";
-	returnStream << "\t\t\t\t\t" << valueString << ") + (" << objectName << ")->get" << propertyName << "());\n";
-	returnStream << "\t\t\t\t\treturn deltaTime;\n";
-	returnStream << "\t\t\t}\n";
-
-	returnStream << "\t\t\tfloat restTime = totalTime + deltaTime - " << time << ";\n";
-
-	//DO THE THING USING deltaTime - restTime
-	returnStream << "\t\t\t\t(" << objectName << ")->set" << propertyName << "(((deltaTime - restTime)/" << time << ")*(\n";
-	returnStream << "\t\t\t\t\t" << valueString << ") + (" << objectName << ")->get" << propertyName << "());\n";
-
-	returnStream << "\t\t\t\treturn restTime;\n";
-	returnStream << "\t\t\t}();\n";
+	returnStream << ident << "\tfloat timeToUse = deltaTime;\n";
+	returnStream << ident << "\tif(deltaTime + totalTime > " << time << ") {\n";
+	returnStream << ident << "\t\tfloat restTime = totalTime + deltaTime - " << time << ";\n";
+	returnStream << ident << "\t\ttimeToUse = deltaTime - restTime;\n";
+	returnStream << ident << "\t}\n";
+	returnStream << ident << "\tif(timeToUse <= 0 ) {\n";
+	returnStream << ident << "\t\treturn 0.0f;\n";
+	returnStream << ident << "\t}\n";
+	returnStream << ident << "\t(" << objectName << ")->set" << propertyName << "((timeToUse/"<< time <<")*(\n";
+	returnStream << ident << "\t\t" << valueString << ") + (" << objectName << ")->get" << propertyName << "());\n";
+	returnStream << ident << "\treturn timeToUse;\n";
+	returnStream << ident << "}();\n";
 
 	return returnStream.str();
 }
-std::string Generator::generateParalelAnimation(ParalelAnimation* animation, const std::string& time, const std::string animationArgs)
+std::string Generator::generateParalelAnimation(ParalelAnimation* animation, const std::string& time, const std::string animationArgs, const std::string& ident)
 {
 	std::stringstream returnStream;
 
 	auto& properties = animation->getProperties();
 
+	returnStream << " [deltaTime, this" << animationArgs << "]() {\t\t//PralelAnimation\n";
 
-	returnStream << "\t\t\t//PralelAnimation" << time << '\n';
-	returnStream << "\t\t\tif(deltaTime + totalTime < " << time << ") {\n";
-	////DO THE THING USING deltaTime
-	//returnStream << "\t\t\t\t(" << objectName << ")->set" << propertyName << "((deltaTime/" << time << ")*(\n";
-	//returnStream << "\t\t\t\t\t" << valueString << ") + (" << objectName << ")->get" << propertyName << "());\n";
 
-	returnStream << "\t\t\t\ttotalTime += deltaTime;\n";
-	returnStream << "\t\t\t\treturn;\n";
-	returnStream << "\t\t\t}\n";
-	returnStream << "\t\t\tfloat restTime = totalTime + deltaTime - " << time << ";\n";
+	returnStream << ident << "\tfloat timeToUse = deltaTime;\n";
+	returnStream << ident << "\tif(deltaTime + totalTime > " << time << ") {\n";
+	returnStream << ident << "\t\tfloat restTime = totalTime + deltaTime - " << time << ";\n";
+	returnStream << ident << "\t\ttimeToUse = deltaTime - restTime;\n";
+	returnStream << ident << "\t}\n";
+	returnStream << ident << "\tif(timeToUse <= 0 ) {\n";
+	returnStream << ident << "\t\treturn 0.0f;\n";
+	returnStream << ident << "\t}\n";
 
-	////DO THE THING USING deltaTime - restTime
-	//returnStream << "\t\t\t\t(" << objectName << ")->set" << propertyName << "(((deltaTime - restTime)/" << time << ")*(\n";
-	//returnStream << "\t\t\t\t\t" << valueString << ") + (" << objectName << ")->get" << propertyName << "());\n";
 
-	returnStream << "\t\t\ttotalTime = 0;\n";
-	returnStream << "\t\t\t++state;\n";
-	returnStream << "\t\t\tanimate(restTime" << animationArgs << ");\n";
-	returnStream << "\t\t\treturn;\n";
+	auto& subAnimations = animation->getAnimations();
+	for (int i = 0; i < subAnimations.size(); ++i) {
+		auto& subAnimation = subAnimations[i];
+		returnStream << ident << "\tfloat restTime" << i << " = " << generateSubAnimation(subAnimation, animationArgs, ident + "\t") << "\n";
+	}
+
+	returnStream << ident << "float restTime = std::max({ 0.0f, timeToUse";
+	for (int i = 0; i < subAnimations.size(); ++i) {
+		returnStream << ", restTime" << i;
+	}
+	returnStream << "});\n";
+
+	returnStream << ident << "return restTime;\n";
+	returnStream << ident << "}();\n";
 	return returnStream.str();
-
 }
-std::string Generator::generateAnimationSequence(AnimationSequence* animation, const std::string& time, const std::string animationArgs)
+std::string Generator::generateAnimationSequence(AnimationSequence* animation, const std::string& time, const std::string animationArgs, const std::string& ident)
 {
-	return "not implemented yet";
+	return ident + "not implemented yet";
 
 }
-std::string Generator::generateConditionalAnimation(ConditionalAnimation* animation, const std::string& time, const std::string animationArgs)
+std::string Generator::generateConditionalAnimation(ConditionalAnimation* animation, const std::string& time, const std::string animationArgs, const std::string& ident)
 {
-	return "not implemented yet";
+	return ident + "not implemented yet";
 }
 
-std::string Generator::generateSubAnimation(AnimationPtr& animation, const std::string& animationArgs) {
+std::string Generator::generateSubAnimation(AnimationPtr& animation, const std::string& animationArgs, const std::string& ident) {
 	std::stringstream returnStream;
 
 	auto timeDeclarationIterator = std::find_if(animation->getProperties().begin(), animation->getProperties().end(), [](const PropertyPtr& prop) {return prop->getName() == "duration"; });
@@ -470,23 +476,23 @@ std::string Generator::generateSubAnimation(AnimationPtr& animation, const std::
 
 	if (auto wait = dynamic_cast<Wait*>(animation.get()))
 	{
-		returnStream << generateWaitAnimation(wait, time, animationArgs);
+		returnStream << generateWaitAnimation(wait, time, animationArgs, ident);
 	}
 	else if (auto paralelAnimation = dynamic_cast<ParalelAnimation*>(animation.get()))
 	{
-		returnStream << generateParalelAnimation(paralelAnimation, time, animationArgs);
+		returnStream << generateParalelAnimation(paralelAnimation, time, animationArgs, ident);
 	}
 	else if (auto animationSequence = dynamic_cast<AnimationSequence*>(animation.get()))
 	{
-		returnStream << generateAnimationSequence(animationSequence, time, animationArgs);
+		returnStream << generateAnimationSequence(animationSequence, time, animationArgs, ident);
 	}
 	else if (auto conditionalAnimation = dynamic_cast<ConditionalAnimation*>(animation.get()))
 	{
-		returnStream << generateConditionalAnimation(conditionalAnimation, time, animationArgs);
+		returnStream << generateConditionalAnimation(conditionalAnimation, time, animationArgs, ident);
 	}
 	else
 	{
-		returnStream << generateBasicAnimation(animation.get(), time, animationArgs);
+		returnStream << generateBasicAnimation(animation.get(), time, animationArgs, ident);
 	}
 	return returnStream.str();
 }
@@ -496,8 +502,7 @@ std::string Generator::generateAnimations(std::vector<AnimationDeclarationPtr>& 
 	std::stringstream returnStream;
 	returnStream << "#pragma once\n";
 	returnStream << "#include \"Animation.h\"\n\n";
-
-
+	returnStream << "#include <algorithm>\n\n";
 
 	for (auto& animation : animations) {
 		returnStream << "class " << animation->getName() << " : public Animation {\npublic:\n";
@@ -519,7 +524,7 @@ std::string Generator::generateAnimations(std::vector<AnimationDeclarationPtr>& 
 		returnStream << "\t\tif(state > " << animation->getAnimations().size() << ")\n";
 		returnStream << "\t\t\t state = 0;\n";
 
-		returnStream << "\t\t\tfloat usedTime = 0.0f;\n";
+		returnStream << "\t\tfloat usedTime = 0.0f;\n";
 
 		returnStream << "\t\tswitch(state) {\n";
 
@@ -527,12 +532,10 @@ std::string Generator::generateAnimations(std::vector<AnimationDeclarationPtr>& 
 		for (int i = 0; i < subAnimations.size(); ++i) {
 			auto& subAnimation = subAnimations[i];
 			returnStream << "\t\tcase " << i << ": { \n";
-			returnStream << "\t\tusedTime = " << generateSubAnimation(subAnimation, animationArgs) << "\t\t\tbreak;\n\t\t}\n";
-
+			returnStream << "\t\tusedTime = " << generateSubAnimation(subAnimation, animationArgs, "\t\t\t") << "\t\tbreak;\n\t\t}\n";
 		}
 		returnStream << "\t\tdefault: state = 0; return;\n";
 		returnStream << "\t\t}\n";
-
 
 		returnStream << "\t\tif(usedTime < deltaTime) {\n";
 		returnStream << "\t\t\ttotalTime = 0;\n";
@@ -542,7 +545,6 @@ std::string Generator::generateAnimations(std::vector<AnimationDeclarationPtr>& 
 		returnStream << "\t\telse {\n";
 		returnStream << "\t\t\ttotalTime += usedTime;\n";
 		returnStream << "\t\t}\n";
-		returnStream << "\t\t;//body\n";
 		returnStream << "\t}\n";
 		returnStream << "};\n\n";
 	}
