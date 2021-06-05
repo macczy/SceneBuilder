@@ -422,7 +422,7 @@ std::string Generator::generateBasicAnimation(Animation* animation, const std::s
 }
 std::string Generator::generateParalelAnimation(ParalelAnimation* animation, const std::string& time, const std::string animationArgs, const std::string& ident)
 {
-	std::string paralelTime = time + "/2";
+	std::string paralelTime = time + "/2.0";
 	std::stringstream returnStream;
 
 	auto& properties = animation->getProperties();
@@ -443,7 +443,7 @@ std::string Generator::generateParalelAnimation(ParalelAnimation* animation, con
 	auto& subAnimations = animation->getAnimations();
 	for (int i = 0; i < subAnimations.size(); ++i) {
 		auto& subAnimation = subAnimations[i];
-		returnStream << ident << "\tfloat restTime" << i << " = " << generateSubAnimation(subAnimation, animationArgs, ident + "\t") << "\n";
+		returnStream << ident << "\t" << generateSubAnimation(subAnimation, animationArgs, ident + "\t") << "\n";
 	}
 
 	//returnStream << ident << "float restTime = std::max({ 0.0f, timeToUse";
@@ -493,7 +493,7 @@ std::string Generator::generateSubAnimation(const AnimationPtr& animation, const
 	if (timeDeclarationIterator == animation->getProperties().end())
 		throw MissingRequiredProperty("duration", "Animation", animation->getPosition());
 	
-	std::string	time = std::visit(ExpressionGeneratorVisitor(), (*timeDeclarationIterator)->getValue());
+	std::string	time = "(float)" + std::visit(ExpressionGeneratorVisitor(), (*timeDeclarationIterator)->getValue());
 
 	if (auto wait = dynamic_cast<Wait*>(animation.get()))
 	{
