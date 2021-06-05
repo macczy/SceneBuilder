@@ -20,7 +20,17 @@ public:
 	std::string generateAnimateSelf(Properties& properties);
 	std::string generateAnimations(std::vector<AnimationDeclarationPtr>& animations);
 
-	std::string generateSubAnimation(AnimationPtr& animation, const std::string& animationArgs, const std::string& ident);
+	std::string generateSubAnimationsInnerDeclaration(const AnimationPtr& animation, const std::string& animationArgs, const std::string& animationCaptureArgs, const std::string& ident);
+	std::string generateParalelAnimationSubAnimationsInnerDeclaration(ParalelAnimation* animation, const std::string& animationArgs, const std::string& animationCaptureArgs, const std::string& ident);
+	std::string generateAnimationSequenceSubAnimationsInnerDeclaration(AnimationSequence* animation, const std::string& animationArgs, const std::string& animationCaptureArgs, const std::string& ident);
+	std::string generateConditionalAnimationSubAnimationsInnerDeclaration(ConditionalAnimation* animation, const std::string& animationArgs, const std::string& animationCaptureArgs, const std::string& ident);
+
+	std::string generateSubAnimationsMembers(const AnimationPtr& animation, const std::string& ident);
+	std::string generateParalelAnimationSubAnimationsMembers(ParalelAnimation* animation, const std::string& ident);
+	std::string generateAnimationSequenceSubAnimationsMembers(AnimationSequence* animation, const std::string& ident);
+	std::string generateConditionalAnimationSubAnimationsMembers(ConditionalAnimation* animation, const std::string& ident);
+
+	std::string generateSubAnimation(const AnimationPtr& animation, const std::string& animationArgs, const std::string& ident);
 
 	std::string generateWaitAnimation(Wait* animation, const std::string& time, const std::string animationArgs, const std::string& ident);
 	std::string generateBasicAnimation(Animation* animation, const std::string& time, const std::string animationArgs, const std::string& ident);

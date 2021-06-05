@@ -86,57 +86,41 @@ Car = {
 
 MoveLeftRightTwoElements = AnimationSequence(first, second) {
 	loops: AnimationConstants.Infinite 
+		
+	AnimationSequence {
+		duration: "4s"
+		Animation {
+			object: first
+			property: position
+			changeBy: Point(-500, 0, 0)
+			duration: "2s"
+		}
+		Animation {
+			object: second
+			property: position
+			changeBy: Point(-500, 0, 0)
+			duration: "2s"
+		}
+	}
+	
 	ParalelAnimation {
-		duration: "5s"
+		duration: "4s"
 	
 		Animation {
 			object: first
 			property: position
-			changeBy: Point(50, 0, 0)
-			duration: "5s"
+			changeBy: Point(500, 0, 0)
+			duration: "4s"
 		}
 		
 		Animation {
 			object: second
 			property: position
-			changeBy: Point(50, 0, 0)
-			duration: "5s"
+			changeBy: Point(500, 0, 0)
+			duration: "4s"
 		}
 	}
-	ParalelAnimation {
-		duration: "5s"
-	
-		Animation {
-			object: first
-			property: position
-			changeBy: Point(-100, 0, 0)
-			duration: "5s"
-		}
-		
-		Animation {
-			object: second
-			property: position
-			changeBy: Point(-100, 0, 0)
-			duration: "5s"
-		}
-	}
-	ParalelAnimation {
-		duration: "5s"
-	
-		Animation {
-			object: first
-			property: position
-			changeBy: Point(50, 0, 0)
-			duration: "5s"
-		}
-		
-		Animation {
-			object: second
-			property: position
-			changeBy: Point(50, 0, 0)
-			duration: "5s"
-		}
-	}
+
 }
 
 Scene {
@@ -150,20 +134,22 @@ Scene {
 		color: Color(#FF, #FF, #0)
 	}
 	
-	my_house = House {
-		x: my_house.mainBuilding.width/2
-		y: my_house.mainBuilding.height + 100
-	}
-	
+		
 	my_car1 = Car {
-		x: my_house.x + my_house.mainBuilding.width + 20
+		x: 900
 		y: 200
 	}
 	
 		
 	my_car2 = Car {
-		x: width - 300
+		x: 1000
 		y: 100
+	}
+	
+	my_house = House {
+		x: my_house.mainBuilding.width/2
+		y: my_house.mainBuilding.height + 100
+		z: -1.0
 	}
 	
 	grass = Rectangle {
@@ -171,6 +157,7 @@ Scene {
 		height: height
 		width: width
 		color: Color(#0, #FF, #0)
+		z: -2.0
 	}
 	animations:[SunColorChanges(sun), MoveLeftRightTwoElements(my_car1, my_car2)]
 }

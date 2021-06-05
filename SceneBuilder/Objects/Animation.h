@@ -28,8 +28,13 @@ public:
 		: Animation(pos, properties), animations(std::move(animations)) {}
 	virtual ~AnimationSequence() {}
 	const Animations& getAnimations() { return animations;  }
+	void setIndex(int index) {
+		this->index = index;
+	}
+	int getIndex() { return index;  }
 private:
 	Animations animations;
+	int index = -1;
 };
 
 class ConditionalAnimation : public Animation {
@@ -38,10 +43,15 @@ public:
 		: Animation(pos, properties), animations(std::move(animations)), condition(std::move(condition)) {}
 	virtual ~ConditionalAnimation() {}
 	const LogicalSubExpressionPtr& getCondition() { return condition; }
-	const Animations& getAnimations() { return animations; }
+	const Animations& getAnimations() { return animations; }	
+	void setIndex(int index) {
+		this->index = index;
+	}
+	int getIndex() { return index; }
 private:
 	Animations animations;
 	LogicalSubExpressionPtr condition;
+	int index = -1;
 };
 
 class ParalelAnimation : public Animation {
