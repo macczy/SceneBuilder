@@ -188,6 +188,7 @@ std::string  Generator::ExpressionGeneratorVisitor::operator()(const TimeDeclara
 }
 std::string  Generator::ExpressionGeneratorVisitor::operator()(const ConstantIdentifier& value)
 {
+	std::cout << "not implemented yet - constant identifier stringify\n";
 	return "";
 }
 std::string  Generator::ExpressionGeneratorVisitor::operator()(const Identifier& value)
@@ -204,7 +205,7 @@ std::string  Generator::ExpressionGeneratorVisitor::operator()(const Identifier&
 }
 std::string  Generator::ExpressionGeneratorVisitor::operator()(const AnimationProperty& value)
 {
-	return "";
+	throw std::runtime_error("animation property should not be stringified");
 }
 std::string  Generator::ExpressionGeneratorVisitor::operator()(const TernaryExpressionPtr& value)
 {
@@ -429,7 +430,6 @@ std::string Generator::generateParalelAnimation(ParalelAnimation* animation, con
 
 	returnStream << " [deltaTime, this" << animationArgs << "]() {\t\t//ParalelAnimation\n";
 
-
 	returnStream << ident << "\tfloat timeToUse = deltaTime;\n";
 	returnStream << ident << "\tif(deltaTime + totalTime > " << paralelTime << ") {\n";
 	returnStream << ident << "\t\tfloat restTime = totalTime - " << paralelTime << ";\n";
@@ -439,18 +439,11 @@ std::string Generator::generateParalelAnimation(ParalelAnimation* animation, con
 	returnStream << ident << "\t\treturn 0.0f;\n";
 	returnStream << ident << "\t}\n";
 
-
 	auto& subAnimations = animation->getAnimations();
 	for (int i = 0; i < subAnimations.size(); ++i) {
 		auto& subAnimation = subAnimations[i];
 		returnStream << ident << "\t" << generateSubAnimation(subAnimation, animationArgs, ident + "\t") << "\n";
 	}
-
-	//returnStream << ident << "float restTime = std::max({ 0.0f, timeToUse";
-	//for (int i = 0; i < subAnimations.size(); ++i) {
-	//	returnStream << ", restTime" << i;
-	//}
-	//returnStream << "});\n";
 
 	returnStream << ident << "return timeToUse;\n";
 	returnStream << ident << "}();\n";
@@ -481,8 +474,25 @@ std::string Generator::generateAnimationSequence(AnimationSequence* animation, c
 }
 std::string Generator::generateConditionalAnimation(ConditionalAnimation* animation, const std::string& time, const std::string animationArgs, const std::string& ident)
 {
-	std::cout << "Not implemented yet - generateConditionalAnimation\n";
-	return "0.0f;";
+	std::stringstream returnStream;
+	returnStream << " [deltaTime, this" << animationArgs << "]() {\t\t//ConditionalAnimation\n";
+
+	returnStream << ident << "\tfloat timeToUse = deltaTime;\n";
+	returnStream << ident << "\tif(deltaTime + totalTime > " << time << ") {\n";
+	returnStream << ident << "\t\tfloat restTime = totalTime - " << time << ";\n";
+	returnStream << ident << "\t\ttimeToUse = deltaTime - restTime;\n";
+	returnStream << ident << "\t}\n";
+	returnStream << ident << "\tif(timeToUse <= 0 ) {\n";
+	returnStream << ident << "\t\treturn 0.0f;\n";
+	returnStream << ident << "\t}\n";
+
+	if (animation->getIndex() == -1) // unlikely to happen
+		throw std::runtime_error("Wrong calling order");
+
+	returnStream << ident << "\treturn conditionalAnimation" << animation->getIndex() << ".animate(timeToUse" << animationArgs << "); \n";
+
+	returnStream << ident << "}();\n";
+	return returnStream.str();
 }
 
 std::string Generator::generateSubAnimation(const AnimationPtr& animation, const std::string& animationArgs, const std::string& ident) {
@@ -576,8 +586,55 @@ std::string Generator::generateAnimationSequenceSubAnimationsInnerDeclaration(An
 }
 
 std::string Generator::generateConditionalAnimationSubAnimationsInnerDeclaration(ConditionalAnimation* animation, const std::string& animationArgs, const std::string& animationCaptureArgs, const std::string& ident) {
-	std::cout << "Not implemented yet - conditional inner declaration\n";
-	return "";
+	std::stringstream returnStream;
+	static int index = 0;
+	int my_index = index;
+	++index;
+	returnStream << ident << "class ConditionalAnimation" << my_index << " : public Animation {\n" << ident << "public:\n";
+	returnStream << ident << "\tConditionalAnimation" << my_index << "() : Animation() {}\n";
+
+	animation->setIndex(my_index);
+
+	auto& subAnimations = animation->getAnimations();
+	for (int i = 0; i < subAnimations.size(); ++i) {
+		auto& subAnimation = subAnimations[i];
+		returnStream << ident << generateSubAnimationsInnerDeclaration(subAnimation, animationArgs, animationCaptureArgs, ident + "\t");
+	}
+
+	returnStream << '\n' << ident << "float animate(" << animationArgs << ") {\n";
+
+	returnStream << ident << "\tif(!(" << std::visit(LogicalExpressionGeneratorVisitor(), (*animation->getCondition().get())) << "))\n";
+	returnStream << ident << "\t\treturn 0.0f;\n";
+
+	returnStream << ident << "\tif(deltaTime <= 0) return 0.0f;\n";
+	returnStream << ident << "\tif(state >= " << animation->getAnimations().size() << ") {\n";
+	returnStream << ident << "\t\tstate = 0;\n";
+	returnStream << ident << "\t\ttotalTime = 0.0f;\n";
+	returnStream << ident << "\t\treturn 0.0f;\n";
+	returnStream << ident << "\t}\n";
+
+	returnStream << ident << "\tfloat usedTime = 0.0f;\n";
+
+	returnStream << ident << "\tswitch(state) {\n";
+	for (int i = 0; i < subAnimations.size(); ++i) {
+		auto& subAnimation = subAnimations[i];
+		returnStream << ident << "\tcase " << i << ": { \n";
+		returnStream << ident << "\tusedTime = " << generateSubAnimation(subAnimation, animationCaptureArgs, "\t\t\t") << "\t\tbreak;\n\t\t}\n";
+	}
+	returnStream << ident << "\t}\n";
+
+	returnStream << ident << "\tif(usedTime < deltaTime) {\n";
+	returnStream << ident << "\t\ttotalTime = 0;\n";
+	returnStream << ident << "\t\t++state;\n";
+	returnStream << ident << "\t\treturn usedTime + animate(deltaTime-usedTime" << animationCaptureArgs << "); \n";
+	returnStream << ident << "\t}\n";
+	returnStream << ident << "\telse {\n";
+	returnStream << ident << "\t\ttotalTime += usedTime;\n";
+	returnStream << ident << "\t\treturn usedTime;\n";
+	returnStream << ident << "\t}\n";
+	returnStream << ident << "}\n";
+	returnStream << ident << "};\n\n";
+	return returnStream.str();
 }
 
 
@@ -622,8 +679,13 @@ std::string Generator::generateAnimationSequenceSubAnimationsMembers(AnimationSe
 
 std::string Generator::generateConditionalAnimationSubAnimationsMembers(ConditionalAnimation* animation, const std::string& ident)
 {
-	std::cout << "Not implemented yet - conditional member\n";
-	return "";
+	std::stringstream returnStream;
+
+	if (animation->getIndex() == -1) // unlikely to happen
+		throw std::runtime_error("Wrong calling order");
+
+	returnStream << ident << "ConditionalAnimation" << animation->getIndex() << " conditionalAnimation" << animation->getIndex() << ";\n";
+	return returnStream.str();
 }
 
 

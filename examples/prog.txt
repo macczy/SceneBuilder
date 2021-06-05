@@ -103,21 +103,34 @@ MoveLeftRightTwoElements = AnimationSequence(first, second) {
 		}
 	}
 	
+	ConditionalAnimation {
+		duration: "2s"
+		
+		condition: second.x >= first.x
+		
+		Animation {
+			object: second
+			property: position
+			changeBy: first.position
+			duration: "0.5s"
+		}
+	}
+	
 	ParalelAnimation {
-		duration: "4s"
+		duration: "2s"
 	
 		Animation {
 			object: first
 			property: position
 			changeBy: Point(500, 0, 0)
-			duration: "4s"
+			duration: "2s"
 		}
 		
 		Animation {
 			object: second
 			property: position
 			changeBy: Point(500, 0, 0)
-			duration: "4s"
+			duration: "2s"
 		}
 	}
 

@@ -56,8 +56,8 @@ public:
         float lastFrame = 0.0f;	// Time between current frame and last frame
 
         //can be used to lock framerate
-        //constexpr int LIMIT_FRAME_RATE_PER_SECOND = 120;
-        //constexpr float MAX_SINGLE_FRAME_TIME = 1.0 / LIMIT_FRAME_RATE_PER_SECOND;
+        constexpr int LIMIT_FRAME_RATE_PER_SECOND = 120;
+        constexpr float MAX_SINGLE_FRAME_TIME = 1.0 / LIMIT_FRAME_RATE_PER_SECOND;
         while (!glfwWindowShouldClose(window))
         {
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -67,14 +67,14 @@ public:
             deltaTime = currentFrame - lastFrame;
 
             //can be used to lock framerate
-            //if (float difference = MAX_SINGLE_FRAME_TIME - deltaTime; difference > 0) {
-            //    std::this_thread::sleep_for(std::chrono::microseconds((int)(1000000 * difference)));
-            //    lastFrame = lastFrame + MAX_SINGLE_FRAME_TIME;
-            //    deltaTime = MAX_SINGLE_FRAME_TIME;
-            //}
-            //else {
-            lastFrame = currentFrame;
-            //}
+            if (float difference = MAX_SINGLE_FRAME_TIME - deltaTime; difference > 0) {
+                std::this_thread::sleep_for(std::chrono::milliseconds((int)(1000 * difference)));
+                lastFrame = lastFrame + MAX_SINGLE_FRAME_TIME;
+                deltaTime = MAX_SINGLE_FRAME_TIME;
+            }
+            else {
+                lastFrame = currentFrame;
+            }
 
             animate(deltaTime);
             draw(shaderId);
