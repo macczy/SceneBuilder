@@ -241,6 +241,9 @@ std::optional<Color> Parser::tryBuildColor() {
     if (getNextToken().getType() != TokenType::CLOSING_BRACKET) 
         throw SyntaxError("')'", currentToken);
     getNextToken();
+    firstHexValue += "/255.0f";
+    secondHexValue += "/255.0f";
+    thirdHexValue += "/255.0f";
     return Color(startingColorPosition, firstHexValue, secondHexValue, thirdHexValue);
 }
 

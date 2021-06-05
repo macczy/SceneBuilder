@@ -8,7 +8,7 @@ Door = {
 	doorHandle = Line {
 		z: 0.3
 		vertexes: [Point(50, -50), Point(60, -50), Point(60, -55)]
-		color: Color(#FF, #FF, #FF)
+		color: Color(#0, #0, #0)
 	}
 	
 			
@@ -36,8 +36,8 @@ MoveUpDown = AnimationSequence(obj) {
 		changeBy: Point(0, -20, 0)
 		duration: "5s"
 	}
-
 }
+
 
 House = {
 	mainBuilding = Rectangle {
@@ -86,4 +86,24 @@ Scene {
 		width: width
 		color: Color(#0, #FF, #0)
 	}
+	animations:[SunColorChanges(sun)]
+}
+
+SunColorChanges = AnimationSequence(sun) {
+	loops: AnimationConstants.Infinite 
+	
+	Animation {
+		object: sun
+		property: color
+		changeBy: Color(#0, #0, #0) - Color(#0, #5A, #0)
+		duration: "5s"
+	}
+	
+	Animation {
+		object: sun
+		property: color
+		changeBy: Color(#0, #5A, #0)
+		duration: "5s"
+	}
+
 }

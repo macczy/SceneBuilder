@@ -19,13 +19,14 @@ public:
 	std::string generateSceneClass(Scene* scene);
 	std::string generateAnimateSelf(Properties& properties);
 	std::string generateAnimations(std::vector<AnimationDeclarationPtr>& animations);
-	std::string generateSubAnimation(AnimationPtr& animation);
 
-	std::string generateWaitAnimation(Wait* animation, const std::string& time);
-	std::string generateBasicAnimation(Animation* animation, const std::string& time);
-	std::string generateParalelAnimation(ParalelAnimation* animation, const std::string& time);
-	std::string generateAnimationSequence(AnimationSequence* animation, const std::string& time);
-	std::string generateConditionalAnimation(ConditionalAnimation* animation, const std::string& time);
+	std::string generateSubAnimation(AnimationPtr& animation, const std::string& animationArgs);
+
+	std::string generateWaitAnimation(Wait* animation, const std::string& time, const std::string animationArgs);
+	std::string generateBasicAnimation(Animation* animation, const std::string& time, const std::string animationArgs);
+	std::string generateParalelAnimation(ParalelAnimation* animation, const std::string& time, const std::string animationArgs);
+	std::string generateAnimationSequence(AnimationSequence* animation, const std::string& time, const std::string animationArgs);
+	std::string generateConditionalAnimation(ConditionalAnimation* animation, const std::string& time, const std::string animationArgs);
 
 	struct LogicalExpressionGeneratorVisitor {
 		std::string operator()(const LogicalExpressionPtr& value);

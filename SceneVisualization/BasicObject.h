@@ -266,6 +266,12 @@ public:
 		}
 		bVerticesChanged = true;
 	}
+
+	void setcolor(glm::vec3 color)
+	{
+		this->color = color;
+	}
+
 private:
 	GLfloat radius;
 };

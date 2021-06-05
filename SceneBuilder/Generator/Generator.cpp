@@ -359,7 +359,7 @@ std::string Generator::getClassDeclaration(ComplexObjectDeclarationPtr& objectDe
 	return returnStream.str();
 }
 
-std::string Generator::generateWaitAnimation(Wait* animation, const std::string& time)
+std::string Generator::generateWaitAnimation(Wait* animation, const std::string& time, const std::string animationArgs)
 {
 	std::stringstream returnStream;
 	returnStream << "\t\t\t//Wait" << time << '\n';
@@ -370,12 +370,12 @@ std::string Generator::generateWaitAnimation(Wait* animation, const std::string&
 	returnStream << "\t\t\tfloat restTime = totalTime + deltaTime - " << time << ";\n";
 	returnStream << "\t\t\ttotalTime = 0;\n";
 	returnStream << "\t\t\t++state;\n";
-	returnStream << "\t\t\tanimate(restTime, obj);\n";
+	returnStream << "\t\t\tanimate(restTime" << animationArgs << "); \n";
 	returnStream << "\t\t\treturn;\n";
 	return returnStream.str();
 }
 
-std::string Generator::generateBasicAnimation(Animation* animation, const std::string& time)
+std::string Generator::generateBasicAnimation(Animation* animation, const std::string& time, const std::string animationArgs)
 {
 	std::stringstream returnStream;
 	
@@ -406,7 +406,7 @@ std::string Generator::generateBasicAnimation(Animation* animation, const std::s
 	std::string valueString = std::visit(ExpressionGeneratorVisitor(), changeByProperty->getValue());
 
 	//DO THE THING USING deltaTime
-	returnStream << "\t\t\t\t(" << objectName << ")->set" << propertyName << "(deltaTime*(\n";
+	returnStream << "\t\t\t\t(" << objectName << ")->set" << propertyName << "((deltaTime/"<< time <<")*(\n";
 	returnStream << "\t\t\t\t\t" << valueString << ") + (" << objectName << ")->get" << propertyName << "());\n";
 
 	returnStream << "\t\t\t\ttotalTime += deltaTime;\n";
@@ -415,31 +415,31 @@ std::string Generator::generateBasicAnimation(Animation* animation, const std::s
 	returnStream << "\t\t\tfloat restTime = totalTime + deltaTime - " << time << ";\n";
 
 	//DO THE THING USING deltaTime - restTime
-	returnStream << "\t\t\t\t(" << objectName << ")->set" << propertyName << "((deltaTime - restTime)*(\n";
+	returnStream << "\t\t\t\t(" << objectName << ")->set" << propertyName << "(((deltaTime - restTime)/" << time << ")*(\n";
 	returnStream << "\t\t\t\t\t" << valueString << ") + (" << objectName << ")->get" << propertyName << "());\n";
 
 	returnStream << "\t\t\ttotalTime = 0;\n";
 	returnStream << "\t\t\t++state;\n";
-	returnStream << "\t\t\tanimate(restTime, obj);\n";
+	returnStream << "\t\t\tanimate(restTime" << animationArgs << ");\n";
 	returnStream << "\t\t\treturn;\n";
 	return returnStream.str();
 }
-std::string Generator::generateParalelAnimation(ParalelAnimation* animation, const std::string& time)
+std::string Generator::generateParalelAnimation(ParalelAnimation* animation, const std::string& time, const std::string animationArgs)
 {
 	return "not implemented yet";
 
 }
-std::string Generator::generateAnimationSequence(AnimationSequence* animation, const std::string& time)
+std::string Generator::generateAnimationSequence(AnimationSequence* animation, const std::string& time, const std::string animationArgs)
 {
 	return "not implemented yet";
 
 }
-std::string Generator::generateConditionalAnimation(ConditionalAnimation* animation, const std::string& time)
+std::string Generator::generateConditionalAnimation(ConditionalAnimation* animation, const std::string& time, const std::string animationArgs)
 {
 	return "not implemented yet";
 }
 
-std::string Generator::generateSubAnimation(AnimationPtr& animation) {
+std::string Generator::generateSubAnimation(AnimationPtr& animation, const std::string& animationArgs) {
 	std::stringstream returnStream;
 
 	auto timeDeclarationIterator = std::find_if(animation->getProperties().begin(), animation->getProperties().end(), [](const PropertyPtr& prop) {return prop->getName() == "duration"; });
@@ -451,23 +451,23 @@ std::string Generator::generateSubAnimation(AnimationPtr& animation) {
 
 	if (auto wait = dynamic_cast<Wait*>(animation.get()))
 	{
-		returnStream << generateWaitAnimation(wait, time);
+		returnStream << generateWaitAnimation(wait, time, animationArgs);
 	}
 	else if (auto paralelAnimation = dynamic_cast<ParalelAnimation*>(animation.get()))
 	{
-		returnStream << generateParalelAnimation(paralelAnimation, time);
+		returnStream << generateParalelAnimation(paralelAnimation, time, animationArgs);
 	}
 	else if (auto animationSequence = dynamic_cast<AnimationSequence*>(animation.get()))
 	{
-		returnStream << generateAnimationSequence(animationSequence, time);
+		returnStream << generateAnimationSequence(animationSequence, time, animationArgs);
 	}
 	else if (auto conditionalAnimation = dynamic_cast<ConditionalAnimation*>(animation.get()))
 	{
-		returnStream << generateConditionalAnimation(conditionalAnimation, time);
+		returnStream << generateConditionalAnimation(conditionalAnimation, time, animationArgs);
 	}
 	else
 	{
-		returnStream << generateBasicAnimation(animation.get(), time);
+		returnStream << generateBasicAnimation(animation.get(), time, animationArgs);
 	}
 	return returnStream.str();
 }
@@ -478,11 +478,19 @@ std::string Generator::generateAnimations(std::vector<AnimationDeclarationPtr>& 
 	returnStream << "#pragma once\n";
 	returnStream << "#include \"Animation.h\"\n\n";
 
+
+
 	for (auto& animation : animations) {
 		returnStream << "class " << animation->getName() << " : public Animation {\npublic:\n";
 		returnStream << "\t" << animation->getName() << "() : Animation() {}\n";
 
 		returnStream << "\tvoid animate(float deltaTime";
+
+
+		std::string animationArgs;
+		for (auto& arg : animation->getArgs()) {
+			animationArgs += ", " + arg.getValue();
+		}
 
 		for (auto& arg : animation->getArgs()) {
 			returnStream << ", auto " << arg.getValue();
@@ -497,7 +505,7 @@ std::string Generator::generateAnimations(std::vector<AnimationDeclarationPtr>& 
 		for (int i = 0; i < subAnimations.size(); ++i) {
 			auto& subAnimation = subAnimations[i];
 			returnStream << "\t\tcase " << i << ": { \n";
-			returnStream << generateSubAnimation(subAnimation) << "\n\t\t}\n";
+			returnStream << generateSubAnimation(subAnimation, animationArgs) << "\n\t\t}\n";
 		}
 		returnStream << "\t\tdefault: state = 0; return;\n";
 		returnStream << "\t\t}\n";

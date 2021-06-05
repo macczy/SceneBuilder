@@ -1,5 +1,7 @@
 #pragma once
 #include "CommonHeader.h"
+#include <chrono>
+#include <thread>
 
 void processInput(GLFWwindow* window);
 
@@ -50,13 +52,25 @@ public:
         init();
         float deltaTime = 0.0f;	// Time between current frame and last frame
         float lastFrame = 0.0f;	// Time between current frame and last frame
+
+        constexpr int LIMIT_FRAME_RATE_PER_SECOND = 120;
+        constexpr float MAX_SINGLE_FRAME_TIME = 1.0 / LIMIT_FRAME_RATE_PER_SECOND;
         while (!glfwWindowShouldClose(window))
         {
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
             float currentFrame = glfwGetTime();
             deltaTime = currentFrame - lastFrame;
-            lastFrame = currentFrame;
+
+            if (float difference = MAX_SINGLE_FRAME_TIME - deltaTime; difference > 0) {
+                std::this_thread::sleep_for(std::chrono::microseconds((int)(1000000 * difference)));
+                lastFrame = lastFrame + MAX_SINGLE_FRAME_TIME;
+                deltaTime = MAX_SINGLE_FRAME_TIME;
+            }
+            else {
+                lastFrame = currentFrame;
+            }
 
             animate(deltaTime);
             draw(shaderId);
