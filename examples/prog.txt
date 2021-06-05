@@ -92,18 +92,22 @@ Scene {
 SunColorChanges = AnimationSequence(sun) {
 	loops: AnimationConstants.Infinite 
 	
-	Animation {
-		object: sun
-		property: color
-		changeBy: Color(#0, #0, #0) - Color(#0, #5A, #0)
-		duration: "5s"
-	}
+		Animation {
+			object: sun
+			property: color
+			changeBy: Color(#0, #0, #0) - Color(#0, #5A, #0)
+			duration: "5s"
+		}
+		
+		Animation {
+			object: sun
+			property: color
+			changeBy: Color(#0, #5A, #0)
+			duration: "5s"
+		}
 	
-	Animation {
-		object: sun
-		property: color
-		changeBy: Color(#0, #5A, #0)
-		duration: "5s"
-	}
+	
+	
+
 
 }

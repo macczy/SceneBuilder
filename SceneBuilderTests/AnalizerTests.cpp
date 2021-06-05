@@ -2,12 +2,12 @@
 
 TEST(AnalizerUnitTests, defaultConstructorTest) {
 	SceneRootPtr pt;
-	Analizer analizer(pt);
+	Analizer analizer(pt.get());
 }
 
 TEST(AnalizerUnitTests, evaluatePoint) {
 	SceneRootPtr pt;
-	Analizer analizer(pt);
+	Analizer analizer(pt.get());
 	Expression expr{ Point{ Position{}} };
 	Circle context{ Position(), Properties() };
 	if (analizer.evaluateExpression(context, expr) != ReturnType::POINT) {
@@ -17,7 +17,7 @@ TEST(AnalizerUnitTests, evaluatePoint) {
 
 TEST(AnalizerUnitTests, evaluateDecimalValue) {
 	SceneRootPtr pt;
-	Analizer analizer(pt);
+	Analizer analizer(pt.get());
 	Expression expr{ DecimalValue{Position{}, "10.01"} };
 	Circle context{ Position(), Properties() };//dummy context
 	if (analizer.evaluateExpression(context, expr) != ReturnType::DECIMAL_VALUE) {
@@ -27,7 +27,7 @@ TEST(AnalizerUnitTests, evaluateDecimalValue) {
 
 TEST(AnalizerUnitTests, evaluateColor) {
 	SceneRootPtr pt;
-	Analizer analizer(pt);
+	Analizer analizer(pt.get());
 	Expression expr{ Color{Position{}, "", "", "" } };
 	Circle context{ Position(), Properties() };//dummy context
 	if (analizer.evaluateExpression(context, expr) != ReturnType::COLOR) {
@@ -36,7 +36,7 @@ TEST(AnalizerUnitTests, evaluateColor) {
 }
 TEST(AnalizerUnitTests, evaluateTimeDeclaration) {
 	SceneRootPtr pt;
-	Analizer analizer(pt);
+	Analizer analizer(pt.get());
 	Expression expr{ TimeDeclaration{Position{}, "10", "s"} };
 	Circle context{ Position(), Properties() }; //dummy context
 	if (analizer.evaluateExpression(context, expr) != ReturnType::TIME_DECLARATION) {
@@ -46,7 +46,7 @@ TEST(AnalizerUnitTests, evaluateTimeDeclaration) {
 
 TEST(AnalizerUnitTests, evaluateAddition) {
 	SceneRootPtr pt;
-	Analizer analizer(pt);
+	Analizer analizer(pt.get());
 	{
 		Expression expr1{ TimeDeclaration{Position{}, "10", "s"} };
 		Expression expr2{ TimeDeclaration{Position{}, "10", "s"} };
@@ -79,7 +79,7 @@ TEST(AnalizerUnitTests, evaluateAddition) {
 
 TEST(AnalizerUnitTests, evaluateMultiplication) {
 	SceneRootPtr pt;
-	Analizer analizer(pt);
+	Analizer analizer(pt.get());
 	{
 		Expression expr1{ DecimalValue{Position{}, "10"} };
 		Expression expr2{ TimeDeclaration{Position{}, "10", "s"} };

@@ -37,7 +37,7 @@ TEST(ParserUnitTests, CreateColor) {
 		Parser parser(scanner);
 		
 		if (auto color = parser.tryBuildColor(); color) {
-			EXPECT_EQ(color->getValues(), tripleHexValues("#AB234", "#123", "#0123"));
+			EXPECT_EQ(color->getValues(), tripleHexValues("#AB234/255.0f", "#123/255.0f", "#0123/255.0f"));
 		} else {
 			FAIL() << "Expected Color";
 		}
@@ -339,7 +339,7 @@ TEST(ParserUnitTests, CreateValue) {
 		if (auto value = parser.tryBuildValue(); value) {
 			EXPECT_TRUE(std::holds_alternative<Color>(value.value()));
 			Color color = std::get<Color>(value.value());
-			EXPECT_EQ(color.getValues(), tripleHexValues("#AB234", "#123", "#0123"));
+			EXPECT_EQ(color.getValues(), tripleHexValues("#AB234/255.0f", "#123/255.0f", "#0123/255.0f"));
 		}
 		else {
 			FAIL() << "Expected Color";
