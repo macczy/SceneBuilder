@@ -252,6 +252,9 @@ std::string Generator::generateSceneClass(Scene* scene)
 	returnStream << "class MyScene : public Scene {\n";
 	returnStream << "public: \n";
 
+
+	returnStream << "virtual ~MyScene(){}\n";
+
 	//constructor
 	returnStream << "\t MyScene() : Scene() {\n";
 	for (auto& prop : scene->getProperties())
@@ -286,12 +289,12 @@ std::string Generator::generateAnimateSelf(Properties& properties)
 		return prop->getName() == "animations";
 	});
 	if (animationsIterator == properties.end()) {
-		return "\tvoid animateSelf(float deltaTime) {\n\t}\n";
+		return "\tvirtual void animateSelf(float deltaTime) {\n\t}\n";
 	}
 	else {
 		std::stringstream returnStream;
 
-		returnStream << "\tvoid animateSelf(float deltaTime) {\n";
+		returnStream << "\tvirtual void animateSelf(float deltaTime) {\n";
 
 		auto& animationCalls = std::get<AnimationProperty>((*animationsIterator)->getValue()).getAnimationCalls();
 		for (auto& animationCall : animationCalls) {
@@ -319,6 +322,7 @@ std::string Generator::getClassDeclaration(ComplexObjectDeclarationPtr& objectDe
 	returnStream << "class " + objectDeclaration->getName() + " : public ComplexObject {\n";
 	returnStream << "public: \n";
 
+	returnStream << "virtual ~" << objectDeclaration->getName() << "() {}\n";
 	//constructor
 	returnStream << "\t" << objectDeclaration->getName() << "() {\n";
 	for (auto& prop : objectDeclaration->getProperties())
@@ -540,6 +544,9 @@ std::string Generator::generateAnimationSequenceSubAnimationsInnerDeclaration(An
 	int my_index = index;
 	++index;
 	returnStream << ident << "class AnimationSequence" << my_index << " : public Animation {\n" << ident << "public:\n";
+
+	returnStream << "virtual ~AnimationSequence" << my_index << "() {}\n";
+
 	returnStream << ident << "\tAnimationSequence" << my_index << "() : Animation() {}\n";
 	
 	animation->setIndex(my_index);
@@ -590,6 +597,9 @@ std::string Generator::generateConditionalAnimationSubAnimationsInnerDeclaration
 	int my_index = index;
 	++index;
 	returnStream << ident << "class ConditionalAnimation" << my_index << " : public Animation {\n" << ident << "public:\n";
+
+	returnStream << "virtual ~ConditionalAnimation" << my_index << "() {}\n";
+
 	returnStream << ident << "\tConditionalAnimation" << my_index << "() : Animation() {}\n";
 
 	animation->setIndex(my_index);

@@ -12,6 +12,7 @@ public:
 	}
 
 	ComplexObject() {}
+	virtual ~ComplexObject() {}
 
 	virtual void animateSelf(float deltaTime) = 0;
 

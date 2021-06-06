@@ -12,6 +12,8 @@ public:
 	{
 	}
 
+    virtual ~Scene() {}
+
 	virtual void run()
 	{
         if (glfwInit() != GL_TRUE)
