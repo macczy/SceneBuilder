@@ -17,7 +17,6 @@ Door = {
 }
 
 MoveUpDown = AnimationSequence(obj) {
-	loops: AnimationConstants.Infinite 
 
 	Animation {
 		object: obj
@@ -87,7 +86,6 @@ Car = {
 }
 
 MoveLeftRightTwoElements = AnimationSequence(first, second, duration) {
-	loops: AnimationConstants.Infinite 
 		
 	AnimationSequence {
 		duration: 2*duration
@@ -175,22 +173,49 @@ Scene {
 		color: Color(#0, #FF, #0)
 		z: -2.0
 	}
-	animations:[SunColorChanges(sun), MoveLeftRightTwoElements(my_car1, my_car2, "2s")]
+	animations:[SunAnimation(sun), MoveLeftRightTwoElements(my_car1, my_car2, "2s")]
 }
 
-SunColorChanges = AnimationSequence(sun) {
-	loops: AnimationConstants.Infinite 
-	Animation {
-		object: sun
-		property: color
-		changeBy: Color(#0, #0, #0) - Color(#0, #5A, #0)
-		duration: "5s"
+SunAnimation = AnimationSequence(sun) {
+	duration: "10s"
+	
+	ParalelAnimation {
+		duration: "10s"
+		AnimationSequence {
+			duration: "10s"
+			Animation {
+				object: sun
+				property: radius
+				changeBy: 50
+				duration: "5s"
+			}
+			
+			Animation {
+				object: sun
+				property: radius
+				changeBy: -50
+				duration: "5s"
+			}	
+		}
+	
+		AnimationSequence {
+			duration: "10s"
+			Animation {
+				object: sun
+				property: color
+				changeBy: Color(#0, #0, #0) - Color(#0, #5A, #0)
+				duration: "5s"
+			}
+			
+			Animation {
+				object: sun
+				property: color
+				changeBy: Color(#0, #5A, #0)
+				duration: "5s"
+			}	
+		}
+
 	}
 	
-	Animation {
-		object: sun
-		property: color
-		changeBy: Color(#0, #5A, #0)
-		duration: "5s"
-	}
+
 }
