@@ -18,12 +18,24 @@ Analizer::Analizer(SceneRoot* root) : root(root) {
 	};
 }
 
+void Analizer::validateObjectProperties(const std::string& typeName, Properties& properties)
+{
+	for (auto& prop : properties) {
+
+
+
+	}
+}
+
+#include <iostream>
 
 void Analizer::validateObjects(const Objects& objects) {
 	for (auto& object : objects)
 	{
 		auto type = object->object->getObjectTypeName();
 		auto& position = object->pos;
+
+		validateObjectProperties(type, object->object->getProperties());
 		 
 		if (type == "Circle" || type == "Line" || type == "Rectangle" || type == "Polygon")
 			continue;
@@ -45,6 +57,10 @@ bool Analizer::isValid()
 	if (!root) return false;
 
 	if (!root->getScene()) return false;
+
+	for (auto& obj : root->getKnownObjects()) {
+		validateObjects(obj->getObjects());
+	}
 
 	validateObjects(root->getScene()->getObjects());
 

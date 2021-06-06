@@ -12,7 +12,7 @@ public:
 	std::string generateExpression(const Expression& expr);
 	std::string getMembers(Objects& objects);
 	std::string getMembers(Properties& props);
-	std::string getGetters(Objects& objects);
+	std::string getGettersAndSetters(Objects& objects);
 	std::string generateSubObjectInitialization(ObjectIdentifierPairPtr& object);
 	std::string getClassDeclaration(ComplexObjectDeclarationPtr& objectDeclaration);
 	std::string getIncludeStatements(Objects& objectDeclaration);

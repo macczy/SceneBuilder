@@ -22,8 +22,8 @@ public:
         glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
         glfwWindowHint(GLFW_SAMPLES, 4);
         glEnable(GL_MULTISAMPLE);
-        GLFWwindow* window = glfwCreateWindow((GLuint)width, (GLuint)height, "Scene", NULL, NULL);
-        if (window == NULL)
+        window = glfwCreateWindow((GLuint)width, (GLuint)height, "Scene", NULL, NULL);
+        if (window == nullptr)
         {
             glfwTerminate();
             throw std::runtime_error("Failed to create GLFW window");
@@ -38,18 +38,18 @@ public:
 
         glEnable(GL_DEPTH_TEST);
 
-        ShaderProgram shader("shaders/shader.vert", "shaders/shader.frag");
-        const int shaderId = shader.get_programID();
+        shader = std::make_unique<ShaderProgram>("shaders/shader.vert", "shaders/shader.frag");
+        const int shaderId = shader->get_programID();
 
-        shader.use();
+        shader->use();
         {
             glm::mat4 view = glm::lookAt(
                 glm::vec3(0.0f, 0.0f, 3.0f), //eye
                 glm::vec3(0.0f, 0.0f, 0.0f), //center
                 glm::vec3(0.0f, 1.0f, 0.0f)); //up
+            shader->setMat4("view", view);
             glm::mat4 projection = glm::ortho(0.0f, width, 0.0f, height, 0.0f, 500.0f);
-            shader.setMat4("view", view);
-            shader.setMat4("projection", projection);
+            shader->setMat4("projection", projection);
         }
         init();
         float deltaTime = 0.0f;	// Time between current frame and last frame
@@ -58,6 +58,7 @@ public:
         //can be used to lock framerate
         constexpr int LIMIT_FRAME_RATE_PER_SECOND = 120;
         constexpr float MAX_SINGLE_FRAME_TIME = 1.0 / LIMIT_FRAME_RATE_PER_SECOND;
+        updatePosition();
         while (!glfwWindowShouldClose(window))
         {
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -67,14 +68,14 @@ public:
             deltaTime = currentFrame - lastFrame;
 
             //can be used to lock framerate
-            if (float difference = MAX_SINGLE_FRAME_TIME - deltaTime; difference > 0) {
-                std::this_thread::sleep_for(std::chrono::milliseconds((int)(1000 * difference)));
-                lastFrame = lastFrame + MAX_SINGLE_FRAME_TIME;
-                deltaTime = MAX_SINGLE_FRAME_TIME;
-            }
-            else {
+            //if (float difference = MAX_SINGLE_FRAME_TIME - deltaTime; difference > 0) {
+            //    std::this_thread::sleep_for(std::chrono::milliseconds((int)(1000 * difference)));
+            //    lastFrame = lastFrame + MAX_SINGLE_FRAME_TIME;
+            //    deltaTime = MAX_SINGLE_FRAME_TIME;
+            //}
+            //else {
                 lastFrame = currentFrame;
-            }
+            //}
 
             animate(deltaTime);
             draw(shaderId);
@@ -87,9 +88,30 @@ public:
 	}
 	virtual GLfloat getheight() { return height; }
 	virtual GLfloat getwidth() { return width; }
-    virtual void setheight(GLfloat height) { this->height = height; }
-    virtual void setwidth(GLfloat width) { this->width = width; }
-protected:
+    virtual void setheight(GLfloat height) { 
+        this->height = height;
+        updatePosition();
+    }
+    virtual void setwidth(GLfloat width) { 
+        this->width = width;
+        updatePosition();
+    }
+
+    virtual void updatePosition()
+    {
+        auto* monitor = glfwGetPrimaryMonitor();
+        if (!monitor) return;
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        if (!mode) return;
+        glfwSetWindowPos(window, mode->width / 2.0f - width / 2.0f, mode->height / 2.0f - height / 2.0f);
+        glfwSetWindowSize(window, (GLuint)width, (GLuint)height);
+        glViewport(0, 0, (GLuint)width, (GLuint)height);
+        glm::mat4 projection = glm::ortho(0.0f, width, 0.0f, height, 0.0f, 500.0f);
+        shader->setMat4("projection", projection);
+    }
+protected: 
+    std::unique_ptr<ShaderProgram> shader;
+    GLFWwindow* window = nullptr;
 	GLfloat width = 800.0f;
 	GLfloat height = 500.0f;
 };

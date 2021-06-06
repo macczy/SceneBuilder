@@ -6,8 +6,10 @@ Door = {
 	}
 	
 	doorHandle = Line {
+		y: -100
+		x: 60
 		z: 0.3
-		vertexes: [Point(50, -50), Point(60, -50), Point(60, -55)]
+		vertexes: [Point(0, 0), Point(10, 0), Point(10, -5)]
 		color: Color(#0, #0, #0)
 	}
 	
@@ -104,17 +106,18 @@ MoveLeftRightTwoElements = AnimationSequence(first, second) {
 	}
 	
 	ConditionalAnimation {
-		duration: "2s"
+		duration: "500ms"
 		
-		condition: second.x >= first.x
+		condition: second.x > first.x
 		
 		Animation {
 			object: second
 			property: position
-			changeBy: first.position
-			duration: "0.5s"
+			changeBy: Point(-10, 0, 0)
+			duration: "1s"
 		}
 	}
+	
 	
 	ParalelAnimation {
 		duration: "2s"
@@ -149,13 +152,13 @@ Scene {
 	
 		
 	my_car1 = Car {
-		x: 900
+		x: 600
 		y: 200
 	}
 	
 		
 	my_car2 = Car {
-		x: 1000
+		x: 700
 		y: 100
 	}
 	

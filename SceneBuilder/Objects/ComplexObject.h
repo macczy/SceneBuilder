@@ -23,7 +23,6 @@ public:
 	virtual std::string getObjectTypeName() const { return getTypeIdentifier(); };
 protected:
 	const std::string typeIdentifier;
-	//Animations animations;
 };
 
 

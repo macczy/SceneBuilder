@@ -27,39 +27,25 @@ void Generator::run()
 	system(command.c_str());
 }
 
-std::string Generator::getGetters(Objects& objects)
+std::string Generator::getGettersAndSetters(Objects& objects)
 {
 	std::stringstream returnStream;
 
-	//auto basicProperites = { "width", "height", "x", "y", "z" };
-	//for (auto property : basicProperites)
-	//{
-	//	returnStream << "\tGLfloat get" << property << "() { return " << property << ";}\n";
-	//}
 	for (auto& obj : objects)
 	{
 		if (auto complex = dynamic_cast<ComplexObject*>(obj->object.get()); complex)
 		{
 			returnStream << "\t" << complex->getTypeIdentifier() << "* get" << obj->name << "() { return " << obj->name << ";}\n";
+			returnStream << "\tvoid set" << obj->name << "(" << complex->getTypeIdentifier() << "* " << obj->name << ") { this->" << obj->name << " = " << obj->name << ";}\n";
 		}
 		else if (auto basic = dynamic_cast<BasicObject*>(obj->object.get()); basic)
 		{
-			if (auto circle = dynamic_cast<Circle*>(basic); circle)
-			{
-				returnStream << "\tCircle* get" << obj->name << "() { return " << obj->name << ";}\n";
-			}
-			else if (auto circle = dynamic_cast<Rectangle*>(basic); circle)
-			{
-				returnStream << "\tRectangle* get" << obj->name << "() { return " << obj->name << ";}\n";
-			}
-			else if (auto circle = dynamic_cast<Polygon*>(basic); circle)
-			{
-				returnStream << "\tPolygon* get" << obj->name << "() { return " << obj->name << ";}\n";
-			}
-			else if (auto circle = dynamic_cast<Line*>(basic); circle)
-			{
-				returnStream << "\tLine* get" << obj->name << "() { return " << obj->name << ";}\n";
-			}
+			returnStream << "\tvoid set" << obj->name << "(" << basic->getObjectTypeName() << "* " << obj->name << ") { this->" << obj->name << " = " << obj->name << ";}\n";
+			returnStream << "\t" << basic->getObjectTypeName() << "* get" << obj->name << "() { return " << obj->name << "; }\n";
+		}
+		else
+		{
+			std::cout << "undefined object member \n" << obj->pos.toString();
 		}
 	}
 	return returnStream.str();
@@ -271,7 +257,7 @@ std::string Generator::generateSceneClass(Scene* scene)
 	for (auto& prop : scene->getProperties())
 	{
 		if (prop->getName() != "animations") {
-			returnStream << "\t\t" << prop->getName() << " = " << generateExpression(prop->getValue()) << ";\n";
+			returnStream << "\t\tset" << prop->getName() << "(" << generateExpression(prop->getValue()) << ");\n";
 		}
 	}
 
@@ -285,7 +271,7 @@ std::string Generator::generateSceneClass(Scene* scene)
 
 	returnStream << generateAnimateSelf(scene->getProperties()) << '\n';
 
-	returnStream << "public:\n" << getGetters(scene->getObjects());;
+	returnStream << "public:\n" << getGettersAndSetters(scene->getObjects());
 	returnStream << "private:\n" << 
 		getMembers(scene->getObjects()) << '\n' 
 		<< getMembers(scene->getProperties()) << '\n';
@@ -338,14 +324,12 @@ std::string Generator::getClassDeclaration(ComplexObjectDeclarationPtr& objectDe
 	for (auto& prop : objectDeclaration->getProperties())
 	{
 		if (prop->getName() != "animations") {
-			//init property
-			returnStream << "\t\t" << prop->getName() << " = " << generateExpression(prop->getValue()) << ";\n";
+			returnStream << "\t\tset" << prop->getName() << "(" << generateExpression(prop->getValue()) << ");\n";
 		}
 	}
 
 	for (auto& object : objectDeclaration->getObjects())
 	{
-		//init object
 		returnStream << generateSubObjectInitialization(object) << "\n";
 	}
 	returnStream << "\t}\n";
@@ -353,7 +337,7 @@ std::string Generator::getClassDeclaration(ComplexObjectDeclarationPtr& objectDe
 
 	returnStream << generateAnimateSelf(objectDeclaration->getProperties()) << '\n';
 
-	returnStream << "public:\n" << getGetters(objectDeclaration->getObjects());;
+	returnStream << "public:\n" << getGettersAndSetters(objectDeclaration->getObjects());;
 	returnStream << "private:\n" <<
 		getMembers(objectDeclaration->getObjects()) << '\n'
 		<< getMembers(objectDeclaration->getProperties()) << '\n';
