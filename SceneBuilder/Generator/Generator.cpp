@@ -366,14 +366,16 @@ std::string Generator::generateWaitAnimation(Wait* animation, const std::string&
 	std::stringstream returnStream;
 	returnStream << " [deltaTime, this" << animationArgs << "]() {\t\t//Wait\n";
 	returnStream << ident << "\tfloat timeToUse = deltaTime;\n";
-	returnStream << ident << "\tif(deltaTime + totalTime > " << time << ") {\n";
+	returnStream << ident << "\tbool shouldFinish = false;\n";
+	returnStream << ident << "\tif(deltaTime + totalTime >= " << time << ") {\n";
 	returnStream << ident << "\t\tfloat restTime = totalTime - " << time << ";\n";
 	returnStream << ident << "\t\ttimeToUse = deltaTime - restTime;\n";
+	returnStream << ident << "\t\tshouldFinish = true;\n";
 	returnStream << ident << "\t}\n";
 	returnStream << ident << "\tif(timeToUse <= 0 ) {\n";
-	returnStream << ident << "\t\treturn 0.0f;\n";
+	returnStream << ident << "\t\treturn std::make_pair(0.0f, shouldFinish);\n";
 	returnStream << ident << "\t}\n";
-	returnStream << ident << "\treturn timeToUse;\n";
+	returnStream << ident << "\treturn std::make_pair(timeToUse, shouldFinish);\n";
 	returnStream << ident << "}();\n";
 	return returnStream.str();
 }
@@ -407,23 +409,24 @@ std::string Generator::generateBasicAnimation(Animation* animation, const std::s
 
 	returnStream << " [deltaTime, this" << animationArgs << "]() {\t\t//BasicAnimation\n";
 	returnStream << ident << "\tfloat timeToUse = deltaTime;\n";
-	returnStream << ident << "\tif(deltaTime + totalTime > " << time << ") {\n";
+	returnStream << ident << "\tbool shouldFinish = false;\n";
+	returnStream << ident << "\tif(deltaTime + totalTime >= " << time << ") {\n";
 	returnStream << ident << "\t\tfloat restTime = totalTime - " << time << ";\n";
 	returnStream << ident << "\t\ttimeToUse = deltaTime - restTime;\n";
+	returnStream << ident << "\t\tshouldFinish = true;\n";
 	returnStream << ident << "\t}\n";
 	returnStream << ident << "\tif(timeToUse <= 0 ) {\n";
-	returnStream << ident << "\t\treturn 0.0f;\n";
+	returnStream << ident << "\t\treturn std::make_pair(0.0f, shouldFinish);\n";
 	returnStream << ident << "\t}\n";
 	returnStream << ident << "\t(" << objectName << ")->set" << propertyName << "((timeToUse/"<< time <<")*(\n";
 	returnStream << ident << "\t\t" << valueString << ") + (" << objectName << ")->get" << propertyName << "());\n";
-	returnStream << ident << "\treturn timeToUse;\n";
+	returnStream << ident << "\treturn std::make_pair(timeToUse, shouldFinish);\n";
 	returnStream << ident << "}();\n";
 
 	return returnStream.str();
 }
 std::string Generator::generateParalelAnimation(ParalelAnimation* animation, const std::string& time, const std::string animationArgs, const std::string& ident)
 {
-	std::string paralelTime = time + "/2.0";
 	std::stringstream returnStream;
 
 	auto& properties = animation->getProperties();
@@ -431,12 +434,14 @@ std::string Generator::generateParalelAnimation(ParalelAnimation* animation, con
 	returnStream << " [deltaTime, this" << animationArgs << "]() {\t\t//ParalelAnimation\n";
 
 	returnStream << ident << "\tfloat timeToUse = deltaTime;\n";
-	returnStream << ident << "\tif(deltaTime + totalTime > " << paralelTime << ") {\n";
-	returnStream << ident << "\t\tfloat restTime = totalTime - " << paralelTime << ";\n";
+	returnStream << ident << "\tbool shouldFinish = false;\n";
+	returnStream << ident << "\tif(deltaTime + totalTime >= " << time << ") {\n";
+	returnStream << ident << "\t\tfloat restTime = totalTime - " << time << ";\n";
 	returnStream << ident << "\t\ttimeToUse = deltaTime - restTime;\n";
+	returnStream << ident << "\t\tshouldFinish = true;\n";
 	returnStream << ident << "\t}\n";
 	returnStream << ident << "\tif(timeToUse <= 0 ) {\n";
-	returnStream << ident << "\t\treturn 0.0f;\n";
+	returnStream << ident << "\t\treturn std::make_pair(0.0f, shouldFinish);\n";
 	returnStream << ident << "\t}\n";
 
 	auto& subAnimations = animation->getAnimations();
@@ -445,7 +450,7 @@ std::string Generator::generateParalelAnimation(ParalelAnimation* animation, con
 		returnStream << ident << "\t" << generateSubAnimation(subAnimation, animationArgs, ident + "\t") << "\n";
 	}
 
-	returnStream << ident << "return timeToUse;\n";
+	returnStream << ident << "\treturn std::make_pair(timeToUse, shouldFinish);\n";
 	returnStream << ident << "}();\n";
 	return returnStream.str();
 }
@@ -456,18 +461,21 @@ std::string Generator::generateAnimationSequence(AnimationSequence* animation, c
 	returnStream << " [deltaTime, this" << animationArgs << "]() {\t\t//AnimationSequence\n";
 
 	returnStream << ident << "\tfloat timeToUse = deltaTime;\n";
-	returnStream << ident << "\tif(deltaTime + totalTime > " << time << ") {\n";
+	returnStream << ident << "\tbool shouldFinish = false;\n";
+	returnStream << ident << "\tif(deltaTime + totalTime >= " << time << ") {\n";
 	returnStream << ident << "\t\tfloat restTime = totalTime - " << time << ";\n";
 	returnStream << ident << "\t\ttimeToUse = deltaTime - restTime;\n";
+	returnStream << ident << "\t\tshouldFinish = true;\n";
 	returnStream << ident << "\t}\n";
 	returnStream << ident << "\tif(timeToUse <= 0 ) {\n";
-	returnStream << ident << "\t\treturn 0.0f;\n";
+	returnStream << ident << "\t\treturn std::make_pair(0.0f, shouldFinish);\n";
 	returnStream << ident << "\t}\n";
 
 	if (animation->getIndex() == -1) // unlikely to happen
 		throw std::runtime_error("Wrong calling order");
 
-	returnStream << ident << "\treturn animationSequence" << animation->getIndex() << ".animate(timeToUse" << animationArgs << "); \n";
+	returnStream << ident << "\tanimationSequence" << animation->getIndex() << ".animate(timeToUse" << animationArgs << "); \n";
+	returnStream << ident << "\treturn std::make_pair(timeToUse, shouldFinish);\n";
 
 	returnStream << ident << "}();\n";
 	return returnStream.str();
@@ -478,18 +486,24 @@ std::string Generator::generateConditionalAnimation(ConditionalAnimation* animat
 	returnStream << " [deltaTime, this" << animationArgs << "]() {\t\t//ConditionalAnimation\n";
 
 	returnStream << ident << "\tfloat timeToUse = deltaTime;\n";
-	returnStream << ident << "\tif(deltaTime + totalTime > " << time << ") {\n";
+	returnStream << ident << "\tbool shouldFinish = false;\n";
+	returnStream << ident << "\tif(deltaTime + totalTime >= " << time << ") {\n";
 	returnStream << ident << "\t\tfloat restTime = totalTime - " << time << ";\n";
 	returnStream << ident << "\t\ttimeToUse = deltaTime - restTime;\n";
+	returnStream << ident << "\t\tshouldFinish = true;\n";
 	returnStream << ident << "\t}\n";
 	returnStream << ident << "\tif(timeToUse <= 0 ) {\n";
-	returnStream << ident << "\t\treturn 0.0f;\n";
+	returnStream << ident << "\t\treturn std::make_pair(0.0f, shouldFinish);\n";
 	returnStream << ident << "\t}\n";
 
 	if (animation->getIndex() == -1) // unlikely to happen
 		throw std::runtime_error("Wrong calling order");
 
-	returnStream << ident << "\treturn conditionalAnimation" << animation->getIndex() << ".animate(timeToUse" << animationArgs << "); \n";
+	returnStream << ident << "\tfloat timeUsedRet; bool shouldFinishRet;\n";
+	returnStream << ident << "\tstd::tie(timeUsedRet, shouldFinishRet) = conditionalAnimation" << animation->getIndex() << ".animate(deltaTime" << animationArgs << "); \n";
+	returnStream << ident << "\tif(shouldFinish || shouldFinishRet)\n";
+	returnStream << ident << "\t\treturn std::make_pair(timeUsedRet, true);\n";
+	returnStream << ident << "\treturn std::make_pair(timeUsedRet, false);\n";
 
 	returnStream << ident << "}();\n";
 	return returnStream.str();
@@ -554,27 +568,28 @@ std::string Generator::generateAnimationSequenceSubAnimationsInnerDeclaration(An
 
 	returnStream << '\n' <<  ident << "float animate(" << animationArgs << ") {\n";
 
-	returnStream << ident << "\tif(deltaTime <= 0) return 0.0f;\n";
 	returnStream << ident << "\tif(state >= " << animation->getAnimations().size() << ") {\n";
 	returnStream << ident << "\t\tstate = 0;\n";
 	returnStream << ident << "\t\ttotalTime = 0.0f;\n";
-	returnStream << ident << "\t\treturn 0.0f;\n";
 	returnStream << ident << "\t}\n";
 
+	returnStream << ident << "\tif(deltaTime <= 0) return 0.0f;\n";
 	returnStream << ident << "\tfloat usedTime = 0.0f;\n";
+	returnStream << ident << "\tbool shouldFinish;\n";
 
 	returnStream << ident << "\tswitch(state) {\n";
 	for (int i = 0; i < subAnimations.size(); ++i) {
 		auto& subAnimation = subAnimations[i];
 		returnStream << ident << "\tcase " << i << ": { \n";
-		returnStream << ident << "\tusedTime = " << generateSubAnimation(subAnimation, animationCaptureArgs, "\t\t\t") << "\t\tbreak;\n\t\t}\n";
+		returnStream << ident << "\tstd::tie(usedTime, shouldFinish) = " << generateSubAnimation(subAnimation, animationCaptureArgs, "\t\t\t") << "\t\tbreak;\n\t\t}\n";
 	}
 	returnStream << ident << "\t}\n";
 
-	returnStream << ident << "\tif(usedTime < deltaTime) {\n";
+	returnStream << ident << "\tif(shouldFinish) {\n";
 	returnStream << ident << "\t\ttotalTime = 0;\n";
 	returnStream << ident << "\t\t++state;\n";
-	returnStream << ident << "\t\treturn usedTime + animate(deltaTime-usedTime" << animationCaptureArgs << "); \n";
+	returnStream << ident << "\t\tfloat usedTimeRet = animate(deltaTime-usedTime" << animationCaptureArgs << "); \n";
+	returnStream << ident << "\t\treturn usedTime + usedTimeRet;\n";
 	returnStream << ident << "\t}\n";
 	returnStream << ident << "\telse {\n";
 	returnStream << ident << "\t\ttotalTime += usedTime;\n";
@@ -601,36 +616,37 @@ std::string Generator::generateConditionalAnimationSubAnimationsInnerDeclaration
 		returnStream << ident << generateSubAnimationsInnerDeclaration(subAnimation, animationArgs, animationCaptureArgs, ident + "\t");
 	}
 
-	returnStream << '\n' << ident << "float animate(" << animationArgs << ") {\n";
+	returnStream << '\n' << ident << "std::pair<float, bool> animate(" << animationArgs << ") {\n";
 
 	returnStream << ident << "\tif(!(" << std::visit(LogicalExpressionGeneratorVisitor(), (*animation->getCondition().get())) << "))\n";
-	returnStream << ident << "\t\treturn 0.0f;\n";
+	returnStream << ident << "\t\treturn {0.0f, true};\n";
 
-	returnStream << ident << "\tif(deltaTime <= 0) return 0.0f;\n";
 	returnStream << ident << "\tif(state >= " << animation->getAnimations().size() << ") {\n";
 	returnStream << ident << "\t\tstate = 0;\n";
 	returnStream << ident << "\t\ttotalTime = 0.0f;\n";
-	returnStream << ident << "\t\treturn 0.0f;\n";
 	returnStream << ident << "\t}\n";
 
+	returnStream << ident << "\tif(deltaTime <= 0) return {0.0f, false};\n";
 	returnStream << ident << "\tfloat usedTime = 0.0f;\n";
+	returnStream << ident << "\tbool shouldFinish;\n";
 
 	returnStream << ident << "\tswitch(state) {\n";
 	for (int i = 0; i < subAnimations.size(); ++i) {
 		auto& subAnimation = subAnimations[i];
 		returnStream << ident << "\tcase " << i << ": { \n";
-		returnStream << ident << "\tusedTime = " << generateSubAnimation(subAnimation, animationCaptureArgs, "\t\t\t") << "\t\tbreak;\n\t\t}\n";
+		returnStream << ident << "\tstd::tie(usedTime, shouldFinish) = " << generateSubAnimation(subAnimation, animationCaptureArgs, "\t\t\t") << "\t\tbreak;\n\t\t}\n";
 	}
 	returnStream << ident << "\t}\n";
 
-	returnStream << ident << "\tif(usedTime < deltaTime) {\n";
+	returnStream << ident << "\tif(shouldFinish) {\n";
 	returnStream << ident << "\t\ttotalTime = 0;\n";
 	returnStream << ident << "\t\t++state;\n";
-	returnStream << ident << "\t\treturn usedTime + animate(deltaTime-usedTime" << animationCaptureArgs << "); \n";
+	returnStream << ident << "\t\tauto [usedTimeRet, shouldFinishRet] = animate(deltaTime-usedTime" << animationCaptureArgs << "); \n";
+	returnStream << ident << "\t\treturn {usedTime + usedTimeRet, shouldFinishRet};\n";
 	returnStream << ident << "\t}\n";
 	returnStream << ident << "\telse {\n";
 	returnStream << ident << "\t\ttotalTime += usedTime;\n";
-	returnStream << ident << "\t\treturn usedTime;\n";
+	returnStream << ident << "\t\treturn {usedTime, false};\n";
 	returnStream << ident << "\t}\n";
 	returnStream << ident << "}\n";
 	returnStream << ident << "};\n\n";
@@ -742,24 +758,29 @@ std::string Generator::generateAnimations(std::vector<AnimationDeclarationPtr>& 
 		returnStream << "\t\t\t state = 0;\n";
 
 		returnStream << "\t\tfloat usedTime = 0.0f;\n";
+		returnStream << "\t\tbool shouldFinish = true;\n";
 
 		returnStream << "\t\tswitch(state) {\n";
 		for (int i = 0; i < subAnimations.size(); ++i) {
 			auto& subAnimation = subAnimations[i];
 			returnStream << "\t\tcase " << i << ": { \n";
-			returnStream << "\t\tusedTime = " << generateSubAnimation(subAnimation, animationArgs, "\t\t\t") << "\t\tbreak;\n\t\t}\n";
+			returnStream << "\t\tstd::tie(usedTime, shouldFinish) = " << generateSubAnimation(subAnimation, animationArgs, "\t\t\t") << "\t\tbreak;\n\t\t}\n";
 		}
 		returnStream << "\t\t}\n";
 
-		returnStream << "\t\tif(usedTime < deltaTime) {\n";
-		returnStream << "\t\t\ttotalTime = 0;\n";
-		returnStream << "\t\t\t++state;\n";
+
+		returnStream << "\tif(usedTime < deltaTime) {\n";
+		returnStream << "\t\ttotalTime = 0;\n";
+		returnStream << "\t\t++state;\n";
 		returnStream << "\t\t\tanimate(deltaTime-usedTime" << animationArgs << "); \n";
-		returnStream << "\t\t}\n";
-		returnStream << "\t\telse {\n";
-		returnStream << "\t\t\ttotalTime += usedTime;\n";
-		returnStream << "\t\t}\n";
+		//returnStream << "\t\tauto [retUsedTime, retIsFinished]
+		returnStream << "\t\treturn;\n";// std::make_pair(retUsedTime + usedTime, retIsFinished);\n";
 		returnStream << "\t}\n";
+		returnStream << "\telse {\n";
+		returnStream << "\t\ttotalTime += usedTime;\n";
+		returnStream << "\t\treturn;\n";// std::make_pair(usedTime, false); \n";
+		returnStream << "\t}\n";
+		returnStream << "}\n";
 
 		returnStream << "private:\n";
 
