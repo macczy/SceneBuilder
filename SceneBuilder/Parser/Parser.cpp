@@ -564,6 +564,7 @@ AdditionPtr Parser::tryBuildAddition( Expression& firstValue) {
 }
 
 LogicalSubExpressionPtr Parser::tryBuildLogicalExpressionInBrackets() {
+    return nullptr;
     if (currentToken.getType() == TokenType::OPENING_BRACKET) {
         auto openingToken = currentToken;
         getNextToken();

@@ -602,7 +602,14 @@ std::string Generator::generateConditionalAnimationSubAnimationsInnerDeclaration
 
 	returnStream << '\n' << ident << "std::pair<float, bool> animate(" << animationArgs << ") {\n";
 
-	returnStream << ident << "\tif(!(" << std::visit(LogicalExpressionGeneratorVisitor(), (*animation->getCondition().get())) << "))\n";
+	if(animation->getCondition())
+		returnStream << ident << "\tif(!(" << std::visit(LogicalExpressionGeneratorVisitor(), (*animation->getCondition().get())) << "))\n";
+	else {
+		auto condition = std::find_if(animation->getProperties().begin(), animation->getProperties().end(), [](const PropertyPtr& prop) { return prop->getName() == "condition"; });
+		if (condition == animation->getProperties().end())
+			throw MissingRequiredProperty("condition", "ConditionalAnimation", animation->getPosition());
+		returnStream << ident << "\tif(!(" << std::visit(ExpressionGeneratorVisitor(), (*condition)->getValue()) << "))\n";
+	}
 	returnStream << ident << "\t\treturn {0.0f, true};\n";
 
 	returnStream << ident << "\tif(state >= " << animation->getAnimations().size() << ") {\n";
@@ -741,8 +748,6 @@ std::string Generator::generateAnimations(std::vector<AnimationDeclarationPtr>& 
 		returnStream << "\t\t\tstate = 0;\n";
 		returnStream << "\t\t\ttotalTime = 0.0f;\n";
 		returnStream << "\t\t}\n";
-
-
 
 		returnStream << "\t\tif(deltaTime <= 0) return;\n";
 

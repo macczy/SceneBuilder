@@ -245,6 +245,7 @@
     <ClInclude Include="Exceptions\TokenTooLong.h" />
     <ClInclude Include="Exceptions\TypeMismatch.h" />
     <ClInclude Include="Exceptions\UndefinedObject.h" />
+    <ClInclude Include="Exceptions\WrongNumberOfArguments.h" />
     <ClInclude Include="Generator\Generator.h" />
     <ClInclude Include="Objects\Addition.h" />
     <ClInclude Include="Objects\Animation.h" />

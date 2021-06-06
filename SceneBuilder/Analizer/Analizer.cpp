@@ -1,6 +1,8 @@
 #include "Analizer.h"
 #include "../Exceptions/TypeMismatch.h"
+#include "../Exceptions/SyntaxError.h"
 #include "../Exceptions/UndefinedObject.h"
+#include "../Exceptions/WrongNumberOfArguments.h"
 
 Analizer::Analizer(SceneRoot* root) : root(root) {
 	buildInPropertiesTypes = {
@@ -18,12 +20,43 @@ Analizer::Analizer(SceneRoot* root) : root(root) {
 	};
 }
 
+void Analizer::validateAnimationProperty(const AnimationProperty& animation)
+{
+	auto& animationCalls = animation.getAnimationCalls();
+	for (auto& animationCall : animationCalls)
+	{
+		bool found = false;
+		for (auto& declaration : root->getKnownAnimations())
+		{
+			if (declaration->getName() == animationCall->getName())
+			{
+				if (declaration->getArgs().size() != animationCall->getArguments().size())
+				{
+					throw WrongNumberOfArguments((int)animationCall->getArguments().size(), (int)declaration->getArgs().size(), animationCall->getName(), animationCall->getPosition());
+				}
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+			throw UndefinedObject(animationCall->getName(), animationCall->getPosition());
+	}
+}
+
 void Analizer::validateObjectProperties(const std::string& typeName, Properties& properties)
 {
 	for (auto& prop : properties) {
+		if (prop->getName() == "animation") {
+			if (!std::holds_alternative<AnimationProperty>(prop->getValue())) {
+				throw SyntaxError("animation property", "as seen below", prop->getPosition());
+			}
+			auto& animationProperty = std::get<AnimationProperty>(prop->getValue());
+			validateAnimationProperty(animationProperty);
+		}
+		else { //TODO
 
 
-
+		}
 	}
 }
 

@@ -12,6 +12,7 @@ public:
 	ReturnType evaluateExpression(Object& context, Expression& expression);
 	void validateObjects(const Objects& objects);
 	void validateObjectProperties(const std::string& typeName, Properties& properties);
+	void validateAnimationProperty(const AnimationProperty& animation);
 
 private:
 	struct LogicalExpressionEvaluationVisitor {

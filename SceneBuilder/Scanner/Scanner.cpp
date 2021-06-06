@@ -77,8 +77,8 @@ SceneBuilderScanner::SceneBuilderScanner(std::istream& input) : input(input), li
 		{ "Circle",TokenType::CIRCLE_KEYWORD},
 		{ "Rectangle",TokenType::RECTANGLE_KEYWORD},
 		{ "Polygon",TokenType::POLYGON_KEYWORD},
-		{ "Scene",TokenType::SCENE_KEYWORD},
-		{ "condition", TokenType::CONDITION_KEYWORD}
+		{ "Scene",TokenType::SCENE_KEYWORD}//,
+		//{ "condition", TokenType::CONDITION_KEYWORD}
 	};
 	getNextChar();
 	next();

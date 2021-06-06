@@ -86,54 +86,54 @@ Car = {
 	}
 }
 
-MoveLeftRightTwoElements = AnimationSequence(first, second) {
+MoveLeftRightTwoElements = AnimationSequence(first, second, duration) {
 	loops: AnimationConstants.Infinite 
 		
 	AnimationSequence {
-		duration: "4s"
+		duration: 2*duration
 		Animation {
 			object: first
 			property: position
 			changeBy: Point(-500, 0, 0)
-			duration: "2s"
+			duration: duration
 		}
 		Animation {
 			object: second
 			property: position
 			changeBy: Point(-500, 0, 0)
-			duration: "2s"
+			duration: duration
 		}
 	}
 	
 	ConditionalAnimation {
-		duration: "500ms"
+		duration: duration
 		
-		condition: second.x > first.x
+		condition: (second.x - first.x) > 0.1 || (first.x - second.x) > 0.1 ? true : false
 		
 		Animation {
 			object: second
 			property: position
-			changeBy: Point(-10, 0, 0)
-			duration: "1s"
+			changeBy: second.x > first.x ? Point(-1, 0, 0) : Point(1,0,0)
+			duration: duration*10
 		}
 	}
 	
 	
 	ParalelAnimation {
-		duration: "2s"
+		duration: duration
 	
 		Animation {
 			object: first
 			property: position
 			changeBy: Point(500, 0, 0)
-			duration: "2s"
+			duration: duration
 		}
 		
 		Animation {
 			object: second
 			property: position
 			changeBy: Point(500, 0, 0)
-			duration: "2s"
+			duration: duration
 		}
 	}
 
@@ -175,7 +175,7 @@ Scene {
 		color: Color(#0, #FF, #0)
 		z: -2.0
 	}
-	animations:[SunColorChanges(sun), MoveLeftRightTwoElements(my_car1, my_car2)]
+	animations:[SunColorChanges(sun), MoveLeftRightTwoElements(my_car1, my_car2, "2s")]
 }
 
 SunColorChanges = AnimationSequence(sun) {
