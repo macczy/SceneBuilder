@@ -10,6 +10,7 @@ public:
 	bool isValid();
 
 	ReturnType evaluateExpression(Object& context, Expression& expression);
+	void validateObjects(const Objects& objects);
 
 private:
 	struct LogicalExpressionEvaluationVisitor {

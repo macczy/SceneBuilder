@@ -1,5 +1,6 @@
 #include "Analizer.h"
 #include "../Exceptions/TypeMismatch.h"
+#include "../Exceptions/UndefinedObject.h"
 
 Analizer::Analizer(SceneRoot* root) : root(root) {
 	buildInPropertiesTypes = {
@@ -12,14 +13,41 @@ Analizer::Analizer(SceneRoot* root) : root(root) {
 		{ "color", ReturnType::COLOR },
 		{ "duration", ReturnType::TIME_DECLARATION },
 		{ "vertexes", ReturnType::POINT_ARRAY },
-		{ "vertex", ReturnType::POINT },
+		{ "position", ReturnType::POINT },
 
 	};
 }
 
+
+void Analizer::validateObjects(const Objects& objects) {
+	for (auto& object : objects)
+	{
+		auto type = object->object->getObjectTypeName();
+		auto& position = object->pos;
+		 
+		if (type == "Circle" || type == "Line" || type == "Rectangle" || type == "Polygon")
+			continue;
+
+		//all used objects must be declared above to easily avoid circular dependencies
+		auto declaredType = std::find_if(root->getKnownObjects().begin(), root->getKnownObjects().end(),
+			[type, position](const ComplexObjectDeclarationPtr& obj) {
+			return obj->getName() == type && (position.lineNumber > obj->getPosition().lineNumber || ((position.lineNumber == obj->getPosition().lineNumber) && position.columnNumber == obj->getPosition().columnNumber)); });
+		if (declaredType == root->getKnownObjects().end()) {
+			throw UndefinedObject(type, object->pos);
+		}
+	}
+}
+
+
 //TODO
 bool Analizer::isValid()
 {
+	if (!root) return false;
+
+	if (!root->getScene()) return false;
+
+	validateObjects(root->getScene()->getObjects());
+
 	return true;
 }
 

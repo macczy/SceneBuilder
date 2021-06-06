@@ -753,9 +753,14 @@ std::string Generator::generateAnimations(std::vector<AnimationDeclarationPtr>& 
 			returnStream << ", auto " << arg.getValue();
 		}
 		returnStream << ") {\n";
+		returnStream << "\t\tif(state >= " << animation->getAnimations().size() << ") {\n";
+		returnStream << "\t\t\tstate = 0;\n";
+		returnStream << "\t\t\ttotalTime = 0.0f;\n";
+		returnStream << "\t\t}\n";
+
+
+
 		returnStream << "\t\tif(deltaTime <= 0) return;\n";
-		returnStream << "\t\tif(state >= " << animation->getAnimations().size() << ")\n";
-		returnStream << "\t\t\t state = 0;\n";
 
 		returnStream << "\t\tfloat usedTime = 0.0f;\n";
 		returnStream << "\t\tbool shouldFinish = true;\n";
@@ -769,16 +774,15 @@ std::string Generator::generateAnimations(std::vector<AnimationDeclarationPtr>& 
 		returnStream << "\t\t}\n";
 
 
-		returnStream << "\tif(usedTime < deltaTime) {\n";
+		returnStream << "\tif(shouldFinish) {\n";
 		returnStream << "\t\ttotalTime = 0;\n";
 		returnStream << "\t\t++state;\n";
 		returnStream << "\t\t\tanimate(deltaTime-usedTime" << animationArgs << "); \n";
-		//returnStream << "\t\tauto [retUsedTime, retIsFinished]
-		returnStream << "\t\treturn;\n";// std::make_pair(retUsedTime + usedTime, retIsFinished);\n";
+		returnStream << "\t\treturn;\n";
 		returnStream << "\t}\n";
 		returnStream << "\telse {\n";
 		returnStream << "\t\ttotalTime += usedTime;\n";
-		returnStream << "\t\treturn;\n";// std::make_pair(usedTime, false); \n";
+		returnStream << "\t\treturn;\n";
 		returnStream << "\t}\n";
 		returnStream << "}\n";
 
