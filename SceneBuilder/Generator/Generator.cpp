@@ -356,8 +356,7 @@ std::string Generator::generateWaitAnimation(Wait* animation, const std::string&
 	returnStream << ident << "\tfloat timeToUse = deltaTime;\n";
 	returnStream << ident << "\tbool shouldFinish = false;\n";
 	returnStream << ident << "\tif(deltaTime + totalTime >= " << time << ") {\n";
-	returnStream << ident << "\t\tfloat restTime = totalTime - " << time << ";\n";
-	returnStream << ident << "\t\ttimeToUse = deltaTime - restTime;\n";
+	returnStream << ident << "\t\ttimeToUse = " << time << " - totalTime;\n";
 	returnStream << ident << "\t\tshouldFinish = true;\n";
 	returnStream << ident << "\t}\n";
 	returnStream << ident << "\tif(timeToUse <= 0 ) {\n";
@@ -399,8 +398,7 @@ std::string Generator::generateBasicAnimation(Animation* animation, const std::s
 	returnStream << ident << "\tfloat timeToUse = deltaTime;\n";
 	returnStream << ident << "\tbool shouldFinish = false;\n";
 	returnStream << ident << "\tif(deltaTime + totalTime >= " << time << ") {\n";
-	returnStream << ident << "\t\tfloat restTime = totalTime - " << time << ";\n";
-	returnStream << ident << "\t\ttimeToUse = deltaTime - restTime;\n";
+	returnStream << ident << "\t\ttimeToUse = " << time << " - totalTime;\n";
 	returnStream << ident << "\t\tshouldFinish = true;\n";
 	returnStream << ident << "\t}\n";
 	returnStream << ident << "\tif(timeToUse <= 0 ) {\n";
@@ -424,8 +422,7 @@ std::string Generator::generateParalelAnimation(ParalelAnimation* animation, con
 	returnStream << ident << "\tfloat timeToUse = deltaTime;\n";
 	returnStream << ident << "\tbool shouldFinish = false;\n";
 	returnStream << ident << "\tif(deltaTime + totalTime >= " << time << ") {\n";
-	returnStream << ident << "\t\tfloat restTime = totalTime - " << time << ";\n";
-	returnStream << ident << "\t\ttimeToUse = deltaTime - restTime;\n";
+	returnStream << ident << "\t\ttimeToUse = " << time << " - totalTime;\n";
 	returnStream << ident << "\t\tshouldFinish = true;\n";
 	returnStream << ident << "\t}\n";
 	returnStream << ident << "\tif(timeToUse <= 0 ) {\n";
@@ -451,8 +448,7 @@ std::string Generator::generateAnimationSequence(AnimationSequence* animation, c
 	returnStream << ident << "\tfloat timeToUse = deltaTime;\n";
 	returnStream << ident << "\tbool shouldFinish = false;\n";
 	returnStream << ident << "\tif(deltaTime + totalTime >= " << time << ") {\n";
-	returnStream << ident << "\t\tfloat restTime = totalTime - " << time << ";\n";
-	returnStream << ident << "\t\ttimeToUse = deltaTime - restTime;\n";
+	returnStream << ident << "\t\ttimeToUse = " << time << " - totalTime;\n";
 	returnStream << ident << "\t\tshouldFinish = true;\n";
 	returnStream << ident << "\t}\n";
 	returnStream << ident << "\tif(timeToUse <= 0 ) {\n";
@@ -476,8 +472,7 @@ std::string Generator::generateConditionalAnimation(ConditionalAnimation* animat
 	returnStream << ident << "\tfloat timeToUse = deltaTime;\n";
 	returnStream << ident << "\tbool shouldFinish = false;\n";
 	returnStream << ident << "\tif(deltaTime + totalTime >= " << time << ") {\n";
-	returnStream << ident << "\t\tfloat restTime = totalTime - " << time << ";\n";
-	returnStream << ident << "\t\ttimeToUse = deltaTime - restTime;\n";
+	returnStream << ident << "\t\ttimeToUse = " << time << " - totalTime;\n";
 	returnStream << ident << "\t\tshouldFinish = true;\n";
 	returnStream << ident << "\t}\n";
 	returnStream << ident << "\tif(timeToUse <= 0 ) {\n";
